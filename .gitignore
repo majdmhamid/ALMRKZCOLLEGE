@@ -1,0 +1,10 @@
+# ملفات مؤقتة من التنزيل
+*.part
+.download-archive
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# مجلد متكرر بالغلط (نسخة مطابقة لـ assets/images/facebook) — لا يُرفع
+assets/videos/website/assets/

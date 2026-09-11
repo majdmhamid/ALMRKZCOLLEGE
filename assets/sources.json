@@ -1,0 +1,89 @@
+{
+  "institution": {
+    "name_ar": "كلية المركز",
+    "name_he": "מכללת המרכז להכשרה מקצועית",
+    "name_en": "Al-Merkaz College for Professional Training",
+    "city": "Umm el-Fahm",
+    "phone": "04-6116800",
+    "whatsapp": "054-6174339",
+    "email": "almerkaz.collega@gmail.com",
+    "notes": "Vocational / technological-industrial college. Contact details above were read off the live site (almrkz.net) on 2026-09-11, not from search summaries."
+  },
+  "sources": [
+    {
+      "id": "website",
+      "platform": "website",
+      "url": "https://almrkz.net/he",
+      "locales": ["https://almrkz.net/he", "https://almrkz.net/ar"],
+      "handle": null,
+      "status": "verified",
+      "verified": true,
+      "verified_on": "2026-09-11",
+      "target_dir": "assets/images/website",
+      "video_dir": "assets/videos/website",
+      "fetched_with": "scripts/fetch-website-media.py",
+      "notes": "Official site, Laravel-style with /he and /ar locales. The guessed /ar locale is real. 72 pages crawled; 113 images downloaded. The site hosts no video files of its own - its video library embeds YouTube, so the videos live under the youtube source below."
+    },
+    {
+      "id": "facebook",
+      "platform": "facebook",
+      "url": "https://www.facebook.com/almerkaz.collega/",
+      "handle": "almerkaz.collega",
+      "page_id": "100063733066390",
+      "status": "verified",
+      "verified": true,
+      "verified_on": "2026-09-11",
+      "target_dir": "assets/images/facebook",
+      "video_dir": "assets/videos/facebook",
+      "fetched_with": "gallery-dl (photos), yt-dlp (videos)",
+      "notes": "Confirmed - almrkz.net links to this exact page in its own footer, so the odd 'collega' spelling is correct. Photos download anonymously; videos need browser cookies (see assets/README.md)."
+    },
+    {
+      "id": "youtube",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/channel/UCieezydJBA3mmdXvl8p6BnQ",
+      "handle": null,
+      "status": "verified",
+      "verified": true,
+      "verified_on": "2026-09-11",
+      "target_dir": "assets/videos/website",
+      "fetched_with": "yt-dlp",
+      "notes": "Linked from almrkz.net. This is where the site's video content actually lives - the on-site 'videos library' is YouTube embeds. Two videos total (2021), both downloaded."
+    },
+    {
+      "id": "instagram",
+      "platform": "instagram",
+      "url": null,
+      "handle": null,
+      "status": "not-found",
+      "verified": false,
+      "target_dir": "assets/images/instagram",
+      "video_dir": "assets/videos/instagram",
+      "notes": "The previously listed handle 'almerkaz.college' does NOT exist - Instagram returns NotFoundError for it. No Instagram account for the college could be found: almrkz.net links only Facebook and YouTube, the Facebook page exposes no Instagram link publicly, and web search surfaced only other Umm el-Fahm institutions. Note that instagram.com returns HTTP 200 for ANY handle (login wall), so a 200 is not evidence an account exists. If the college has an account, paste the URL here and rerun."
+    },
+    {
+      "id": "tiktok",
+      "platform": "tiktok",
+      "url": null,
+      "handle": null,
+      "status": "not-found",
+      "verified": false,
+      "target_dir": "assets/videos/tiktok",
+      "notes": "No TikTok account surfaced. If one exists, add its URL here and rerun the fetch script."
+    }
+  ],
+  "excluded": [
+    {
+      "url": "https://www.facebook.com/alestkmal/",
+      "reason": "'كلية المركز للاستكمال' in Sakhnin - a different institution that shares part of the name."
+    },
+    {
+      "url": "https://www.facebook.com/mrkz.jmahery/",
+      "reason": "'المركز الجماهيري ام الفحم' - the Umm el-Fahm community center, not the college."
+    },
+    {
+      "url": "https://www.instagram.com/jmaherymedia/",
+      "reason": "Instagram of the Umm el-Fahm community center, not the college."
+    }
+  ]
+}
