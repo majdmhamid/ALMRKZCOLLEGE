@@ -1,16 +1,22 @@
 import { coursesInGroup } from "@content/courses";
 import { groups } from "@content/groups";
-import { isLocale, t, type Locale } from "./i18n";
+import { courseCount, isLocale, t, type Locale } from "./i18n";
 
 export const sortedGroups = [...groups].sort((a, b) => a.order - b.order);
 
 /** المجموعات مع دوراتها بأسماء اللغة المطلوبة — للقوائم */
 export const navGroups = (locale: Locale) =>
-  sortedGroups.map((g) => ({
-    slug: g.slug,
-    name: t(g.name, locale),
-    courses: coursesInGroup(g.slug).map((c) => ({ slug: c.slug, name: t(c.name, locale) })),
-  }));
+  sortedGroups.map((g) => {
+    const list = coursesInGroup(g.slug);
+    return {
+      slug: g.slug,
+      name: t(g.name, locale),
+      tagline: t(g.tagline, locale),
+      image: g.image,
+      count: courseCount(locale, list.length),
+      courses: list.map((c) => ({ slug: c.slug, name: t(c.name, locale) })),
+    };
+  });
 
 /** خيارات قائمة "الدورة" في الاستمارة */
 export const courseOptions = (locale: Locale) =>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Almarai, Heebo } from "next/font/google";
 import type { ReactNode } from "react";
+import { news } from "@content/news";
 import { site } from "@content/site";
 import "../globals.css";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
@@ -12,7 +13,7 @@ import RevealObserver from "@/components/RevealObserver";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { JsonLd } from "@/components/ui";
 import { navGroups, localeParam } from "@/lib/content";
-import { getDictionary, LOCALES } from "@/lib/i18n";
+import { getDictionary, href, LOCALES, t } from "@/lib/i18n";
 import { organizationJsonLd } from "@/lib/seo";
 
 /* الخطوط: Almarai للعربي، Heebo للعبري (تُحمّل مرة واحدة وتُخدم من موقعنا) */
@@ -54,6 +55,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const locale = await localeParam(params);
   const dict = getDictionary(locale);
   const groups = navGroups(locale);
+  /** آخر الأخبار لشريط "جديد" في الترويسة */
+  const ticker = { label: dict.topbar.news, items: news.slice(0, 4).map((p) => ({ title: t(p.title, locale), to: href(locale, `/news/${p.slug}`) })) };
 
   return (
     <html lang={locale} dir="rtl" className={`${almarai.variable} ${heebo.variable}`} suppressHydrationWarning>
@@ -62,7 +65,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:font-bold focus:text-brand-700">
           {dict.nav.home}
         </a>
-        <Header locale={locale} dict={dict} groups={groups} />
+        <Header locale={locale} dict={dict} groups={groups} ticker={ticker} />
         <main id="main" className="flex-1">
           {children}
         </main>
