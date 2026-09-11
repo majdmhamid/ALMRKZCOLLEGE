@@ -22,7 +22,7 @@ export default async function GalleryPage({ params }: Params) {
   return (
     <>
       <PageHero title={dict.gallery.title} text={dict.gallery.intro} image="/images/gallery/welding/1839470956260603.webp">
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.gallery.title }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.gallery.title }]} />
       </PageHero>
 
       <section className="section">

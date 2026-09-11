@@ -24,10 +24,10 @@ export default async function CoursesPage({ params }: Params) {
   return (
     <>
       <PageHero title={dict.courses.title} text={dict.courses.subtitle} image="/images/groups/welding.webp">
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.courses.title }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.courses.title }]} />
         <div className="mt-6 flex flex-wrap gap-2">
           {sortedGroups.map((g) => (
-            <a key={g.slug} href={`#${g.slug}`} className="rounded-full bg-white/15 px-4 py-2 text-sm font-bold hover:bg-white/25">
+            <a key={g.slug} href={`#${g.slug}`} className="chip hover:bg-brand-50">
               {t(g.name, locale)} · {courseCount(locale, coursesInGroup(g.slug).length)}
             </a>
           ))}

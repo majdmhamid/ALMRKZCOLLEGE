@@ -1,37 +1,56 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { Course, Group, NewsPost } from "@content/types";
 import { site } from "@content/site";
 import { formatDate, href, t, type Locale } from "@/lib/i18n";
 import { ArrowIcon, CalendarIcon, ClockIcon, LayersIcon, WhatsAppIcon } from "./Icons";
 
+/** تأخير الظهور التدريجي بالمللي ثانية (يُستخدم مع data-reveal) */
+export const delay = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
+
 /* ---------- عناوين الأقسام ---------- */
 export function SectionHeading({ eyebrow, title, text, center, className = "" }: { eyebrow?: string; title: string; text?: string; center?: boolean; className?: string }) {
   return (
-    <div className={`mb-10 max-w-3xl ${center ? "mx-auto text-center" : ""} ${className}`}>
+    <div data-reveal className={`mb-10 max-w-3xl ${center ? "mx-auto text-center" : ""} ${className}`}>
       {eyebrow && <span className="eyebrow">{eyebrow}</span>}
       <h2 className="h2">{title}</h2>
-      {text && <p className="lead mt-3">{text}</p>}
+      <span className={`heading-bar ${center ? "mx-auto" : ""}`} aria-hidden="true" />
+      {text && <p className="lead mt-4">{text}</p>}
     </div>
   );
 }
 
-/* ---------- رأس الصفحات الداخلية ---------- */
+/* ---------- رأس الصفحات الداخلية (فاتح: الصورة واضحة والنص على أبيض) ---------- */
 export function PageHero({ title, text, image, eyebrow, children }: { title: string; text?: string; image?: string; eyebrow?: string; children?: ReactNode }) {
   return (
-    <section className="relative overflow-hidden bg-brand-900 text-white">
+    <section className="relative isolate overflow-hidden bg-surface">
       {image && (
-        <>
-          <Image src={image} alt="" fill priority sizes="100vw" className="object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-900 via-brand-900/70 to-brand-900/30" />
-        </>
+        <div className="absolute inset-0" aria-hidden="true">
+          <Image src={image} alt="" fill priority sizes="100vw" className="kenburns object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/85 via-40% to-white/20 lg:bg-gradient-to-l lg:from-white lg:via-white/95 lg:via-45% lg:to-white/15" />
+        </div>
       )}
-      <div className="container-x relative py-16 md:py-24">
-        {eyebrow && <span className="mb-3 inline-block rounded-full bg-white/15 px-3 py-1 text-sm font-bold">{eyebrow}</span>}
-        <h1 className="h1 max-w-4xl">{title}</h1>
-        {text && <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/85 md:text-xl">{text}</p>}
-        {children}
+      {!image && <div className="bg-glow absolute inset-0" aria-hidden="true" />}
+      <div className="container-x relative flex min-h-[44vh] flex-col justify-end py-14 md:min-h-0 md:py-20 lg:py-24">
+        <div className="max-w-3xl">
+          {eyebrow && (
+            <span className="hero-in chip mb-4" style={delay(0)}>
+              {eyebrow}
+            </span>
+          )}
+          <h1 className="h1 hero-in text-ink" style={delay(80)}>
+            {title}
+          </h1>
+          {text && (
+            <p className="hero-in mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft md:text-xl" style={delay(160)}>
+              {text}
+            </p>
+          )}
+          <div className="hero-in" style={delay(240)}>
+            {children}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -62,13 +81,13 @@ export function Breadcrumbs({ items, className = "" }: { items: { label: string;
 }
 
 /* ---------- بطاقة دورة ---------- */
-export function CourseCard({ course, locale, groupName, labels }: { course: Course; locale: Locale; groupName?: string; labels: { hours: string; sessions: string; view: string } }) {
+export function CourseCard({ course, locale, groupName, labels, className = "", style }: { course: Course; locale: Locale; groupName?: string; labels: { hours: string; sessions: string; view: string }; className?: string; style?: CSSProperties }) {
   const to = href(locale, `/courses/${course.group}/${course.slug}`);
   return (
-    <article className="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
+    <article data-reveal style={style} className={`card card-hover group flex h-full flex-col overflow-hidden ${className}`}>
       <Link href={to} className="relative block aspect-[16/10] overflow-hidden bg-brand-100" tabIndex={-1} aria-hidden="true">
-        <Image src={course.image} alt="" fill sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
-        {groupName && <span className="absolute start-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-brand-700">{groupName}</span>}
+        <Image src={course.image} alt="" fill sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 85vw" className="object-cover transition duration-700 ease-out group-hover:scale-105" />
+        {groupName && <span className="absolute start-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-brand-700 shadow-sm">{groupName}</span>}
       </Link>
       <div className="flex flex-1 flex-col p-5">
         <h3 className="text-lg font-extrabold leading-snug">
@@ -87,7 +106,7 @@ export function CourseCard({ course, locale, groupName, labels }: { course: Cour
         </div>
         <Link href={to} className="mt-4 inline-flex items-center gap-1 font-bold text-brand-600 hover:underline">
           {labels.view}
-          <ArrowIcon width={16} height={16} />
+          <ArrowIcon width={16} height={16} className="transition-transform group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
         </Link>
       </div>
     </article>
@@ -95,15 +114,15 @@ export function CourseCard({ course, locale, groupName, labels }: { course: Cour
 }
 
 /* ---------- بطاقة مجموعة ---------- */
-export function GroupCard({ group, locale, count }: { group: Group; locale: Locale; count: string }) {
+export function GroupCard({ group, locale, count, style }: { group: Group; locale: Locale; count: string; style?: CSSProperties }) {
   const to = href(locale, `/courses/${group.slug}`);
   return (
-    <Link href={to} className="card group relative block overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
+    <Link href={to} data-reveal style={style} className="card card-hover group relative block overflow-hidden">
       <div className="relative aspect-[4/3]">
-        <Image src={group.image} alt="" fill sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-900/90 via-brand-900/30 to-transparent" />
+        <Image src={group.image} alt="" fill sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-700 ease-out group-hover:scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-900/85 via-brand-900/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-          <div className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/95 p-2">
+          <div className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/95 p-2 shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
             <Image src={group.icon} alt="" width={40} height={40} />
           </div>
           <h3 className="text-2xl font-extrabold">{t(group.name, locale)}</h3>
@@ -114,19 +133,19 @@ export function GroupCard({ group, locale, count }: { group: Group; locale: Loca
         <span className="inline-flex items-center gap-1">
           <LayersIcon width={16} height={16} /> {count}
         </span>
-        <ArrowIcon width={18} height={18} />
+        <ArrowIcon width={18} height={18} className="transition-transform group-hover:-translate-x-1" />
       </div>
     </Link>
   );
 }
 
 /* ---------- بطاقة خبر ---------- */
-export function NewsCard({ post, locale, readMore }: { post: NewsPost; locale: Locale; readMore: string }) {
+export function NewsCard({ post, locale, readMore, style }: { post: NewsPost; locale: Locale; readMore: string; style?: CSSProperties }) {
   const to = href(locale, `/news/${post.slug}`);
   return (
-    <article className="card group flex flex-col overflow-hidden">
+    <article data-reveal style={style} className="card card-hover group flex flex-col overflow-hidden">
       <Link href={to} className="relative block aspect-[16/10] overflow-hidden" tabIndex={-1} aria-hidden="true">
-        <Image src={post.images[0]} alt="" fill sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
+        <Image src={post.images[0]} alt="" fill sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-700 ease-out group-hover:scale-105" />
       </Link>
       <div className="flex flex-1 flex-col p-5">
         <time dateTime={post.date} className="text-sm text-ink-muted">
@@ -140,30 +159,36 @@ export function NewsCard({ post, locale, readMore }: { post: NewsPost; locale: L
         <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">{t(post.excerpt, locale)}</p>
         <Link href={to} className="mt-3 inline-flex items-center gap-1 font-bold text-brand-600 hover:underline">
           {readMore}
-          <ArrowIcon width={16} height={16} />
+          <ArrowIcon width={16} height={16} className="transition-transform group-hover:-translate-x-1" />
         </Link>
       </div>
     </article>
   );
 }
 
-/* ---------- شريط دعوة للتواصل ---------- */
+/* ---------- بطاقة دعوة للتواصل (لمسة خضراء داخل الصفحة بدل شريط داكن كامل) ---------- */
 export function CtaBand({ locale, title, text, primary, whatsapp }: { locale: Locale; title: string; text: string; primary: string; whatsapp: string }) {
   return (
-    <section className="bg-brand-600 text-white">
-      <div className="container-x flex flex-col items-start gap-6 py-12 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="h2">{title}</h2>
-          <p className="mt-2 max-w-2xl text-white/90">{text}</p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Link href={href(locale, "/contact#form")} className="btn btn-white btn-lg">
-            {primary}
-          </Link>
-          <a href={site.whatsappUrl} target="_blank" rel="noopener" className="btn btn-whatsapp btn-lg">
-            <WhatsAppIcon />
-            {whatsapp}
-          </a>
+    <section className="section pt-0">
+      <div className="container-x">
+        <div data-reveal="scale" className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-500 text-white shadow-lift">
+          <div className="bg-dots absolute inset-0 opacity-30" aria-hidden="true" />
+          <div className="absolute -end-16 -top-16 h-56 w-56 rounded-full bg-brand-400/40 blur-2xl" aria-hidden="true" />
+          <div className="relative flex flex-col items-start gap-6 p-8 md:flex-row md:items-center md:justify-between md:p-12">
+            <div>
+              <h2 className="h2">{title}</h2>
+              <p className="mt-2 max-w-2xl text-white/90">{text}</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link href={href(locale, "/contact#form")} className="btn btn-white btn-lg">
+                {primary}
+              </Link>
+              <a href={site.whatsappUrl} target="_blank" rel="noopener" className="btn btn-whatsapp btn-lg">
+                <WhatsAppIcon />
+                {whatsapp}
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>

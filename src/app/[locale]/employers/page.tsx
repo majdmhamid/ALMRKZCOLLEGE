@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getCourse } from "@content/courses";
 import { BuildingIcon, ShieldIcon, UsersIcon, WrenchIcon, ArrowIcon } from "@/components/Icons";
 import LeadForm from "@/components/LeadForm";
-import { Breadcrumbs, PageHero, SectionHeading } from "@/components/ui";
+import { Breadcrumbs, PageHero, SectionHeading, delay } from "@/components/ui";
 import { courseOptions, localeParam } from "@/lib/content";
 import { getDictionary, href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
@@ -27,7 +27,7 @@ export default async function EmployersPage({ params }: Params) {
   return (
     <>
       <PageHero title={e.title} text={e.intro} image="/images/hero/employers.webp">
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: e.title }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: e.title }]} />
       </PageHero>
 
       <section className="section">
@@ -37,7 +37,7 @@ export default async function EmployersPage({ params }: Params) {
             {e.services.map((s, i) => {
               const Icon = icons[i];
               return (
-                <div key={s.title} className="card p-6">
+                <div key={s.title} data-reveal style={delay(i * 100)} className="card card-hover p-6">
                   <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
                     <Icon width={26} height={26} />
                   </span>
@@ -54,11 +54,16 @@ export default async function EmployersPage({ params }: Params) {
         </div>
       </section>
 
-      <section className="section bg-brand-900 text-white">
-        <div className="container-x max-w-4xl text-center">
-          <h2 className="h2">{e.hiringTitle}</h2>
-          <p className="mt-4 text-lg leading-relaxed text-white/85">{e.hiringText}</p>
-          <p className="mt-4 text-sm text-white/60">{dict.course.careerDisclaimer}</p>
+      <section className="section bg-surface">
+        <div className="container-x">
+          <div data-reveal="scale" className="mx-auto max-w-4xl rounded-3xl border border-brand-200 bg-white p-8 text-center shadow-card md:p-12">
+            <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-white">
+              <UsersIcon width={28} height={28} />
+            </span>
+            <h2 className="h2">{e.hiringTitle}</h2>
+            <p className="mt-4 text-lg leading-relaxed text-ink-soft">{e.hiringText}</p>
+            <p className="mt-4 text-sm font-bold text-ink-muted">{dict.course.careerDisclaimer}</p>
+          </div>
         </div>
       </section>
 

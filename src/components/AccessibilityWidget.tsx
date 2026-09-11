@@ -72,10 +72,11 @@ export default function AccessibilityWidget({ locale, dict }: { locale: Locale; 
     }
   };
 
+  // على الموبايل: لسان صغير في منتصف حافة الشاشة (لا يغطي الأزرار)؛ على الشاشات الكبيرة: زر دائري في الزاوية
   return (
-    <div className="fixed bottom-5 start-5 z-50">
+    <div className="fixed end-0 top-1/2 z-50 -translate-y-1/2 lg:end-auto lg:start-5 lg:top-auto lg:bottom-5 lg:translate-y-0">
       {open && (
-        <div role="dialog" aria-label={dict.title} className="mb-3 w-64 rounded-2xl border border-line bg-white p-4 shadow-card">
+        <div role="dialog" aria-label={dict.title} className="absolute end-12 top-1/2 w-64 -translate-y-1/2 rounded-2xl border border-line bg-white p-4 shadow-lift lg:static lg:mb-3 lg:translate-y-0">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-extrabold">{dict.title}</h2>
             <button type="button" onClick={() => setOpen(false)} aria-label={dict.reset} className="rounded-md p-1 hover:bg-surface">
@@ -108,7 +109,7 @@ export default function AccessibilityWidget({ locale, dict }: { locale: Locale; 
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={dict.open}
-        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-700 text-white shadow-lg hover:bg-brand-800"
+        className="inline-flex h-11 w-10 items-center justify-center rounded-s-xl bg-brand-700 text-white shadow-lg transition hover:bg-brand-800 lg:h-12 lg:w-12 lg:rounded-full lg:hover:-translate-y-0.5"
       >
         <AccessibilityIcon />
       </button>

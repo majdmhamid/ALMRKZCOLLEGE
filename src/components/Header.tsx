@@ -25,6 +25,7 @@ export default function Header({ locale, dict, groups }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
   const other: Locale = locale === "ar" ? "he" : "ar";
 
@@ -42,6 +43,14 @@ export default function Header({ locale, dict, groups }: Props) {
     };
   }, [open]);
 
+  // ظل خفيف للترويسة بعد التمرير
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const links = [
     { to: href(locale, "/about"), label: dict.nav.about },
     { to: href(locale, "/graduates"), label: dict.nav.graduates },
@@ -53,8 +62,8 @@ export default function Header({ locale, dict, groups }: Props) {
   const isActive = (to: string) => pathname === to || pathname.startsWith(`${to}/`);
 
   return (
-    <header className="sticky top-0 z-40 bg-white shadow-sm">
-      {/* شريط علوي: هاتف + واتساب + تبديل اللغة */}
+    <header className={`sticky top-0 z-40 bg-white/95 backdrop-blur transition-shadow duration-300 ${scrolled ? "shadow-md" : "shadow-sm"}`}>
+      {/* شريط علوي: هاتف + واتساب + تبديل اللغة (لمسة خضراء) */}
       <div className="bg-brand-700 text-white">
         <div className="container-x flex h-9 items-center justify-between text-sm">
           <div className="flex items-center gap-4">
@@ -67,12 +76,7 @@ export default function Header({ locale, dict, groups }: Props) {
               <span dir="ltr">{site.mobile}</span>
             </a>
           </div>
-          <Link
-            href={switchLocalePath(pathname, other)}
-            hrefLang={other}
-            lang={other}
-            className="rounded-md bg-white/15 px-2.5 py-0.5 font-bold hover:bg-white/25"
-          >
+          <Link href={switchLocalePath(pathname, other)} hrefLang={other} lang={other} className="rounded-md bg-white/15 px-2.5 py-0.5 font-bold transition hover:bg-white/25">
             {dict.otherLangName}
           </Link>
         </div>
@@ -89,12 +93,12 @@ export default function Header({ locale, dict, groups }: Props) {
           <div className="group relative">
             <Link
               href={href(locale, "/courses")}
-              className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 font-bold hover:bg-brand-50 hover:text-brand-700 ${isActive(href(locale, "/courses")) ? "text-brand-700" : ""}`}
+              className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 font-bold transition hover:bg-brand-50 hover:text-brand-700 ${isActive(href(locale, "/courses")) ? "text-brand-700" : ""}`}
             >
               {dict.nav.courses}
-              <ChevronIcon width={16} height={16} />
+              <ChevronIcon width={16} height={16} className="transition-transform group-hover:rotate-180" />
             </Link>
-            <div className="invisible absolute start-0 top-full z-50 w-[560px] translate-y-1 rounded-2xl border border-line bg-white p-4 opacity-0 shadow-card transition group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+            <div className="invisible absolute start-0 top-full z-50 w-[560px] translate-y-2 rounded-2xl border border-line bg-white p-4 opacity-0 shadow-lift transition duration-200 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
               <div className="grid grid-cols-3 gap-4">
                 {groups.map((g) => (
                   <div key={g.slug}>
@@ -104,7 +108,7 @@ export default function Header({ locale, dict, groups }: Props) {
                     <ul className="space-y-1.5">
                       {g.courses.map((c) => (
                         <li key={c.slug}>
-                          <Link href={href(locale, `/courses/${g.slug}/${c.slug}`)} className="block text-sm leading-snug text-ink-soft hover:text-brand-700">
+                          <Link href={href(locale, `/courses/${g.slug}/${c.slug}`)} className="block rounded-md py-0.5 text-sm leading-snug text-ink-soft transition hover:text-brand-700">
                             {c.name}
                           </Link>
                         </li>
@@ -119,7 +123,7 @@ export default function Header({ locale, dict, groups }: Props) {
             </div>
           </div>
           {links.map((l) => (
-            <Link key={l.to} href={l.to} className={`rounded-lg px-3 py-2 font-bold hover:bg-brand-50 hover:text-brand-700 ${isActive(l.to) ? "text-brand-700" : ""}`}>
+            <Link key={l.to} href={l.to} className={`rounded-lg px-3 py-2 font-bold transition hover:bg-brand-50 hover:text-brand-700 ${isActive(l.to) ? "text-brand-700" : ""}`}>
               {l.label}
             </Link>
           ))}
@@ -131,7 +135,7 @@ export default function Header({ locale, dict, groups }: Props) {
           </Link>
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-line lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-line transition hover:bg-surface lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? dict.nav.close : dict.nav.menu}
@@ -145,13 +149,8 @@ export default function Header({ locale, dict, groups }: Props) {
       {/* قائمة الموبايل */}
       {open && (
         <div id="mobile-menu" className="fixed inset-x-0 bottom-0 top-[108px] z-40 overflow-y-auto border-t border-line bg-white lg:hidden">
-          <nav className="container-x flex flex-col py-3" aria-label="mobile">
-            <button
-              type="button"
-              className="flex items-center justify-between py-3 text-lg font-bold"
-              aria-expanded={coursesOpen}
-              onClick={() => setCoursesOpen((v) => !v)}
-            >
+          <nav className="container-x flex flex-col py-3 pb-24" aria-label="mobile">
+            <button type="button" className="flex items-center justify-between py-3 text-lg font-bold" aria-expanded={coursesOpen} onClick={() => setCoursesOpen((v) => !v)}>
               {dict.nav.courses}
               <ChevronIcon className={`transition ${coursesOpen ? "rotate-180" : ""}`} />
             </button>

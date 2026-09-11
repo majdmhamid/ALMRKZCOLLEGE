@@ -36,7 +36,7 @@ export default async function NewsPostPage({ params }: Params) {
   return (
     <>
       <PageHero title={t(post.title, locale)} image={post.images[0]} eyebrow={formatDate(post.date, locale)}>
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.news.title, to: href(locale, "/news") }, { label: t(post.title, locale) }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.news.title, to: href(locale, "/news") }, { label: t(post.title, locale) }]} />
       </PageHero>
 
       <article className="section">

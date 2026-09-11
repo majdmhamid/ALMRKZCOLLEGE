@@ -32,7 +32,7 @@ export default async function GroupPage({ params }: Params) {
   return (
     <>
       <PageHero title={t(group.name, locale)} text={t(group.tagline, locale)} image={group.image} eyebrow={courseCount(locale, list.length)}>
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.courses.title, to: href(locale, "/courses") }, { label: t(group.name, locale) }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.courses.title, to: href(locale, "/courses") }, { label: t(group.name, locale) }]} />
       </PageHero>
 
       <section className="section">

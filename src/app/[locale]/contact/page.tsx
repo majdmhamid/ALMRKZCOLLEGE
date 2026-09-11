@@ -33,12 +33,12 @@ export default async function ContactPage({ params }: Params) {
   return (
     <>
       <PageHero title={c.title} text={c.intro} image="/images/hero/about.webp">
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: c.title }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: c.title }]} />
       </PageHero>
 
       <section className="section">
         <div className="container-x grid gap-10 lg:grid-cols-5">
-          <div className="space-y-6 lg:col-span-2">
+          <div data-reveal className="space-y-6 lg:col-span-2">
             <ul className="card divide-y divide-line">
               {rows.map((r) => (
                 <li key={r.label} className="flex items-start gap-4 p-5">
@@ -66,7 +66,7 @@ export default async function ContactPage({ params }: Params) {
             </div>
           </div>
 
-          <div id="form" className="card scroll-mt-28 p-6 md:p-8 lg:col-span-3">
+          <div id="form" data-reveal="scale" className="card scroll-mt-28 p-6 md:p-8 lg:col-span-3">
             <h2 className="h3">{c.formTitle}</h2>
             <p className="mb-6 mt-1 text-ink-soft">{c.formText}</p>
             <LeadForm locale={locale} dict={dict.form} whatsappLabel={dict.common.whatsappLong} courses={courseOptions(locale)} source="contact" />

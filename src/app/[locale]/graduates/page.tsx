@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getCourse } from "@content/courses";
 import { graduates } from "@content/people";
-import { Breadcrumbs, CtaBand, PageHero } from "@/components/ui";
+import { Breadcrumbs, CtaBand, PageHero, delay } from "@/components/ui";
 import { localeParam } from "@/lib/content";
 import { getDictionary, href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
@@ -23,15 +23,15 @@ export default async function GraduatesPage({ params }: Params) {
   return (
     <>
       <PageHero title={dict.graduates.title} text={dict.graduates.intro} image="/images/news/certificates-ceremony-2026/1.webp">
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.graduates.title }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: dict.graduates.title }]} />
       </PageHero>
 
       <section className="section">
         <div className="container-x grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {graduates.map((g) => {
+          {graduates.map((g, i) => {
             const course = getCourse(g.course);
             return (
-              <article key={g.slug} className="card overflow-hidden">
+              <article key={g.slug} data-reveal style={delay((i % 4) * 90)} className="card card-hover overflow-hidden">
                 <div className="relative aspect-[3/4]">
                   <Image src={g.image} alt={t(g.name, locale)} fill sizes="(min-width: 1024px) 300px, 50vw" className="object-cover" />
                 </div>

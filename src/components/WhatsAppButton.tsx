@@ -1,7 +1,7 @@
 import { site } from "@content/site";
 import { WhatsAppIcon } from "./Icons";
 
-/** زر واتساب عائم يظهر في كل الصفحات */
+/** زر واتساب عائم — يظهر على الشاشات الكبيرة فقط (على الموبايل يوجد شريط ثابت أسفل الشاشة فيه واتساب) */
 export default function WhatsAppButton({ label }: { label: string }) {
   return (
     <a
@@ -9,10 +9,10 @@ export default function WhatsAppButton({ label }: { label: string }) {
       target="_blank"
       rel="noopener"
       aria-label={label}
-      className="fixed bottom-5 end-5 z-50 inline-flex items-center gap-2 rounded-full bg-whatsapp px-4 py-3 text-white shadow-lg transition hover:scale-105 hover:bg-[#1fb857] focus-visible:outline-white md:px-5"
+      className="pulse-ring fixed bottom-5 end-5 z-50 isolate hidden items-center gap-2 rounded-full bg-whatsapp px-5 py-3 text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#1fb857] focus-visible:outline-white lg:inline-flex"
     >
       <WhatsAppIcon width={26} height={26} />
-      <span className="hidden font-bold md:inline">{label}</span>
+      <span className="font-bold">{label}</span>
     </a>
   );
 }

@@ -4,7 +4,7 @@ import { gallery } from "@content/media";
 import { partners, staff } from "@content/people";
 import { site } from "@content/site";
 import { AwardIcon, CheckIcon, ShieldIcon } from "@/components/Icons";
-import { Breadcrumbs, CtaBand, PageHero, SectionHeading } from "@/components/ui";
+import { Breadcrumbs, CtaBand, PageHero, SectionHeading, delay } from "@/components/ui";
 import { localeParam } from "@/lib/content";
 import { getDictionary, href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
@@ -26,7 +26,7 @@ export default async function AboutPage({ params }: Params) {
   return (
     <>
       <PageHero title={a.title} text={a.intro} image="/images/hero/about.webp" eyebrow={dict.hero.badge}>
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: a.title }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: a.title }]} />
       </PageHero>
 
       <section className="section">
@@ -64,8 +64,8 @@ export default async function AboutPage({ params }: Params) {
         <div className="container-x">
           <SectionHeading title={a.whyTitle} center />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {a.whyItems.map((item) => (
-              <div key={item.title} className="card p-6">
+            {a.whyItems.map((item, i) => (
+              <div key={item.title} data-reveal style={delay(i * 80)} className="card card-hover p-6">
                 <span className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-white">
                   <CheckIcon />
                 </span>
@@ -82,7 +82,7 @@ export default async function AboutPage({ params }: Params) {
           <SectionHeading title={a.facilitiesTitle} text={a.facilitiesText} />
           <div className="grid grid-cols-3 gap-4">
             {facilityImages.map((img) => (
-              <div key={img!.src} className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+              <div key={img!.src} data-reveal="scale" className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-card">
                 <Image src={img!.src} alt={t(img!.alt, locale)} fill sizes="33vw" className="object-cover" />
               </div>
             ))}
@@ -94,8 +94,8 @@ export default async function AboutPage({ params }: Params) {
         <div className="container-x">
           <SectionHeading title={a.staffTitle} text={a.staffSubtitle} center />
           <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
-            {staff.map((s) => (
-              <div key={s.slug} className="text-center">
+            {staff.map((s, i) => (
+              <div key={s.slug} data-reveal style={delay(i * 80)} className="text-center">
                 <div className="relative mx-auto aspect-square w-full max-w-[180px] overflow-hidden rounded-full border-4 border-white shadow-card">
                   <Image src={s.image} alt={t(s.name, locale)} fill sizes="180px" className="object-cover" />
                 </div>

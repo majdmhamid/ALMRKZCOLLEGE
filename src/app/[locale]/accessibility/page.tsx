@@ -20,7 +20,7 @@ export default async function AccessibilityPage({ params }: Params) {
   return (
     <>
       <PageHero title={a.title}>
-        <Breadcrumbs className="mt-6 text-white/80" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: a.title }]} />
+        <Breadcrumbs className="mt-6 text-ink-soft" items={[{ label: dict.common.breadcrumbHome, to: href(locale) }, { label: a.title }]} />
       </PageHero>
       <section className="section">
         <div className="container-x max-w-3xl space-y-5 text-lg leading-relaxed text-ink-soft">
