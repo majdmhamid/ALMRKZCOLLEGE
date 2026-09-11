@@ -37,8 +37,8 @@ export default async function HomePage({ params }: Params) {
     <>
       {/* ---------- الواجهة ---------- */}
       <section className="relative isolate overflow-hidden bg-brand-900 text-white">
-        <Image src="/images/hero/home.webp" alt="" fill priority sizes="100vw" className="object-cover object-center opacity-45" />
-        <div className="absolute inset-0 bg-gradient-to-l from-brand-900/95 via-brand-900/75 to-brand-900/30" />
+        <Image src="/images/hero/home.webp" alt="" fill priority sizes="100vw" className="object-cover object-center opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-l from-brand-900/95 via-brand-900/70 to-brand-900/20" />
         <div className="container-x relative py-20 md:py-28 lg:py-36">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-400/90 px-4 py-1.5 text-sm font-bold text-brand-900">
             <AwardIcon width={16} height={16} />

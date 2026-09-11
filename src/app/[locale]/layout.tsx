@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { site } from "@content/site";
 import "../globals.css";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
+import Analytics from "@/components/Analytics";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -59,6 +60,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <WhatsAppButton label={dict.common.whatsappLong} />
         <AccessibilityWidget locale={locale} dict={dict.accessibility.widget} />
         <JsonLd data={organizationJsonLd(locale)} />
+        <Analytics />
       </body>
     </html>
   );
