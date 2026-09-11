@@ -1,0 +1,48 @@
+import type { GalleryCategory, GalleryImage, Localized, Video } from "./types";
+
+/**
+ * معرض الصور — صور حقيقية من ورشات الكلية وجولاتها الميدانية (من صفحة الفيسبوك).
+ * لإضافة صورة: ضغّطها عبر scripts/optimize-images.mjs ثم أضف سطراً هنا.
+ */
+export const galleryCategories: { slug: GalleryCategory; label: Localized }[] = [
+  { slug: "welding", label: { ar: "اللحام", he: "ריתוך" } },
+  { slug: "hvac", label: { ar: "التكييف والتبريد", he: "קירור ומיזוג" } },
+  { slug: "construction", label: { ar: "البناء والسلامة", he: "בניין ובטיחות" } },
+  { slug: "events", label: { ar: "حفلات التخرّج والفعاليات", he: "טקסי סיום ואירועים" } },
+];
+
+const g = (category: GalleryCategory, ids: string[], alt: Localized): GalleryImage[] =>
+  ids.map((id) => ({ src: `/images/gallery/${category}/${id}.webp`, category, alt }));
+
+const newsImgs = (folder: string, n: number, category: GalleryCategory, alt: Localized): GalleryImage[] =>
+  Array.from({ length: n }, (_, i) => ({ src: `/images/news/${folder}/${i + 1}.webp`, category, alt }));
+
+const altWelding = { ar: "تدريب عملي في ورشة اللحام بكلية المركز", he: "תרגול מעשי בסדנת הריתוך של מכללת המרכז" };
+const altHvac = { ar: "درس عملي في دورة تقني التكييف والتبريد", he: "שיעור מעשי בקורס טכנאי קירור ומיזוג אוויר" };
+const altConstruction = { ar: "جولة ميدانية وتدريب عملي في دورات البناء والسلامة", he: "סיור שטח ותרגול מעשי בקורסי בניין ובטיחות" };
+const altEvents = { ar: "توزيع الشهادات على خريجي الكلية", he: "חלוקת תעודות לבוגרי המכללה" };
+
+export const gallery: GalleryImage[] = [
+  ...g("welding", ["1111417677659324", "1122678666533225", "1564153657125669", "1839470956260603", "768616178606144", "768616248606137", "1669109853296715", "1122678546533237", "1535929873281381", "1111417270992698", "1908517936022571"], altWelding),
+  ...newsImgs("welding-course-2024", 6, "welding", altWelding),
+  ...g("hvac", ["1839470852927280", "1615775011963533"], altHvac),
+  ...newsImgs("hvac-practical-lessons", 6, "hvac", altHvac),
+  ...g("construction", ["1535548293319539", "1167018543505851", "1671151003092600", "1681308365410197", "1681308418743525", "1681308462076854", "1215893950545029", "1215900873877670", "1215900967210994", "1052620596872366"], altConstruction),
+  ...newsImgs("safety-assistant-field-tour-akko", 6, "construction", altConstruction),
+  ...newsImgs("self-loading-crane-practical", 6, "construction", altConstruction),
+  ...g("events", ["1041422917992134", "1042830371184722", "1190547934486245", "1190551734485865", "1215021787298912", "1380011828873187", "1662343237306710", "1839441286263570", "1605731369634564", "1839441099596922", "1839441156263583", "1123483031192736", "1123483217859384", "1190551441152561", "1554836148057420", "1731995810341452", "757723426362086", "803525241781904", "1162470272554064", "1765878815546537", "757721826362246", "802165751917853"], altEvents),
+];
+
+/** فيديوهات الكلية على يوتيوب (تُعرض من يوتيوب مباشرة — لا حاجة لرفع ملفات فيديو) */
+export const videos: Video[] = [
+  {
+    youtubeId: "c3PP4-TM3Y0",
+    title: { ar: "اللي بإيدو صنعة بملك قلعة — تعرّف على كلية المركز", he: "מי שיש בידיו מקצוע – הכירו את מכללת המרכז" },
+    thumbnail: "/images/videos/c3PP4-TM3Y0.webp",
+  },
+  {
+    youtubeId: "BnQOOEvTenw",
+    title: { ar: "جولة في ورشات كلية المركز – أم الفحم", he: "סיור בסדנאות מכללת המרכז – אום אל-פחם" },
+    thumbnail: "/images/videos/BnQOOEvTenw.webp",
+  },
+];

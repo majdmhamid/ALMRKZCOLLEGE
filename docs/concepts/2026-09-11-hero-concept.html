@@ -1,0 +1,525 @@
+<title>مقترح واجهة كلية المركز</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Cairo:wght@700;800;900&display=swap">
+<style>
+  /* ألوان هوية كلية المركز — نسخة فاتحة، الأخضر الغامق كلمسات فقط */
+  :root {
+    --green: #158942;
+    --green-deep: #0b5027;
+    --green-ink: #07371b;
+    --lime: #88bb3c;
+    --lime-soft: #e3f0d2;
+    --ink: #1f2a26;
+    --ink-2: #4b5c61;
+    --ink-3: #6f7d80;
+    --ground: #ffffff;
+    --mist: #f3f7f0;
+    --mist-2: #e8f0e1;
+    --line: #dfe7da;
+    --wa: #25d366;
+    --font-display: "Cairo", "Almarai", system-ui, sans-serif;
+    --font-body: "Almarai", "Cairo", system-ui, sans-serif;
+    --r: 18px;
+    --shadow: 0 14px 34px -18px rgb(16 40 20 / 0.32);
+    --shadow-green: 0 12px 26px -12px rgb(21 137 66 / 0.6);
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    direction: rtl;
+    padding-bottom: 68px;
+  }
+  @media (min-width: 1024px) { body { padding-bottom: 0; } }
+  img, video { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
+  h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+  p { margin: 0; }
+  .wrap { width: min(100% - 32px, 1200px); margin-inline: auto; }
+  .num { font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+
+  /* ---------- شريط "نسخة تجريبية" ---------- */
+  .note {
+    background: var(--green-ink); color: #fff; font-size: 13px; text-align: center; padding: 6px 12px;
+  }
+  .note b { color: var(--lime); }
+
+  /* ---------- الترويسة ---------- */
+  .top { background: var(--green-deep); color: #fff; font-size: 14px; }
+  .top .wrap { display: flex; justify-content: space-between; align-items: center; height: 36px; }
+  .top .lang { background: rgb(255 255 255 / 0.15); padding: 2px 10px; border-radius: 6px; font-weight: 700; }
+  header.bar { position: sticky; top: 0; z-index: 30; background: rgb(255 255 255 / 0.94); backdrop-filter: blur(8px); box-shadow: 0 1px 0 var(--line); }
+  header.bar .wrap { display: flex; align-items: center; justify-content: space-between; height: 76px; gap: 16px; }
+  header.bar img { height: 48px; width: auto; }
+  header.bar nav { display: none; gap: 4px; font-weight: 700; }
+  header.bar nav a { padding: 8px 12px; border-radius: 10px; }
+  header.bar nav a:hover { background: var(--mist); color: var(--green-deep); }
+  .menu { width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 10px; background: #fff; display: grid; place-items: center; }
+  .menu span { width: 20px; height: 2px; background: var(--ink); box-shadow: 0 -6px 0 var(--ink), 0 6px 0 var(--ink); }
+  @media (min-width: 1024px) { header.bar nav { display: flex; } .menu { display: none; } header.bar img { height: 56px; } }
+
+  /* ---------- الأزرار ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 22px; border-radius: 14px; font-weight: 800; font-size: 16px; line-height: 1;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s, background 0.2s; border: 0; cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: scale(0.98); }
+  .btn-green { background: var(--green); color: #fff; box-shadow: var(--shadow-green); }
+  .btn-green:hover { background: var(--green-deep); }
+  .btn-wa { background: var(--wa); color: #fff; box-shadow: 0 12px 26px -12px rgb(37 211 102 / 0.65); }
+  .btn-white { background: #fff; color: var(--green-deep); box-shadow: var(--shadow); }
+  .btn-line { background: #fff; color: var(--green-deep); border: 2px solid var(--green); }
+  .btn svg { width: 20px; height: 20px; }
+
+  /* ---------- الواجهة: فيديو + لوغو كبير في المنتصف ---------- */
+  .hero { position: relative; overflow: hidden; background: var(--mist); min-height: calc(100svh - 112px); display: flex; flex-direction: column; justify-content: flex-end; text-align: center; }
+  @media (min-width: 1024px) { .hero { min-height: 720px; justify-content: center; } }
+  .hero-media { position: absolute; inset: 0; }
+  .hero-media img, .hero-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .hero-media img { animation: kb 18s ease-out both; }
+  .hero-media video { opacity: 0; transition: opacity 0.9s; }
+  .hero-media video.on { opacity: 1; }
+  .hero-shade {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, #fff 0%, rgb(255 255 255 / 0.94) 34%, rgb(255 255 255 / 0.6) 58%, rgb(7 55 27 / 0.12) 100%);
+  }
+  @media (min-width: 1024px) {
+    .hero-shade { background: radial-gradient(60% 70% at 50% 60%, rgb(255 255 255 / 0.94) 0%, rgb(255 255 255 / 0.78) 45%, rgb(255 255 255 / 0.08) 100%), linear-gradient(to top, #fff 0%, rgb(255 255 255 / 0) 40%); }
+  }
+  .hero-in { position: relative; padding: 28px 0 40px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  /* اللوغو الكبير: بطاقة زجاجية بيضاء مع حلقة خضراء تنبض */
+  .logo-badge {
+    position: relative; isolation: isolate;
+    background: rgb(255 255 255 / 0.9); backdrop-filter: blur(10px);
+    border: 1px solid rgb(255 255 255 / 0.8); border-radius: 28px; padding: 22px 28px;
+    box-shadow: 0 24px 60px -24px rgb(7 55 27 / 0.45);
+    animation: rise 1s var(--ease) both;
+  }
+  .logo-badge::before, .logo-badge::after {
+    content: ""; position: absolute; inset: -10px; border-radius: 36px; border: 2px solid var(--lime); opacity: 0; z-index: -1;
+    animation: ring 2.8s ease-out infinite;
+  }
+  .logo-badge::after { animation-delay: 1.4s; }
+  .logo-badge img { width: min(72vw, 300px); height: auto; }
+  @media (min-width: 1024px) { .logo-badge img { width: 380px; } .logo-badge { padding: 30px 40px; } }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #cfe3bf; color: var(--green-deep);
+    border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 800; box-shadow: 0 6px 16px -10px rgb(16 40 20 / 0.4);
+  }
+  .hero h1 { font-size: clamp(1.7rem, 6.2vw, 3.3rem); font-weight: 900; color: var(--ink); animation: rise 0.9s var(--ease) 0.15s both; }
+  .hero h1 span { color: var(--green); display: block; }
+  .hero .slogan { font-family: var(--font-display); font-weight: 800; color: var(--green-deep); font-size: clamp(1.05rem, 3.6vw, 1.5rem); animation: rise 0.9s var(--ease) 0.25s both; }
+  .hero .lead { color: var(--ink-2); max-width: 36rem; font-size: 15px; animation: rise 0.9s var(--ease) 0.32s both; }
+  @media (min-width: 768px) { .hero .lead { font-size: 18px; } }
+  .hero .cta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 420px; margin-top: 6px; animation: rise 0.9s var(--ease) 0.4s both; }
+  .hero .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; animation: rise 0.9s var(--ease) 0.5s both; }
+  .hero .chips .pill { font-size: 12px; padding: 4px 10px; background: var(--lime-soft); border-color: #cfe3bf; }
+  .hint { color: var(--green); animation: hint 1.6s ease-in-out infinite; margin-top: 4px; }
+  .hint svg { width: 26px; height: 26px; }
+
+  /* ---------- الأرقام فوق شريط صور يلفّ ---------- */
+  .stats { position: relative; overflow: hidden; background: var(--mist); border-block: 1px solid var(--line); }
+  .stats .film { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 10px; direction: ltr; }
+  .row { display: flex; width: max-content; gap: 10px; animation: slide 90s linear infinite; }
+  .row.rev { animation-direction: reverse; animation-duration: 110s; }
+  .set { display: flex; gap: 10px; }
+  .film img { width: 190px; height: 128px; object-fit: cover; border-radius: 12px; }
+  .stats .veil { position: absolute; inset: 0; background: linear-gradient(90deg, rgb(243 247 240 / 0.92), rgb(243 247 240 / 0.72) 50%, rgb(243 247 240 / 0.92)); }
+  .stats .grid { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 22px 0; }
+  @media (min-width: 900px) { .stats .grid { grid-template-columns: repeat(4, 1fr); padding: 30px 0; } }
+  .stat { display: flex; align-items: center; gap: 12px; background: rgb(255 255 255 / 0.82); backdrop-filter: blur(4px); border: 1px solid rgb(255 255 255 / 0.9); border-radius: 16px; padding: 12px 14px; box-shadow: 0 10px 24px -18px rgb(16 40 20 / 0.5); }
+  .stat .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--lime-soft); color: var(--green-deep); display: grid; place-items: center; flex: none; }
+  .stat .ic svg { width: 22px; height: 22px; }
+  .stat b { font-family: var(--font-display); font-weight: 900; font-size: 32px; line-height: 1; color: var(--green-deep); display: block; }
+  .stat small { font-weight: 700; color: var(--ink-2); font-size: 13px; }
+
+  /* ---------- خلفية بشعار الكلية (ووتر مارك يتحرك ببطء) ---------- */
+  .wm { position: relative; overflow: hidden; }
+  .wm::before {
+    content: ""; position: absolute; inset: -260px -260px 0 0; pointer-events: none;
+    background: url("img/emblem.png") 0 0 / 130px 130px repeat; opacity: 0.055;
+    animation: drift 80s linear infinite;
+  }
+  .wm.on-green::before { filter: brightness(0) invert(1); opacity: 0.12; }
+  .wm > * { position: relative; }
+
+  /* ---------- الأقسام ---------- */
+  section.band { padding: 56px 0; }
+  @media (min-width: 900px) { section.band { padding: 80px 0; } }
+  .head { max-width: 46rem; margin-bottom: 26px; }
+  .head.center { margin-inline: auto; text-align: center; }
+  .eyebrow { display: inline-block; color: var(--green); font-weight: 800; font-size: 14px; margin-bottom: 6px; }
+  .head h2 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); font-weight: 900; }
+  .head .bar { display: block; width: 56px; height: 6px; border-radius: 99px; background: var(--lime); margin-top: 10px; }
+  .head.center .bar { margin-inline: auto; }
+  .head p { color: var(--ink-2); margin-top: 12px; font-size: 17px; }
+
+  .cards { display: grid; gap: 18px; }
+  @media (min-width: 768px) { .cards.three { grid-template-columns: repeat(3, 1fr); } }
+  .gcard { position: relative; border-radius: var(--r); overflow: hidden; background: #fff; box-shadow: var(--shadow); border: 1px solid var(--line); transition: transform 0.3s var(--ease), box-shadow 0.3s; }
+  .gcard:hover { transform: translateY(-6px); box-shadow: 0 30px 50px -26px rgb(16 40 20 / 0.45); }
+  .gcard .ph { position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
+  .gcard .ph img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
+  .gcard:hover .ph img { transform: scale(1.06); }
+  .gcard .ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(7 55 27 / 0.85), rgb(7 55 27 / 0.2) 55%, transparent); }
+  .gcard .cap { position: absolute; inset-inline: 0; bottom: 0; padding: 18px; color: #fff; z-index: 1; }
+  .gcard .cap .ico { width: 52px; height: 52px; background: #fff; border-radius: 14px; padding: 8px; margin-bottom: 8px; }
+  .gcard .cap h3 { font-size: 24px; font-weight: 900; }
+  .gcard .cap p { font-size: 14px; color: rgb(255 255 255 / 0.88); }
+  .gcard .foot { display: flex; justify-content: space-between; padding: 14px 18px; font-weight: 800; color: var(--green-deep); font-size: 14px; }
+
+  /* ---------- جدار صور يلفّ (صفّان باتجاهين) ---------- */
+  .wall { padding: 40px 0; background: var(--ground); overflow: hidden; }
+  .wall .film { display: flex; flex-direction: column; gap: 12px; direction: ltr; margin-top: 22px; }
+  .wall .row { animation-duration: 70s; }
+  .wall .row.rev { animation-duration: 85s; }
+  .wall img { width: 240px; height: 170px; object-fit: cover; border-radius: 14px; box-shadow: var(--shadow); }
+  @media (min-width: 900px) { .wall img { width: 320px; height: 220px; } }
+  .row:hover { animation-play-state: paused; }
+
+  /* ---------- الدورات (سحب بالإصبع) ---------- */
+  .snap { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+  .snap::-webkit-scrollbar { display: none; }
+  .snap > * { flex: 0 0 80%; scroll-snap-align: start; }
+  @media (min-width: 640px) { .snap > * { flex-basis: 46%; } }
+  @media (min-width: 1024px) { .snap { display: grid; grid-template-columns: repeat(4, 1fr); overflow: visible; margin-inline: 0; padding-inline: 0; } .snap > * { flex-basis: auto; } }
+  .ccard { background: #fff; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: transform 0.3s var(--ease); }
+  .ccard:hover { transform: translateY(-5px); }
+  .ccard .ph { aspect-ratio: 16 / 10; overflow: hidden; position: relative; }
+  .ccard .ph img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
+  .ccard:hover .ph img { transform: scale(1.06); }
+  .ccard .tag { position: absolute; top: 10px; inset-inline-start: 10px; background: #fff; color: var(--green-deep); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 99px; }
+  .ccard .body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .ccard h3 { font-size: 17px; font-weight: 800; }
+  .ccard p { color: var(--ink-2); font-size: 14px; flex: 1; }
+  .ccard .meta { display: flex; gap: 14px; color: var(--ink-3); font-size: 13px; }
+  .ccard .more { color: var(--green); font-weight: 800; font-size: 14px; }
+  .swipe { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 8px; }
+  @media (min-width: 1024px) { .swipe { display: none; } }
+
+  /* ---------- الشركاء: لوغوهات كبيرة ---------- */
+  .partners { padding: 48px 0; background: var(--mist); border-block: 1px solid var(--line); overflow: hidden; }
+  .partners .row { animation-duration: 40s; gap: 28px; margin-top: 22px; }
+  .partners .set { gap: 28px; }
+  .partner { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 170px; direction: rtl; }
+  .partner .disc { width: 128px; height: 128px; border-radius: 50%; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); display: grid; place-items: center; padding: 16px; transition: transform 0.3s var(--ease); }
+  .partner:hover .disc { transform: scale(1.06); }
+  .partner .disc img { width: 100%; height: 100%; object-fit: contain; }
+  .partner span { font-weight: 800; font-size: 14px; color: var(--ink-2); text-align: center; }
+
+  /* ---------- دعوة للتسجيل ---------- */
+  .cta-band { padding: 64px 0; background: linear-gradient(135deg, var(--green) 0%, #3a9f3a 60%, var(--lime) 130%); color: #fff; text-align: center; }
+  .cta-band h2 { font-size: clamp(1.7rem, 5vw, 2.6rem); font-weight: 900; }
+  .cta-band p { color: rgb(255 255 255 / 0.92); max-width: 36rem; margin: 12px auto 22px; font-size: 17px; }
+  .cta-band .btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .cta-band .disc { margin-top: 20px; font-size: 13px; color: rgb(255 255 255 / 0.8); }
+
+  /* ---------- التذييل ---------- */
+  footer { background: var(--mist); border-top: 4px solid var(--lime); padding: 40px 0 0; }
+  footer .cols { display: grid; gap: 28px; padding-bottom: 32px; }
+  @media (min-width: 900px) { footer .cols { grid-template-columns: 1.4fr 1fr 1fr; } }
+  footer img.logo { height: 64px; width: auto; }
+  footer p, footer li { color: var(--ink-2); font-size: 14px; }
+  footer h3 { font-size: 16px; font-weight: 800; color: var(--green-deep); margin-bottom: 8px; }
+  footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  footer .legal { background: var(--green-deep); color: rgb(255 255 255 / 0.85); font-size: 13px; padding: 12px 0; text-align: center; }
+
+  /* ---------- شريط الموبايل الثابت ---------- */
+  .mbar { position: fixed; inset-inline: 0; bottom: 0; z-index: 40; display: flex; height: 64px; background: rgb(255 255 255 / 0.96); backdrop-filter: blur(8px); border-top: 1px solid var(--line); box-shadow: 0 -8px 24px -14px rgb(16 40 20 / 0.35); padding-bottom: env(safe-area-inset-bottom); }
+  .mbar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px; font-weight: 800; border-inline-start: 1px solid var(--line); }
+  .mbar a:first-child { border: 0; }
+  .mbar a svg { width: 22px; height: 22px; }
+  .mbar a.reg { background: var(--green); color: #fff; font-size: 16px; font-weight: 900; }
+  @media (min-width: 1024px) { .mbar { display: none; } }
+
+  /* ---------- الظهور التدريجي والحركات ---------- */
+  .js .rv { opacity: 0; transform: translateY(22px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); transition-delay: var(--d, 0ms); }
+  .js .rv.in { opacity: 1; transform: none; }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @keyframes ring { 0% { transform: scale(0.98); opacity: 0.7; } 100% { transform: scale(1.18); opacity: 0; } }
+  @keyframes kb { from { transform: scale(1); } to { transform: scale(1.12); } }
+  @keyframes hint { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(6px); opacity: 1; } }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  @keyframes drift { to { transform: translate(-260px, 260px); } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .js .rv { opacity: 1; transform: none; }
+    .row { width: auto; flex-wrap: wrap; }
+    .set + .set { display: none; }
+  }
+</style>
+
+<div class="note">نسخة <b>تجريبية للعرض فقط</b> — الموقع الأساسي لم يتغيّر. الرابط للمشاهدة من الموبايل والكمبيوتر.</div>
+
+<div class="top">
+  <div class="wrap">
+    <a href="tel:+97246116800" class="num">04-6116800 ☏</a>
+    <span class="lang">עברית</span>
+  </div>
+</div>
+<header class="bar">
+  <div class="wrap">
+    <a href="#top" aria-label="كلية المركز"><img src="img/logo.png" alt="كلية المركز للتأهيل المهني"></a>
+    <nav aria-label="القائمة">
+      <a href="#groups">الدورات</a><a href="#why">عن الكلية</a><a href="#wall">الصور والفيديو</a><a href="#partners">الشركاء</a><a href="#register">اتصل بنا</a>
+    </nav>
+    <a href="#register" class="btn btn-green" style="display:none" id="hbtn">سجّل اهتمامك</a>
+    <button class="menu" aria-label="القائمة"><span></span></button>
+  </div>
+</header>
+
+<!-- ============ الواجهة ============ -->
+<section class="hero" id="top">
+  <div class="hero-media" aria-hidden="true">
+    <img src="img/poster.webp" alt="">
+    <video muted loop playsinline autoplay preload="auto" poster="img/poster.webp"></video>
+  </div>
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <div class="logo-badge"><img src="img/logo.png" alt="كلية المركز للتأهيل المهني — أم الفحم"></div>
+    <span class="pill" style="animation: rise .9s var(--ease) .1s both">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg>
+      معتمدة من وزارة العمل · منذ 2008
+    </span>
+    <h1>كلية المركز للتأهيل المهني <span>أم الفحم</span></h1>
+    <p class="slogan">اللي بإيدو صنعة بملك قلعة</p>
+    <p class="lead">دورات مهنية عملية في اللحام، التكييف والتبريد، البناء والسلامة — بمجموعات صغيرة، ورشات مجهّزة، وشهادات يطلبها سوق العمل.</p>
+    <div class="cta">
+      <a href="#register" class="btn btn-green">سجّل اهتمامك</a>
+      <a href="https://wa.me/972546174339" target="_blank" rel="noopener" class="btn btn-wa">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5.3-.5c.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>
+        واتساب
+      </a>
+    </div>
+    <div class="chips">
+      <span class="pill">بإشراف وزارة العمل</span><span class="pill">منذ 2008</span><span class="pill">ملائمة للمنح (שוברים)</span>
+    </div>
+    <a href="#stats" class="hint" aria-label="اكتشف المزيد"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></a>
+  </div>
+</section>
+
+<!-- ============ الأرقام فوق شريط صور يلفّ ============ -->
+<section class="stats" id="stats">
+  <div class="film" aria-hidden="true">
+    <div class="row">
+      <div class="set">
+        <img src="img/g1.webp" alt=""><img src="img/g2.webp" alt=""><img src="img/g3.webp" alt=""><img src="img/g4.webp" alt=""><img src="img/g5.webp" alt=""><img src="img/g6.webp" alt=""><img src="img/g7.webp" alt=""><img src="img/g8.webp" alt="">
+      </div>
+      <div class="set">
+        <img src="img/g1.webp" alt=""><img src="img/g2.webp" alt=""><img src="img/g3.webp" alt=""><img src="img/g4.webp" alt=""><img src="img/g5.webp" alt=""><img src="img/g6.webp" alt=""><img src="img/g7.webp" alt=""><img src="img/g8.webp" alt="">
+      </div>
+    </div>
+    <div class="row rev">
+      <div class="set">
+        <img src="img/g9.webp" alt=""><img src="img/g10.webp" alt=""><img src="img/g11.webp" alt=""><img src="img/g12.webp" alt=""><img src="img/g13.webp" alt=""><img src="img/g14.webp" alt=""><img src="img/g15.webp" alt=""><img src="img/g16.webp" alt="">
+      </div>
+      <div class="set">
+        <img src="img/g9.webp" alt=""><img src="img/g10.webp" alt=""><img src="img/g11.webp" alt=""><img src="img/g12.webp" alt=""><img src="img/g13.webp" alt=""><img src="img/g14.webp" alt=""><img src="img/g15.webp" alt=""><img src="img/g16.webp" alt="">
+      </div>
+    </div>
+  </div>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="wrap grid">
+    <div class="stat rv"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg></span><div><b class="num" data-count="18">18</b><small>سنة خبرة</small></div></div>
+    <div class="stat rv" style="--d:90ms"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 10 5-10 5L2 7l10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg></span><div><b class="num" data-count="11">11</b><small>دورة مهنية</small></div></div>
+    <div class="stat rv" style="--d:180ms"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M8 10h.01M16 10h.01"/></svg></span><div><b class="num" data-count="3">3</b><small>مجالات تأهيل</small></div></div>
+    <div class="stat rv" style="--d:270ms"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><div><b class="num" data-count="5">5</b><small>جهات معتمِدة وشريكة</small></div></div>
+  </div>
+</section>
+
+<!-- ============ المجموعات على خلفية بشعار الكلية ============ -->
+<section class="band wm" id="groups">
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow">الدورات</span>
+      <h2>مجالات التأهيل</h2>
+      <span class="bar"></span>
+      <p>ثلاث مجموعات دورات، لكل واحدة ورشة مجهّزة وطاقم متخصص.</p>
+    </div>
+    <div class="cards three">
+      <a href="#register" class="gcard rv">
+        <div class="ph"><img src="img/group-welding.webp" alt=""><div class="cap"><img class="ico" src="img/icon-welding.png" alt=""><h3>الحديد واللحام</h3><p>مهنة مطلوبة في كل مصنع وورشة وموقع بناء</p></div></div>
+        <div class="foot"><span>3 دورات</span><span>←</span></div>
+      </a>
+      <a href="#register" class="gcard rv" style="--d:120ms">
+        <div class="ph"><img src="img/group-hvac.webp" alt=""><div class="cap"><img class="ico" src="img/icon-hvac.png" alt=""><h3>التكييف والتبريد</h3><p>من التركيب حتى تصليح الأعطال — بشهادة معتمدة</p></div></div>
+        <div class="foot"><span>دورتان</span><span>←</span></div>
+      </a>
+      <a href="#register" class="gcard rv" style="--d:240ms">
+        <div class="ph"><img src="img/group-construction.webp" alt=""><div class="cap"><img class="ico" src="img/icon-construction.png" alt=""><h3>البناء والسلامة</h3><p>الشهادات التي يطلبها القانون في كل موقع بناء</p></div></div>
+        <div class="foot"><span>6 دورات</span><span>←</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ جدار صور يلفّ ============ -->
+<section class="wall" id="wall">
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow">الصور والفيديو</span>
+      <h2>لمحة من ورشاتنا</h2>
+      <span class="bar"></span>
+      <p>صور حقيقية من التدريبات العملية والجولات الميدانية — تلفّ باستمرار.</p>
+    </div>
+  </div>
+  <div class="film">
+    <div class="row">
+      <div class="set"><img src="img/g1.webp" alt="ورشة اللحام"><img src="img/g9.webp" alt="جولة ميدانية"><img src="img/g2.webp" alt="تدريب لحام"><img src="img/g13.webp" alt="توزيع الشهادات"><img src="img/g7.webp" alt="ورشة التكييف"><img src="img/g10.webp" alt="موقع بناء"><img src="img/g3.webp" alt="لحام"><img src="img/g14.webp" alt="حفل تخرّج"></div>
+      <div class="set"><img src="img/g1.webp" alt=""><img src="img/g9.webp" alt=""><img src="img/g2.webp" alt=""><img src="img/g13.webp" alt=""><img src="img/g7.webp" alt=""><img src="img/g10.webp" alt=""><img src="img/g3.webp" alt=""><img src="img/g14.webp" alt=""></div>
+    </div>
+    <div class="row rev">
+      <div class="set"><img src="img/g11.webp" alt="سقالات"><img src="img/g4.webp" alt="لحام"><img src="img/g15.webp" alt="خريجون"><img src="img/g12.webp" alt="جولة موقع"><img src="img/g5.webp" alt="ورشة"><img src="img/g16.webp" alt="شهادات"><img src="img/g6.webp" alt="لحام أرغون"><img src="img/g8.webp" alt="ورشة"></div>
+      <div class="set"><img src="img/g11.webp" alt=""><img src="img/g4.webp" alt=""><img src="img/g15.webp" alt=""><img src="img/g12.webp" alt=""><img src="img/g5.webp" alt=""><img src="img/g16.webp" alt=""><img src="img/g6.webp" alt=""><img src="img/g8.webp" alt=""></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ أبرز الدورات ============ -->
+<section class="band wm" style="background: var(--mist)" id="courses">
+  <div class="wrap">
+    <div class="head rv">
+      <span class="eyebrow">الدورات</span>
+      <h2>أبرز الدورات</h2>
+      <span class="bar"></span>
+      <p>الدورات الأكثر طلباً في الكلية — اسحب بالإصبع على الموبايل.</p>
+    </div>
+    <div class="snap">
+      <article class="ccard rv"><div class="ph"><img src="img/c-welding.webp" alt=""><span class="tag">الحديد واللحام</span></div><div class="body"><h3>دورة لحام إلكترود و-CO2</h3><p>الدورة الأساسية لدخول مهنة اللحام: 100 ساعة، نصفها تدريب عملي في الورشة.</p><div class="meta"><span class="num">100</span> ساعة · <span class="num">25</span> لقاء</div><span class="more">تفاصيل الدورة ←</span></div></article>
+      <article class="ccard rv" style="--d:100ms"><div class="ph"><img src="img/c-hvac.webp" alt=""><span class="tag">التكييف والتبريد</span></div><div class="body"><h3>دورة تقني تكييف وتبريد – المستوى الأول</h3><p>التأهيل الكامل لمهنة تقني تكييف: 288 ساعة نظري وعملي، بشهادة بإشراف وزارة العمل.</p><div class="meta"><span class="num">288</span> ساعة · <span class="num">50</span> لقاء</div><span class="more">تفاصيل الدورة ←</span></div></article>
+      <article class="ccard rv" style="--d:200ms"><div class="ph"><img src="img/c-site.webp" alt=""><span class="tag">البناء والسلامة</span></div><div class="body"><h3>دورة مدير عمل في البناء</h3><p>الدورة الأشمل في الكلية (670 ساعة): تأهيل لوظيفة مدير عمل — وظيفة إلزامية في كل موقع بناء.</p><div class="meta"><span class="num">670</span> ساعة · <span class="num">160</span> لقاء</div><span class="more">تفاصيل الدورة ←</span></div></article>
+      <article class="ccard rv" style="--d:300ms"><div class="ph"><img src="img/c-safety.webp" alt=""><span class="tag">البناء والسلامة</span></div><div class="body"><h3>دورة مساعد أمان في البناء</h3><p>وظيفة إلزامية بحسب القانون في كل موقع بناء يزيد ارتفاعه عن 7 أمتار ومساحته عن 1000 م².</p><div class="meta"><span class="num">45</span> ساعة · <span class="num">10</span> لقاءات</div><span class="more">تفاصيل الدورة ←</span></div></article>
+    </div>
+    <p class="swipe">اسحب لعرض المزيد</p>
+  </div>
+</section>
+
+<!-- ============ ليش كلية المركز ============ -->
+<section class="band" id="why">
+  <div class="wrap" style="display:grid; gap:28px; align-items:center;" id="whygrid">
+    <div class="rv" style="position:relative">
+      <img src="img/g10.webp" alt="طلاب الكلية في جولة ميدانية" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:24px; box-shadow: var(--shadow)">
+      <div style="position:absolute; bottom:-14px; inset-inline-end:14px; background:var(--green); color:#fff; padding:10px 16px; border-radius:16px; box-shadow: var(--shadow-green)"><b class="num" style="font-family:var(--font-display); font-size:24px; display:block; line-height:1">2008</b><span style="font-size:12px; font-weight:800">بإشراف وزارة العمل</span></div>
+    </div>
+    <div>
+      <div class="head rv"><span class="eyebrow">عن الكلية</span><h2>ليش كلية المركز؟</h2><span class="bar"></span></div>
+      <ul style="list-style:none; padding:0; margin:0; display:grid; gap:14px">
+        <li class="rv" style="display:flex; gap:12px"><span style="flex:none; width:32px; height:32px; border-radius:50%; background:var(--green); color:#fff; display:grid; place-items:center; font-weight:900">✓</span><div><b>استشارة شخصية</b><p style="color:var(--ink-2)">لقاء تعارف قبل التسجيل: نتعرف عليك ونوجّهك للدورة الملائمة.</p></div></li>
+        <li class="rv" style="display:flex; gap:12px; --d:80ms"><span style="flex:none; width:32px; height:32px; border-radius:50%; background:var(--green); color:#fff; display:grid; place-items:center; font-weight:900">✓</span><div><b>تعليم عملي</b><p style="color:var(--ink-2)">ورشات مجهّزة بمعدات حقيقية، والتدريب العملي جزء أساسي من كل دورة.</p></div></li>
+        <li class="rv" style="display:flex; gap:12px; --d:160ms"><span style="flex:none; width:32px; height:32px; border-radius:50%; background:var(--green); color:#fff; display:grid; place-items:center; font-weight:900">✓</span><div><b>طاقم ذو خبرة</b><p style="color:var(--ink-2)">مركّزون ومحاضرون بخبرة طويلة في الميدان، لا في الصف فقط.</p></div></li>
+        <li class="rv" style="display:flex; gap:12px; --d:240ms"><span style="flex:none; width:32px; height:32px; border-radius:50%; background:var(--green); color:#fff; display:grid; place-items:center; font-weight:900">✓</span><div><b>مرافقة وتوجيه مهني</b><p style="color:var(--ink-2)">بعد التخرّج نرافقك بالتوجيه: شو السوق بدّو، وين الفرص، وكيف تتقدّم.</p></div></li>
+      </ul>
+      <p class="rv" style="margin-top:16px; background:var(--lime-soft); border:1px solid #cfe3bf; border-radius:14px; padding:12px 14px; font-size:14px; color:var(--ink-2)">الكلية تقدّم مرافقة وتوجيه مهني، ولا تلتزم بتأمين مكان عمل.</p>
+    </div>
+  </div>
+</section>
+<style>@media (min-width: 960px) { #whygrid { grid-template-columns: 1fr 1fr; gap: 48px; } }</style>
+
+<!-- ============ الشركاء بلوغوهات كبيرة ============ -->
+<section class="partners" id="partners">
+  <div class="wrap"><div class="head center rv"><span class="eyebrow">بالتعاون مع</span><h2>الجهات المعتمِدة والشركاء</h2><span class="bar"></span></div></div>
+  <div class="row" style="direction:ltr">
+    <div class="set">
+      <div class="partner"><div class="disc"><img src="img/p-labor.png" alt=""></div><span>وزارة العمل</span></div>
+      <div class="partner"><div class="disc"><img src="img/p-transport.png" alt=""></div><span>وزارة المواصلات والأمان على الطرق</span></div>
+      <div class="partner"><div class="disc"><img src="img/p-deere.png" alt=""></div><span>John Deere</span></div>
+      <div class="partner"><div class="disc"><img src="img/p-merkavim.png" alt=""></div><span>مركافيم</span></div>
+      <div class="partner"><div class="disc"><img src="img/p-beton.png" alt=""></div><span>باطون مواسي</span></div>
+    </div>
+    <div class="set" aria-hidden="true">
+      <div class="partner"><div class="disc"><img src="img/p-labor.png" alt=""></div><span>وزارة العمل</span></div>
+      <div class="partner"><div class="disc"><img src="img/p-transport.png" alt=""></div><span>وزارة المواصلات والأمان على الطرق</span></div>
+      <div class="partner"><div class="disc"><img src="img/p-deere.png" alt=""></div><span>John Deere</span></div>
+      <div class="partner"><div class="disc"><img src="img/p-merkavim.png" alt=""></div><span>مركافيم</span></div>
+      <div class="partner"><div class="disc"><img src="img/p-beton.png" alt=""></div><span>باطون مواسي</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ دعوة للتسجيل على خلفية بالشعار ============ -->
+<section class="cta-band wm on-green" id="register">
+  <div class="wrap">
+    <h2 class="rv">جاهز تبدأ؟</h2>
+    <p class="rv">اترك اسمك ورقمك ونرجع إليك للاستشارة — أو راسلنا مباشرة على واتساب.</p>
+    <div class="btns rv">
+      <a href="tel:+97246116800" class="btn btn-white">اتصل: <span class="num">04-6116800</span></a>
+      <a href="https://wa.me/972546174339" target="_blank" rel="noopener" class="btn btn-wa">راسلنا على واتساب</a>
+    </div>
+    <p class="disc rv">الدورات ملائمة للحصول على منحة — تواصل معنا للاستشارة. للاستفسار عن الرسوم والمواعيد — تواصل معنا.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap cols">
+    <div><img class="logo" src="img/logo.png" alt="كلية المركز للتأهيل المهني"><p style="margin-top:12px">كلية للتأهيل المهني في أم الفحم، تأسست سنة 2008 وتعمل بإشراف وزارة العمل. دورات عملية في اللحام، التكييف والتبريد، والبناء والسلامة.</p></div>
+    <div><h3>الدورات</h3><ul><li>الحديد واللحام</li><li>التكييف والتبريد</li><li>البناء والسلامة</li></ul></div>
+    <div><h3>اتصل بنا</h3><ul><li>أم الفحم – حي قحاوش – خلف المشهداوي</li><li class="num">04-6116800</li><li class="num">054-6174339</li><li class="num">almerkaz.collega@gmail.com</li></ul></div>
+  </div>
+  <div class="legal">© 2026 كلية المركز للتأهيل المهني · جميع الحقوق محفوظة · إعلان الوصولية</div>
+</footer>
+
+<nav class="mbar" aria-label="تواصل سريع">
+  <a href="tel:+97246116800"><svg viewBox="0 0 24 24" fill="none" stroke="#158942" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>اتصل</a>
+  <a href="https://wa.me/972546174339" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="#25d366"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5.3-.5c.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>واتساب</a>
+  <a href="#register" class="reg">سجّل اهتمامك</a>
+</nav>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    root.classList.add("js");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // فيديو الواجهة: لا يُحمَّل عند طلب تقليل الحركة؛ إذا رُفض التشغيل تبقى الصورة المتحركة
+    var v = document.querySelector(".hero-media video");
+    if (v && !reduce) {
+      v.src = "video/hero.mp4";
+      v.addEventListener("playing", function () { v.classList.add("on"); });
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+
+    // الظهور التدريجي عند التمرير (مع مهلة أمان: كل شي يظهر بعد ثانيتين مهما صار)
+    var items = Array.prototype.slice.call(document.querySelectorAll(".rv"));
+    var show = function (el) { el.classList.add("in"); };
+    if ("IntersectionObserver" in window && !reduce) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } });
+      }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+      items.forEach(function (el) { io.observe(el); });
+      setTimeout(function () { items.forEach(show); }, 2500);
+    } else {
+      items.forEach(show);
+    }
+
+    // الأرقام المتحركة
+    var counters = document.querySelectorAll("[data-count]");
+    var animate = function (el) {
+      var target = +el.getAttribute("data-count"), start = performance.now(), dur = 1400;
+      var tick = function (now) {
+        var t = Math.min(1, (now - start) / dur), eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(target * eased);
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    if ("IntersectionObserver" in window && !reduce) {
+      var cio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { animate(e.target); cio.unobserve(e.target); } });
+      }, { threshold: 0.5 });
+      counters.forEach(function (el) { el.textContent = "0"; cio.observe(el); });
+    }
+
+    // زر الترويسة على الشاشات الكبيرة
+    if (window.matchMedia("(min-width: 1024px)").matches) document.getElementById("hbtn").style.display = "inline-flex";
+  })();
+</script>

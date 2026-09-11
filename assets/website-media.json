@@ -1,0 +1,831 @@
+{
+  "source": "https://almrkz.net",
+  "pages_crawled": [
+    "https://almrkz.net",
+    "https://almrkz.net/ar",
+    "https://almrkz.net/ar/course/10",
+    "https://almrkz.net/ar/course/14",
+    "https://almrkz.net/ar/course/16",
+    "https://almrkz.net/ar/course/17",
+    "https://almrkz.net/ar/course/18",
+    "https://almrkz.net/ar/course/19",
+    "https://almrkz.net/ar/course/20",
+    "https://almrkz.net/ar/course/21",
+    "https://almrkz.net/ar/course/22",
+    "https://almrkz.net/ar/course/23",
+    "https://almrkz.net/ar/course/8",
+    "https://almrkz.net/ar/course/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/ar/graduates/all",
+    "https://almrkz.net/ar/graduates/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/ar/page/4",
+    "https://almrkz.net/ar/page/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/ar/partners/all",
+    "https://almrkz.net/ar/partners/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/ar/post/1",
+    "https://almrkz.net/ar/post/3",
+    "https://almrkz.net/ar/post/4",
+    "https://almrkz.net/ar/post/5",
+    "https://almrkz.net/ar/post/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/ar/posts/all",
+    "https://almrkz.net/ar/posts/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/ar/specializations",
+    "https://almrkz.net/ar/specializations/3",
+    "https://almrkz.net/ar/specializations/4",
+    "https://almrkz.net/ar/specializations/5",
+    "https://almrkz.net/ar/specializations/6",
+    "https://almrkz.net/ar/specializations/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/ar/staff/all",
+    "https://almrkz.net/ar/staff/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/ar/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he",
+    "https://almrkz.net/he/course/10",
+    "https://almrkz.net/he/course/14",
+    "https://almrkz.net/he/course/16",
+    "https://almrkz.net/he/course/17",
+    "https://almrkz.net/he/course/18",
+    "https://almrkz.net/he/course/19",
+    "https://almrkz.net/he/course/20",
+    "https://almrkz.net/he/course/21",
+    "https://almrkz.net/he/course/22",
+    "https://almrkz.net/he/course/23",
+    "https://almrkz.net/he/course/8",
+    "https://almrkz.net/he/course/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he/graduates/all",
+    "https://almrkz.net/he/graduates/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he/page/4",
+    "https://almrkz.net/he/page/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he/partners/all",
+    "https://almrkz.net/he/partners/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he/post/1",
+    "https://almrkz.net/he/post/3",
+    "https://almrkz.net/he/post/4",
+    "https://almrkz.net/he/post/5",
+    "https://almrkz.net/he/post/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he/posts/all",
+    "https://almrkz.net/he/posts/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he/specializations",
+    "https://almrkz.net/he/specializations/3",
+    "https://almrkz.net/he/specializations/4",
+    "https://almrkz.net/he/specializations/5",
+    "https://almrkz.net/he/specializations/6",
+    "https://almrkz.net/he/specializations/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he/staff/all",
+    "https://almrkz.net/he/staff/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/he/كلية المركز –מכללת המרכז ",
+    "https://almrkz.net/كلية المركز –מכללת המרכז "
+  ],
+  "assets": [
+    {
+      "url": "https://almrkz.net/assets/img/WEBSITE.png",
+      "kind": "image",
+      "file": "assets/images/website/assets__img__WEBSITE.png",
+      "bytes": 79049
+    },
+    {
+      "url": "https://almrkz.net/assets/img/apple-touch-icon.png",
+      "kind": "image",
+      "file": "assets/images/website/assets__img__apple-touch-icon.png",
+      "bytes": 26463
+    },
+    {
+      "url": "https://almrkz.net/assets/img/bac1.png",
+      "kind": "image",
+      "file": "assets/images/website/assets__img__bac1.png",
+      "bytes": 58675
+    },
+    {
+      "url": "https://almrkz.net/assets/img/img.png",
+      "kind": "image",
+      "file": "assets/images/website/assets__img__img.png",
+      "bytes": 71187
+    },
+    {
+      "url": "https://almrkz.net/assets/img/logo1.png",
+      "kind": "image",
+      "file": "assets/images/website/assets__img__logo1.png",
+      "bytes": 8522
+    },
+    {
+      "url": "https://almrkz.net/images/courses/1554b610-46ab-48c9-a55c-b7d9b5b1463d1336b38a-005d-4d2b-afdc-921c3430f9bc.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__1554b610-46ab-48c9-a55c-b7d9b5b1463d1336b38a-005d-4d2b-afdc-921c3430f9bc.jpeg",
+      "bytes": 298503
+    },
+    {
+      "url": "https://almrkz.net/images/courses/1c248419-371e-4a9c-b53f-275b3d0905ca8ff7988b-2b3f-4c2d-aee8-2a5caca8ac06.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__1c248419-371e-4a9c-b53f-275b3d0905ca8ff7988b-2b3f-4c2d-aee8-2a5caca8ac06.jpeg",
+      "bytes": 220020
+    },
+    {
+      "url": "https://almrkz.net/images/courses/20d9d724-1505-4c60-885d-4206c6889b54IMG_7447.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__20d9d724-1505-4c60-885d-4206c6889b54IMG_7447.jpeg",
+      "bytes": 338956
+    },
+    {
+      "url": "https://almrkz.net/images/courses/3eef9f42-4aed-4451-90b3-91c8acc134f6IMG_7438.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__3eef9f42-4aed-4451-90b3-91c8acc134f6IMG_7438.jpeg",
+      "bytes": 171308
+    },
+    {
+      "url": "https://almrkz.net/images/courses/574b46ba-9ec6-4ecb-84c8-b0be6c743c3ce5c9a693-1ead-4a98-8957-43afff633ec7.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__574b46ba-9ec6-4ecb-84c8-b0be6c743c3ce5c9a693-1ead-4a98-8957-43afff633ec7.jpeg",
+      "bytes": 173138
+    },
+    {
+      "url": "https://almrkz.net/images/courses/61267b41-4a16-4b27-90dc-9a05090e2a31IMG_7452.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__61267b41-4a16-4b27-90dc-9a05090e2a31IMG_7452.jpeg",
+      "bytes": 323811
+    },
+    {
+      "url": "https://almrkz.net/images/courses/66eb9f9f-4dde-4ae6-9277-68c651fdc5a6IMG_7435.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__66eb9f9f-4dde-4ae6-9277-68c651fdc5a6IMG_7435.jpeg",
+      "bytes": 79521
+    },
+    {
+      "url": "https://almrkz.net/images/courses/8fd1c237-9b38-413e-84b4-6c70afefa87eIMG_7457.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__8fd1c237-9b38-413e-84b4-6c70afefa87eIMG_7457.jpeg",
+      "bytes": 178968
+    },
+    {
+      "url": "https://almrkz.net/images/courses/b4114761-8dab-4a35-acb2-53fbe5c3c048a4e741f8-4444-4ca2-9616-c556718b0da9.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__b4114761-8dab-4a35-acb2-53fbe5c3c048a4e741f8-4444-4ca2-9616-c556718b0da9.jpeg",
+      "bytes": 176903
+    },
+    {
+      "url": "https://almrkz.net/images/courses/ce7e08d7-9ec9-454b-ad5e-9c3b3f91ada8IMG_7448.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__ce7e08d7-9ec9-454b-ad5e-9c3b3f91ada8IMG_7448.jpeg",
+      "bytes": 173682
+    },
+    {
+      "url": "https://almrkz.net/images/courses/f7478740-830e-4196-8092-4f6acd969097IMG_7434.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__courses__f7478740-830e-4196-8092-4f6acd969097IMG_7434.jpeg",
+      "bytes": 144627
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/1235b99c-03a3-4399-8c09-775d8d4237dcb6c12761-50ee-45bb-bc65-f2ab8f515047.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__1235b99c-03a3-4399-8c09-775d8d4237dcb6c12761-50ee-45bb-bc65-f2ab8f515047.jpeg",
+      "bytes": 51637
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/17d20f10-f0f9-4ae0-8945-3a3f49028d1e087d6f2e-e464-4736-a52d-620ff532e228.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__17d20f10-f0f9-4ae0-8945-3a3f49028d1e087d6f2e-e464-4736-a52d-620ff532e228.jpeg",
+      "bytes": 121466
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/1a4da61f-4dd1-4ae2-b2f5-341455bfe02ef85fbdc0-4f4e-4da5-a159-b836d5f82d8c.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__1a4da61f-4dd1-4ae2-b2f5-341455bfe02ef85fbdc0-4f4e-4da5-a159-b836d5f82d8c.jpeg",
+      "bytes": 41447
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/321eae0c-bc0d-4a02-85c0-58dd5819f02cf85fbdc0-4f4e-4da5-a159-b836d5f82d8c.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__321eae0c-bc0d-4a02-85c0-58dd5819f02cf85fbdc0-4f4e-4da5-a159-b836d5f82d8c.jpeg",
+      "bytes": 35212
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/43e84311-0053-405e-aed9-7d36eae3c29b4360c0cd-67cd-469c-b389-09fbb61f34b2.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__43e84311-0053-405e-aed9-7d36eae3c29b4360c0cd-67cd-469c-b389-09fbb61f34b2.jpeg",
+      "bytes": 113006
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/498ea18b-b6b2-48da-abb7-22ea64355b135e23ef6f-4485-4f2a-88d4-d93f454e08eb.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__498ea18b-b6b2-48da-abb7-22ea64355b135e23ef6f-4485-4f2a-88d4-d93f454e08eb.jpeg",
+      "bytes": 163062
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/4e2251b8-cfa1-4537-a431-b03ee181e12432a2ebd2-b8d8-4e4d-bc11-623ab467ca9c.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__4e2251b8-cfa1-4537-a431-b03ee181e12432a2ebd2-b8d8-4e4d-bc11-623ab467ca9c.jpeg",
+      "bytes": 128841
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/4feb36bf-293f-4bfb-af20-4e6e2728ee2e7dd22ad3-27fe-41d4-93c3-6686f28c3231.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__4feb36bf-293f-4bfb-af20-4e6e2728ee2e7dd22ad3-27fe-41d4-93c3-6686f28c3231.jpeg",
+      "bytes": 71870
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/56f2bf48-541e-4e2f-9ee1-b51b351a7d3eb5b21053-5339-4a1f-82a2-232d3173f440.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__56f2bf48-541e-4e2f-9ee1-b51b351a7d3eb5b21053-5339-4a1f-82a2-232d3173f440.jpeg",
+      "bytes": 105406
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/7cacba05-9efa-4d5b-8a7f-daa7c473947d231bbce6-7765-41c9-b648-737a9ec58592.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__7cacba05-9efa-4d5b-8a7f-daa7c473947d231bbce6-7765-41c9-b648-737a9ec58592.jpeg",
+      "bytes": 118496
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/a08c2651-be8d-42a5-bdf9-a9cfb06e283fadb27351-4eb8-49b9-8c4f-70c8f10a2899.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__a08c2651-be8d-42a5-bdf9-a9cfb06e283fadb27351-4eb8-49b9-8c4f-70c8f10a2899.jpeg",
+      "bytes": 29678
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/a113c7bd-3af1-4631-891d-d18843c206672638ece9-ef4e-474a-8ba8-ab9c837647d0.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__a113c7bd-3af1-4631-891d-d18843c206672638ece9-ef4e-474a-8ba8-ab9c837647d0.jpeg",
+      "bytes": 29527
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/d3407557-f5fa-418b-ab4f-c061cf71fb5de741d1c1-e47f-447e-a9ff-f413b721104c.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__d3407557-f5fa-418b-ab4f-c061cf71fb5de741d1c1-e47f-447e-a9ff-f413b721104c.jpeg",
+      "bytes": 87065
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/d3c3abd2-8590-4b66-ba99-644be74758f5a561ad9e-98ea-4e33-84e9-0c528aca23f8.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__d3c3abd2-8590-4b66-ba99-644be74758f5a561ad9e-98ea-4e33-84e9-0c528aca23f8.jpeg",
+      "bytes": 77057
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/db972706-d584-4ac5-a480-916a01c01b59c301b325-b353-45e4-bbcf-911095129331.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__db972706-d584-4ac5-a480-916a01c01b59c301b325-b353-45e4-bbcf-911095129331.jpeg",
+      "bytes": 81884
+    },
+    {
+      "url": "https://almrkz.net/images/graduates/ec2087f1-79d2-4c07-96b8-51a67d8b78883d661fca-3a09-4e79-9b2f-faefd80280b1.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__graduates__ec2087f1-79d2-4c07-96b8-51a67d8b78883d661fca-3a09-4e79-9b2f-faefd80280b1.jpeg",
+      "bytes": 91179
+    },
+    {
+      "url": "https://almrkz.net/images/pages/4a508264-f1ac-4202-b842-c34db7e747c5img.png",
+      "kind": "image",
+      "file": "assets/images/website/images__pages__4a508264-f1ac-4202-b842-c34db7e747c5img.png",
+      "bytes": 71187
+    },
+    {
+      "url": "https://almrkz.net/images/partners/2be61bdc-0a6f-4f34-aa7a-2b61bae1ef5ba2.png",
+      "kind": "image",
+      "file": "assets/images/website/images__partners__2be61bdc-0a6f-4f34-aa7a-2b61bae1ef5ba2.png",
+      "bytes": 29356
+    },
+    {
+      "url": "https://almrkz.net/images/partners/56946c44-c8c3-4cdd-ba5e-f81af87b73cca4.png",
+      "kind": "image",
+      "file": "assets/images/website/images__partners__56946c44-c8c3-4cdd-ba5e-f81af87b73cca4.png",
+      "bytes": 47142
+    },
+    {
+      "url": "https://almrkz.net/images/partners/81a1c833-678a-4993-b74a-ab3b5c3a1891a3.png",
+      "kind": "image",
+      "file": "assets/images/website/images__partners__81a1c833-678a-4993-b74a-ab3b5c3a1891a3.png",
+      "bytes": 44901
+    },
+    {
+      "url": "https://almrkz.net/images/partners/aca5887c-3fe9-438f-ac08-0a168f44b02ea5.png",
+      "kind": "image",
+      "file": "assets/images/website/images__partners__aca5887c-3fe9-438f-ac08-0a168f44b02ea5.png",
+      "bytes": 29741
+    },
+    {
+      "url": "https://almrkz.net/images/partners/fb4028cd-e2bc-4879-85be-0f32fcbf1f63WEBSITE _ALMARKAZ26-08.png",
+      "kind": "image",
+      "file": "assets/images/website/images__partners__fb4028cd-e2bc-4879-85be-0f32fcbf1f63WEBSITE__ALMARKAZ26-08.png",
+      "bytes": 19624
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-10.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-10.jpeg",
+      "bytes": 320750
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-11.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-11.jpeg",
+      "bytes": 303651
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-12.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-12.jpeg",
+      "bytes": 342140
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-13.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-13.jpeg",
+      "bytes": 329514
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-14.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-14.jpeg",
+      "bytes": 302334
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-15.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-15.jpeg",
+      "bytes": 324372
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-16.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-16.jpeg",
+      "bytes": 333094
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-5.jpg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-5.jpg",
+      "bytes": 105047
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-6.jpg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-6.jpg",
+      "bytes": 81598
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-7.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-7.jpeg",
+      "bytes": 137578
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-8.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-8.jpeg",
+      "bytes": 164668
+    },
+    {
+      "url": "https://almrkz.net/images/posts/1/1-9.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__1__1-9.jpeg",
+      "bytes": 172025
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-1.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-1.jpeg",
+      "bytes": 560825
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-10.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-10.jpeg",
+      "bytes": 300040
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-11.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-11.jpeg",
+      "bytes": 300638
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-12.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-12.jpeg",
+      "bytes": 376755
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-13.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-13.jpeg",
+      "bytes": 376011
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-2.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-2.jpeg",
+      "bytes": 333340
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-3.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-3.jpeg",
+      "bytes": 341231
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-4.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-4.jpeg",
+      "bytes": 438240
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-5.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-5.jpeg",
+      "bytes": 539560
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-6.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-6.jpeg",
+      "bytes": 344373
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-7.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-7.jpeg",
+      "bytes": 614295
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-8.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-8.jpeg",
+      "bytes": 560825
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3/3-9.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3__3-9.jpeg",
+      "bytes": 325869
+    },
+    {
+      "url": "https://almrkz.net/images/posts/31f02d2c-bf3e-47a7-af0a-b5bdc118f79ee4d1f88c-1ea9-4bd5-92c8-c6e63262f790.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__31f02d2c-bf3e-47a7-af0a-b5bdc118f79ee4d1f88c-1ea9-4bd5-92c8-c6e63262f790.jpeg",
+      "bytes": 560825
+    },
+    {
+      "url": "https://almrkz.net/images/posts/3de1b201-8ce4-4d43-bdd4-ccf7507cd21734ba814c-1413-42c6-a26c-abbe42265f5c.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__3de1b201-8ce4-4d43-bdd4-ccf7507cd21734ba814c-1413-42c6-a26c-abbe42265f5c.jpeg",
+      "bytes": 314485
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-1.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-1.jpeg",
+      "bytes": 261597
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-10.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-10.jpeg",
+      "bytes": 373700
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-11.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-11.jpeg",
+      "bytes": 359979
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-12.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-12.jpeg",
+      "bytes": 380035
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-2.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-2.jpeg",
+      "bytes": 469158
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-3.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-3.jpeg",
+      "bytes": 242036
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-4.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-4.jpeg",
+      "bytes": 844442
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-5.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-5.jpeg",
+      "bytes": 261597
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-6.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-6.jpeg",
+      "bytes": 335920
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-7.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-7.jpeg",
+      "bytes": 334325
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-8.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-8.jpeg",
+      "bytes": 311068
+    },
+    {
+      "url": "https://almrkz.net/images/posts/4/4-9.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__4__4-9.jpeg",
+      "bytes": 384554
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-1.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-1.jpeg",
+      "bytes": 377024
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-10.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-10.jpeg",
+      "bytes": 378061
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-11.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-11.jpeg",
+      "bytes": 408364
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-12.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-12.jpeg",
+      "bytes": 379625
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-13.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-13.jpeg",
+      "bytes": 411003
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-14.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-14.jpeg",
+      "bytes": 406899
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-15.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-15.jpeg",
+      "bytes": 320729
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-16.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-16.jpeg",
+      "bytes": 342022
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-17.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-17.jpeg",
+      "bytes": 377024
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-2.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-2.jpeg",
+      "bytes": 443118
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-3.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-3.jpeg",
+      "bytes": 356064
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-4.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-4.jpeg",
+      "bytes": 370800
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-5.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-5.jpeg",
+      "bytes": 368137
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-6.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-6.jpeg",
+      "bytes": 391739
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-7.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-7.jpeg",
+      "bytes": 388604
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-8.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-8.jpeg",
+      "bytes": 330886
+    },
+    {
+      "url": "https://almrkz.net/images/posts/5/5-9.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__5__5-9.jpeg",
+      "bytes": 335997
+    },
+    {
+      "url": "https://almrkz.net/images/posts/7e730d86-6a0d-4386-9fd6-471b28912fe9cc0d4b0b-9428-46d3-8bea-95c67a8302a7.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__7e730d86-6a0d-4386-9fd6-471b28912fe9cc0d4b0b-9428-46d3-8bea-95c67a8302a7.jpeg",
+      "bytes": 384554
+    },
+    {
+      "url": "https://almrkz.net/images/posts/bb1056a0-f8e0-45d3-8431-e66ddb700d548025dea4-efaa-4148-a4a1-05122bf01ef4.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__posts__bb1056a0-f8e0-45d3-8431-e66ddb700d548025dea4-efaa-4148-a4a1-05122bf01ef4.jpeg",
+      "bytes": 377024
+    },
+    {
+      "url": "https://almrkz.net/images/settings/3067a6a9-f3b0-460a-afe4-c202ecb921eflogo.png",
+      "kind": "image",
+      "file": "assets/images/website/images__settings__3067a6a9-f3b0-460a-afe4-c202ecb921eflogo.png",
+      "bytes": 27041
+    },
+    {
+      "url": "https://almrkz.net/images/settings/e3682cf9-90a3-48a1-b441-59712ae3f100favicon.png",
+      "kind": "image",
+      "file": "assets/images/website/images__settings__e3682cf9-90a3-48a1-b441-59712ae3f100favicon.png",
+      "bytes": 17179
+    },
+    {
+      "url": "https://almrkz.net/images/slideshow/8786d644-181d-4591-bfa1-fd0b736cae00e3caa4a5-6ddc-4f0f-822d-68543e9a7d10slide-1.png",
+      "kind": "image",
+      "file": "assets/images/website/images__slideshow__8786d644-181d-4591-bfa1-fd0b736cae00e3caa4a5-6ddc-4f0f-822d-68543e9a7d10slide-1.png",
+      "bytes": 3396644
+    },
+    {
+      "url": "https://almrkz.net/images/specialization/22330012-db6b-4e77-b311-c0759e5611a4Layer 5.png",
+      "kind": "image",
+      "file": "assets/images/website/images__specialization__22330012-db6b-4e77-b311-c0759e5611a4Layer_5.png",
+      "bytes": 18949
+    },
+    {
+      "url": "https://almrkz.net/images/specialization/6eed5add-aad3-490a-9559-4401c1df6e52Layer 2.png",
+      "kind": "image",
+      "file": "assets/images/website/images__specialization__6eed5add-aad3-490a-9559-4401c1df6e52Layer_2.png",
+      "bytes": 43540
+    },
+    {
+      "url": "https://almrkz.net/images/specialization/9b5ba03a-3c73-4850-9445-476b9bef0f5aLayer 3.png",
+      "kind": "image",
+      "file": "assets/images/website/images__specialization__9b5ba03a-3c73-4850-9445-476b9bef0f5aLayer_3.png",
+      "bytes": 27094
+    },
+    {
+      "url": "https://almrkz.net/images/specialization/b95077be-0a43-429b-ace8-cac5329b7fceLayer 4.png",
+      "kind": "image",
+      "file": "assets/images/website/images__specialization__b95077be-0a43-429b-ace8-cac5329b7fceLayer_4.png",
+      "bytes": 20766
+    },
+    {
+      "url": "https://almrkz.net/images/staff/1607924a-293c-46fc-961e-a78833b69d8a.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__staff__1607924a-293c-46fc-961e-a78833b69d8a.jpeg",
+      "bytes": 188396
+    },
+    {
+      "url": "https://almrkz.net/images/staff/3cb8296d-04a4-4a7b-b63d-cf27391d6eef.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__staff__3cb8296d-04a4-4a7b-b63d-cf27391d6eef.jpeg",
+      "bytes": 202128
+    },
+    {
+      "url": "https://almrkz.net/images/staff/403cb566-6b16-4e70-a42d-5d2a5750decf.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__staff__403cb566-6b16-4e70-a42d-5d2a5750decf.jpeg",
+      "bytes": 196949
+    },
+    {
+      "url": "https://almrkz.net/images/staff/842f3e59-50c7-46c1-8604-a24ab146e8bc.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__staff__842f3e59-50c7-46c1-8604-a24ab146e8bc.jpeg",
+      "bytes": 144745
+    },
+    {
+      "url": "https://almrkz.net/images/staff/bae4eb14-a5c7-4959-b34b-f28c76c27a8e.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__staff__bae4eb14-a5c7-4959-b34b-f28c76c27a8e.jpeg",
+      "bytes": 136772
+    },
+    {
+      "url": "https://almrkz.net/images/staff/c932da0a-2621-4f0d-be09-ce17c6138329.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__staff__c932da0a-2621-4f0d-be09-ce17c6138329.jpeg",
+      "bytes": 219061
+    },
+    {
+      "url": "https://almrkz.net/images/videoslibrary/00147f02-221a-4cb4-9575-265883f93a65IMG_7418.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__videoslibrary__00147f02-221a-4cb4-9575-265883f93a65IMG_7418.jpeg",
+      "bytes": 469158
+    },
+    {
+      "url": "https://almrkz.net/images/videoslibrary/1459592e-8d35-4537-83df-24e9c44a13d5IMG_7414.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__videoslibrary__1459592e-8d35-4537-83df-24e9c44a13d5IMG_7414.jpeg",
+      "bytes": 190697
+    },
+    {
+      "url": "https://almrkz.net/images/videoslibrary/3f70d2b7-dede-4cbe-810b-60db36686933IMG_7464.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__videoslibrary__3f70d2b7-dede-4cbe-810b-60db36686933IMG_7464.jpeg",
+      "bytes": 507708
+    },
+    {
+      "url": "https://almrkz.net/images/videoslibrary/afa3aeec-274a-4468-8b22-d114b8575d90IMG_7420.jpeg",
+      "kind": "image",
+      "file": "assets/images/website/images__videoslibrary__afa3aeec-274a-4468-8b22-d114b8575d90IMG_7420.jpeg",
+      "bytes": 62222
+    }
+  ],
+  "failed": [
+    {
+      "url": "https://almrkz.net/ar/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/ar/course/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/ar/graduates/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/ar/page/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/ar/partners/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/ar/post/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/ar/posts/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/ar/specializations/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/ar/staff/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/course/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/graduates/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/page/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/partners/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/post/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/posts/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/specializations/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://almrkz.net/he/staff/assets/img/apple-touch-icon.png",
+      "error": "HTTP Error 404: Not Found"
+    }
+  ]
+}

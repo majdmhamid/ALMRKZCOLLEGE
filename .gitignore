@@ -1,0 +1,39 @@
+# ملفات مؤقتة من التنزيل
+*.part
+.download-archive
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# مجلد متكرر بالغلط (نسخة مطابقة لـ assets/images/facebook) — لا يُرفع
+assets/videos/website/assets/
+
+# ملفات الفيديو الكبيرة (37 ميغا لكل واحد) — الفيديوهات أصلاً على يوتيوب والموقع بيعرضها من هناك.
+# لتنزيلها من جديد: python scripts/fetch-website-media.py  أو  yt-dlp
+assets/videos/**/*.mp4
+assets/videos/**/*.webm
+assets/videos/**/*.mov
+*.part
+
+# كوكيز المتصفح لتنزيل فيديوهات فيسبوك — ممنوع رفعها
+cookies.txt
+*.cookies
+
+# Next.js
+/node_modules
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+.env*
+!.env.example
+.vercel
+.idea/
+.vscode/
+*.swp
+
+# مقترحات تصميم مرفوضة (نماذج HTML محلية + خطوط) — تبقى على الجهاز فقط
+/designs/

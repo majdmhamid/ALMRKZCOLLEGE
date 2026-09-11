@@ -1,0 +1,20 @@
+# Media is binary - do not let git mangle line endings or try to diff it.
+*.jpg   binary
+*.jpeg  binary
+*.png   binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.svg   text
+*.mp4   binary
+*.webm  binary
+*.mov   binary
+
+# Track large media with Git LFS once `git lfs install` has been run.
+# Uncomment after installing LFS; see assets/README.md.
+# *.mp4  filter=lfs diff=lfs merge=lfs -text
+# *.webm filter=lfs diff=lfs merge=lfs -text
+# *.mov  filter=lfs diff=lfs merge=lfs -text
+
+# سطور النصوص: LF دائماً في المستودع (يمنع تحذيرات CRLF على ويندوز)
+* text=auto eol=lf
