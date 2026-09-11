@@ -37,3 +37,8 @@ npm-debug.log*
 
 # مقترحات تصميم مرفوضة (نماذج HTML محلية + خطوط) — تبقى على الجهاز فقط
 /designs/
+
+# فيديوهات الإعلانات من كمبيوتر الكلية (assets/videos/promo) — مرفوعة على GitHub عبر Git LFS
+!assets/videos/promo/*.mp4
+!assets/videos/promo/*.webm
+!assets/videos/promo/*.mov

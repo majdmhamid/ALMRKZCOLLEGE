@@ -18,3 +18,9 @@
 
 # سطور النصوص: LF دائماً في المستودع (يمنع تحذيرات CRLF على ويندوز)
 * text=auto eol=lf
+
+# Promo videos from the college PC are 40-190 MB each (two are over GitHub's 100 MB limit)
+# so they live in Git LFS. Run `git lfs install` once, then `git lfs pull` after cloning.
+assets/videos/promo/*.mp4  filter=lfs diff=lfs merge=lfs -text
+assets/videos/promo/*.webm filter=lfs diff=lfs merge=lfs -text
+assets/videos/promo/*.mov  filter=lfs diff=lfs merge=lfs -text

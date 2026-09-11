@@ -13,6 +13,7 @@
 | يوتيوب الكلية | **فيديوهان** (2021)، 72 ميغا — مكتبة الفيديو بالموقع أصلاً روابط يوتيوب | `videos/website/` |
 | فيسبوك | **525 صورة**، 77 ميغا | `images/facebook/` |
 | فيسبوك — فيديو | ❌ محجوب بدون تسجيل دخول | `videos/facebook/` |
+| كمبيوتر الكلية (مجلد مشترك) | **6 فيديوهات إعلانية**، 513 ميغا — عبر Git LFS | `videos/promo/` |
 | إنستغرام | ❌ ما لقينا حساب للكلية | `images/instagram/` |
 
 `website-media.json` فيه سجل كامل: كل ملف، من أي رابط إجا، وقدّيش حجمه.
@@ -48,6 +49,7 @@ assets/
 └── videos/
     ├── facebook/         # empty - needs cookies
     ├── instagram/        # empty - no account found
+    ├── promo/            # ← 6 promo videos from the college PC, stored in Git LFS
     ├── tiktok/           # empty - no account found
     └── website/          # ← yt-dlp, from the college YouTube channel
 ```
@@ -81,15 +83,21 @@ committing.
 
 ## Large video files
 
-The YouTube videos are ~37 MB each. Before committing video:
+`assets/videos/promo/` (six promo videos, 42-186 MB each, 513 MB total) is
+stored in **Git LFS** - two of the files are over GitHub's 100 MB hard limit.
+The rule lives at the bottom of `.gitattributes`; the folder is also
+re-included in `.gitignore`, which otherwise ignores every video under
+`assets/videos/`.
+
+On a fresh clone the videos arrive as tiny pointer files until LFS is set up:
 
 ```bash
 git lfs install
-git lfs track "*.mp4" "*.webm" "*.mov"
-git add .gitattributes
+git lfs pull
 ```
 
-`.gitattributes` already has these lines ready — just uncomment them.
+The YouTube downloads in `videos/website/` stay gitignored - they can be
+re-fetched with `yt-dlp` at any time.
 
 ## Before using anything on the new site
 
