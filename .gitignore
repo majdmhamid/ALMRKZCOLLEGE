@@ -1,0 +1,17 @@
+# Browser-exported cookies used by scripts/fetch-media.sh - never commit these
+cookies.txt
+*.cookies
+
+# Downloader bookkeeping
+.download-archive
+**/.download-archive
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Node
+node_modules/

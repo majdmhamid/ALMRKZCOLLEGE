@@ -1,0 +1,63 @@
+{
+  "institution": {
+    "name_ar": "كلية المركز",
+    "name_he": "מכללת המרכז להכשרה מקצועית",
+    "name_en": "Al-Merkaz College for Professional Training",
+    "city": "Umm el-Fahm",
+    "notes": "Vocational / technological-industrial college. Reported founded 2008, operating under Ministry of Labor supervision. Details below came from web search result summaries only - the pages themselves could not be opened from this environment, so treat every field as UNVERIFIED until checked against the live pages."
+  },
+  "sources": [
+    {
+      "id": "website",
+      "platform": "website",
+      "url": "https://almrkz.net/he",
+      "handle": null,
+      "status": "found-via-search",
+      "verified": false,
+      "target_dir": "assets/images/website",
+      "notes": "Official site. Hebrew locale path; an Arabic locale (likely /ar) is probable but unconfirmed. Best source for logo and program photos."
+    },
+    {
+      "id": "facebook",
+      "platform": "facebook",
+      "url": "https://www.facebook.com/almerkaz.collega/",
+      "handle": "almerkaz.collega",
+      "status": "found-via-search",
+      "verified": false,
+      "target_dir": "assets/images/facebook",
+      "video_dir": "assets/videos/facebook",
+      "notes": "Listed as 'كلية المركز- מכללת המרכז להכשרה מקצועית', Umm el Fahm. Note the handle ends in 'collega', not 'college'."
+    },
+    {
+      "id": "instagram",
+      "platform": "instagram",
+      "url": "https://www.instagram.com/almerkaz.college/",
+      "handle": "almerkaz.college",
+      "status": "found-via-search",
+      "verified": false,
+      "target_dir": "assets/images/instagram",
+      "video_dir": "assets/videos/instagram",
+      "notes": "Profile shown as 'מכללת המרכז / كلية المركز'. Handle ends in 'college' - differs from the Facebook handle."
+    },
+    {
+      "id": "tiktok",
+      "platform": "tiktok",
+      "url": null,
+      "handle": null,
+      "status": "not-found",
+      "verified": false,
+      "target_dir": "assets/videos/tiktok",
+      "notes": "No TikTok account for the college surfaced in search. If one exists, add its URL here and rerun the fetch script."
+    }
+  ],
+  "excluded": [
+    {
+      "url": "https://www.facebook.com/alestkmal/",
+      "reason": "'كلية المركز للاستكمال' in Sakhnin - a different institution that shares part of the name."
+    },
+    {
+      "url": "https://www.facebook.com/mrkz.jmahery/",
+      "reason": "'المركز الجماهيري ام الفحم' - the Umm el-Fahm community center, not the college."
+    }
+  ]
+}
