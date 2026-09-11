@@ -15,3 +15,22 @@ assets/videos/**/*.mp4
 assets/videos/**/*.webm
 assets/videos/**/*.mov
 *.part
+
+# كوكيز المتصفح لتنزيل فيديوهات فيسبوك — ممنوع رفعها
+cookies.txt
+*.cookies
+
+# Next.js
+/node_modules
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+.env*
+!.env.example
+.vercel
+.idea/
+.vscode/
+*.swp
