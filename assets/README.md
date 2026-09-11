@@ -42,8 +42,37 @@ assets/
 └── videos/
     ├── facebook/
     ├── instagram/
-    └── tiktok/
+    ├── tiktok/
+    └── promo/            # ← scripts/copy-promo-videos.ps1 (office share)
 ```
+
+## Promo videos from the office share
+
+<div dir="rtl">
+
+فيديوهات الدعاية موجودة على الشبكة الداخلية بالمكتب:
+
+`\\Desktop-ktffbra\חומר משותף\מכללת המרכז\פרסום\סרטונים לפרסום`
+
+جلسة Claude Code على الويب **ما بتوصل** لهالمجلد (ما في وصول للشبكة المحلية).
+شغّل السكربت من جهاز Windows داخل شبكة المكتب وهو بينسخهم لـ `assets/videos/promo`
+وبيقلّك إذا في ملفات كبيرة لازمها Git LFS:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\copy-promo-videos.ps1
+```
+
+بعدها: **ارفع الشغل على GitHub**.
+
+</div>
+
+The promotional videos live on the office LAN at
+`\\Desktop-ktffbra\חומר משותף\מכללת המרכז\פרסום\סרטונים לפרסום`. A Claude
+Code web session cannot reach that share, so run
+`scripts/copy-promo-videos.ps1` from a Windows PC on the office network. It
+copies every video (subfolders included, already-copied files skipped) into
+`assets/videos/promo/` and flags anything over 50 MB / 100 MB — see
+**Large video files** below before pushing those.
 
 ## Before you run the script
 
