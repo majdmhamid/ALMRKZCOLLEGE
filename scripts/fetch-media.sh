@@ -91,6 +91,7 @@ while IFS=$'\t' read -r id platform url target_dir video_dir status; do
   skip "$id" && continue
   count=$((count + 1))
   [[ "$url" == "null" || -z "$url" ]] && { echo "==> $id: no URL in manifest (status: $status), skipping"; continue; }
+  url="${url//\\\\/\\}"   # @tsv doubles backslashes in UNC paths
 
   echo
   echo "==> $id ($platform)"
@@ -106,6 +107,10 @@ while IFS=$'\t' read -r id platform url target_dir video_dir status; do
       ;;
     tiktok)
       fetch_videos "$url" "$target_dir"
+      ;;
+    local)
+      echo "  - internal network share, nothing to download; on a machine that can see it run:"
+      echo "    powershell -File scripts/import-promo-videos.ps1   (see $target_dir/README.md)"
       ;;
     *)
       echo "  ! unknown platform '$platform', skipping"

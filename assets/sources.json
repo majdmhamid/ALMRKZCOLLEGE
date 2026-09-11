@@ -48,6 +48,16 @@
       "verified": false,
       "target_dir": "assets/videos/tiktok",
       "notes": "No TikTok account for the college surfaced in search. If one exists, add its URL here and rerun the fetch script."
+    },
+    {
+      "id": "promo-share",
+      "platform": "local",
+      "url": "\\\\Desktop-ktffbra\\חומר משותף\\מכללת המרכז\\פרסום\\סרטונים לפרסום",
+      "handle": null,
+      "status": "local-share",
+      "verified": false,
+      "target_dir": "assets/videos/promo",
+      "notes": "Windows network share on the college LAN holding the marketing videos. Not reachable from Claude Code web sessions; import from a machine on that network with scripts/import-promo-videos.ps1, then sort by type - see assets/videos/promo/README.md."
     }
   ],
   "excluded": [

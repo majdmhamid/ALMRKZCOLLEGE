@@ -2,6 +2,9 @@
 cookies.txt
 *.cookies
 
+# Unsorted videos copied from the network share by scripts/import-promo-videos.ps1
+assets/videos/promo/_inbox/
+
 # Downloader bookkeeping
 .download-archive
 **/.download-archive

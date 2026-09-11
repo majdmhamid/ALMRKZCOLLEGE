@@ -1,0 +1,26 @@
+{
+  "source": "\\\\Desktop-ktffbra\\חומר משותף\\מכללת המרכז\\פרסום\\סרטונים לפרסום",
+  "imported_at": null,
+  "categories": {
+    "courses": "One promo per course / track",
+    "testimonials": "Students and graduates on their experience",
+    "campus": "College tour, workshops, labs, equipment",
+    "events": "Graduations, open days, events",
+    "general": "General brand / enrolment videos"
+  },
+  "example_entry": {
+    "file": "courses/electricity-2025.mp4",
+    "original_name": "חשמל סופי.mp4",
+    "category": "courses",
+    "course": "Electricity",
+    "title_ar": "دورة الكهرباء",
+    "title_he": "קורס חשמל",
+    "description": "",
+    "duration_seconds": null,
+    "resolution": null,
+    "size_mb": null,
+    "use_on_site": "course-page",
+    "consent_checked": false
+  },
+  "videos": []
+}

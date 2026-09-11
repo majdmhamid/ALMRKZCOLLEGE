@@ -42,7 +42,11 @@ assets/
 └── videos/
     ├── facebook/
     ├── instagram/
-    └── tiktok/
+    ├── tiktok/
+    └── promo/            # ← scripts/import-promo-videos.ps1, from the college's network share
+        ├── manifest.json # one entry per video: type, titles, where the site shows it
+        ├── courses/  testimonials/  campus/  events/  general/
+        └── _inbox/       # staging area, gitignored
 ```
 
 ## Before you run the script
