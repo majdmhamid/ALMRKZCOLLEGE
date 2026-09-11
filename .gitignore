@@ -8,3 +8,10 @@ Thumbs.db
 
 # مجلد متكرر بالغلط (نسخة مطابقة لـ assets/images/facebook) — لا يُرفع
 assets/videos/website/assets/
+
+# ملفات الفيديو الكبيرة (37 ميغا لكل واحد) — الفيديوهات أصلاً على يوتيوب والموقع بيعرضها من هناك.
+# لتنزيلها من جديد: python scripts/fetch-website-media.py  أو  yt-dlp
+assets/videos/**/*.mp4
+assets/videos/**/*.webm
+assets/videos/**/*.mov
+*.part
