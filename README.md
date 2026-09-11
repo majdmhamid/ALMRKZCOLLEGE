@@ -11,6 +11,8 @@ and video from the college's existing web presence for use in the new website.
 | `assets/sources.json` | Every known public page of the college, and where its media should land |
 | `assets/` | Image and video assets, grouped by source — **currently empty**, see below |
 | `scripts/fetch-media.sh` | Downloads the media described in `sources.json` |
+| `assets/videos/promo/` | The college's own promo videos from the office shared drive — see its README |
+| `scripts/import-videos.ps1` | Windows script that copies those videos from the share into `assets/videos/promo/` |
 
 ## Status
 

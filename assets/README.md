@@ -40,10 +40,20 @@ assets/
 │   ├── instagram/        # ← scripts/fetch-media.sh
 │   └── website/          # ← scripts/fetch-media.sh (almrkz.net)
 └── videos/
+    ├── promo/            # ← the college's own promo videos, copied by hand or
+    │                     #   with scripts/import-videos.ps1 (see promo/README.md)
     ├── facebook/
     ├── instagram/
     └── tiktok/
 ```
+
+## Adding the college's own videos
+
+The promo videos on the office shared drive do not come from any social page,
+so the fetch script does not touch them. Copy them into `assets/videos/promo/`
+by hand, or run `scripts/import-videos.ps1` on a Windows machine that can see
+the share. `assets/videos/promo/README.md` has the three-step version in
+Arabic.
 
 ## Before you run the script
 
