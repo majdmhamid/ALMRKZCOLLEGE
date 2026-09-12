@@ -89,6 +89,23 @@ export interface Video {
   thumbnail: string;
 }
 
+/** فيديو محلي (mp4 مضغوط في public/videos) يُعرض بصورته أولاً ولا يُحمَّل إلا عند الضغط */
+export interface LocalVideo {
+  slug: string;
+  /** مسار ملف mp4 داخل public/ */
+  src: string;
+  /** أول لقطة (webp) تظهر قبل التشغيل — وهي "الصورة" التي تُبدَّل بالفيديو لاحقاً */
+  poster: string;
+  title: Localized;
+  /** المدة بالثواني (للعرض فقط) */
+  seconds: number;
+  /** عمودي (ريلز 9:16) أو عريض (16:9) */
+  orientation: "portrait" | "landscape";
+  /** المجموعة أو الدورة التي يخصّها الفيديو (لعرضه في صفحتها) */
+  group?: string;
+  course?: string;
+}
+
 export interface NewsPost {
   slug: string;
   /** تاريخ بصيغة YYYY-MM-DD */

@@ -1,4 +1,4 @@
-import type { GalleryCategory, GalleryImage, Localized, Video } from "./types";
+import type { GalleryCategory, GalleryImage, LocalVideo, Localized, Video } from "./types";
 
 /**
  * معرض الصور — صور حقيقية من ورشات الكلية وجولاتها الميدانية (من صفحة الفيسبوك).
@@ -46,3 +46,61 @@ export const videos: Video[] = [
     thumbnail: "/images/videos/BnQOOEvTenw.webp",
   },
 ];
+
+/**
+ * ريلز الكلية — فيديوهات قصيرة عمودية (9:16) من إعلانات الكلية، مضغوطة للويب (1.3–1.7 ميغا لكل واحد).
+ * الأصول الكاملة في assets/videos/promo/ والصور الثابتة في public/images/reels/.
+ * لاستبدال فيديو لاحقاً: ضع mp4 جديداً بنفس الاسم في public/videos/reels/ وصورته في public/images/reels/.
+ */
+export const reels: LocalVideo[] = [
+  {
+    slug: "welding",
+    src: "/videos/reels/welding.mp4",
+    poster: "/images/reels/welding.webp",
+    title: { ar: "دورة اللحام — 3 أشهر بس", he: "קורס ריתוך – 3 חודשים בלבד" },
+    seconds: 20,
+    orientation: "portrait",
+    group: "welding",
+  },
+  {
+    slug: "hvac",
+    src: "/videos/reels/hvac.mp4",
+    poster: "/images/reels/hvac.webp",
+    title: { ar: "تقني تكييف وتبريد — تدريب عملي", he: "טכנאי מיזוג וקירור – תרגול מעשי" },
+    seconds: 16,
+    orientation: "portrait",
+    group: "hvac",
+  },
+  {
+    slug: "crane",
+    src: "/videos/reels/crane.mp4",
+    poster: "/images/reels/crane.webp",
+    title: { ar: "مشغّل رافعة — تأهيل سريع ورخصة رسمية", he: "מפעיל מנוף – הכשרה מהירה ורישיון רשמי" },
+    seconds: 17,
+    orientation: "portrait",
+    group: "construction-safety",
+    course: "self-loading-crane",
+  },
+  {
+    slug: "construction",
+    src: "/videos/reels/construction.mp4",
+    poster: "/images/reels/construction.webp",
+    title: { ar: "دورات البناء — مدير عمل، قراءة مخططات، سقالات", he: "קורסי בניין – מנהל עבודה, קריאת תוכניות, פיגומים" },
+    seconds: 23,
+    orientation: "portrait",
+    group: "construction-safety",
+  },
+];
+
+/** الإعلان التعريفي للكلية (دقيقة واحدة، 4.6 ميغا) — يُعرض بصورته ولا يُحمَّل إلا عند الضغط */
+export const promoVideo: LocalVideo = {
+  slug: "promo",
+  src: "/videos/promo.mp4",
+  poster: "/images/reels/promo.webp",
+  title: { ar: "كلية المركز — الإعلان التعريفي", he: "מכללת המרכז – סרטון התדמית" },
+  seconds: 60,
+  orientation: "landscape",
+};
+
+/** الريل المناسب لصفحة دورة: حسب الدورة أولاً ثم حسب المجموعة */
+export const reelFor = (course: string, group: string) => reels.find((r) => r.course === course) ?? reels.find((r) => r.group === group && !r.course);

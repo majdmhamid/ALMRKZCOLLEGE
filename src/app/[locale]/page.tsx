@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { courses, featuredCourses, coursesInGroup, getCourse } from "@content/courses";
-import { gallery, videos } from "@content/media";
+import { gallery, promoVideo, reels } from "@content/media";
 import { news } from "@content/news";
 import { graduates, partners } from "@content/people";
 import { site } from "@content/site";
@@ -17,7 +17,7 @@ import Marquee from "@/components/Marquee";
 import RotatingWords from "@/components/RotatingWords";
 import Tilt from "@/components/Tilt";
 import { CourseCard, GroupCard, NewsCard, SectionHeading, delay } from "@/components/ui";
-import YouTubeEmbed from "@/components/YouTubeEmbed";
+import VideoCard from "@/components/VideoCard";
 import { courseOptions, localeParam, sortedGroups } from "@/lib/content";
 import { courseCount, getDictionary, href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
@@ -342,17 +342,37 @@ export default async function HomePage({ params }: Params) {
         </div>
       </section>
 
-      {/* ---------- الفيديو ---------- */}
-      <section className="section bg-surface">
+      {/* ---------- الفيديو: الإعلان التعريفي + ريلز قصيرة (ملفات محلية، تُحمَّل عند الضغط فقط) ---------- */}
+      <section id="video-section" className="section bg-surface">
         <div className="container-x">
-          <SectionHeading eyebrow={dict.gallery.videosTitle} title={dict.home.videoTitle} center />
-          <div className="grid gap-6 md:grid-cols-2">
-            {videos.map((v, i) => (
-              <div key={v.youtubeId} data-reveal="scale" style={delay(i * 120)}>
-                <YouTubeEmbed id={v.youtubeId} title={t(v.title, locale)} thumbnail={v.thumbnail} />
+          <SectionHeading eyebrow={dict.gallery.videosTitle} title={dict.home.videoTitle} text={dict.home.videoText} center />
+          <div data-reveal="scale" className="mx-auto max-w-4xl">
+            <VideoCard src={promoVideo.src} poster={promoVideo.poster} title={t(promoVideo.title, locale)} orientation="landscape" playLabel={dict.common.playVideo} duration={`${promoVideo.seconds} ${dict.common.seconds}`} sizes="(min-width: 1024px) 896px, 100vw" />
+          </div>
+        </div>
+
+        {/* ريلز: صف قابل للسحب على الموبايل، شبكة من 4 على الشاشات الكبيرة */}
+        <div className="container-x mt-12">
+          <div data-reveal className="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <span className="eyebrow">{dict.home.reelsEyebrow}</span>
+              <h3 className="h2">{dict.home.reelsTitle}</h3>
+              <span className="heading-bar" aria-hidden="true" />
+            </div>
+          </div>
+          <Carousel labels={carouselLabels} className="lg:grid lg:grid-cols-4 lg:overflow-visible">
+            {reels.map((r, i) => (
+              <div key={r.slug} data-reveal="scale" style={delay(i * 100)} className="w-[62vw] max-w-[260px] sm:w-56 lg:w-auto lg:max-w-none">
+                <VideoCard src={r.src} poster={r.poster} title={t(r.title, locale)} orientation="portrait" playLabel={dict.common.playVideo} duration={`${r.seconds} ${dict.common.seconds}`} />
+                {r.group && (
+                  <Link href={href(locale, r.course ? `/courses/${r.group}/${r.course}` : `/courses/${r.group}`)} className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-brand-700 hover:underline">
+                    {dict.common.viewCourse}
+                    <ArrowIcon width={16} height={16} />
+                  </Link>
+                )}
               </div>
             ))}
-          </div>
+          </Carousel>
         </div>
       </section>
 

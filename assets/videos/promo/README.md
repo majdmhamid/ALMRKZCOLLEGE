@@ -13,8 +13,25 @@
 | `ריתוך.mp4` | دورة اللحام | 52 ميغا |
 | `מנוף.mp4` | دورة مشغّل رافعة | 45 ميغا |
 | `מזגנים.mp4` | دورة تركيب مكيّفات | 42 ميغا |
+| `בניין-ריל.mp4` | ريلز دورات البناء (مدير عمل، قراءة مخططات، سقالات) — وصل عبر واتساب 2026-09-12 | 7 ميغا |
 
-**المجموع: 513 ميغا.**
+**المجموع: 520 ميغا.**
+
+> ملاحظة (2026-09-12): حسين أرسل 5 فيديوهات من مجلد "New folder" — أربعة منها نسخ مطابقة للملفات
+> أعلاه (`תדמיתי` = "اعلان"، `מנוף` = "ريل 2"، `ריתוך` = "ريل 3"، `מזגנים` = "ريل 4")، والجديد الوحيد هو ريلز البناء.
+
+## النسخ الجاهزة للموقع (2026-09-12)
+
+| على الموقع | المصدر | الحجم | الصورة الثابتة |
+|---|---|---|---|
+| `public/videos/promo.mp4` (960×540، مع صوت) | `תדמיתי.mp4` | 4.6 ميغا | `public/images/reels/promo.webp` |
+| `public/videos/reels/welding.mp4` (540×960) | `ריתוך.mp4` | 1.6 ميغا | `public/images/reels/welding.webp` |
+| `public/videos/reels/hvac.mp4` | `מזגנים.mp4` | 1.3 ميغا | `public/images/reels/hvac.webp` |
+| `public/videos/reels/crane.mp4` | `מנוף.mp4` | 1.7 ميغا | `public/images/reels/crane.webp` |
+| `public/videos/reels/construction.mp4` | `בניין-ריל.mp4` | 1.6 ميغا | `public/images/reels/construction.webp` |
+
+الصور الثابتة نفسها بجودة عالية (JPG) في `stills/` — للاستخدام في التصميم أو السوشيال.
+الأمر المستخدم: `ffmpeg -i IN -vf "scale=540:960" -c:v libx264 -crf 28 -preset slow -movflags +faststart -c:a aac -b:a 64k -ac 1 OUT`.
 
 ## ملاحظات
 

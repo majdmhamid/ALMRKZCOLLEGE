@@ -3,9 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { courses, coursesInGroup, getCourse } from "@content/courses";
 import { getGroup } from "@content/groups";
+import { reelFor } from "@content/media";
 import { site } from "@content/site";
 import { AwardIcon, CalendarIcon, ClockIcon, CompassIcon, GiftIcon, LayersIcon, PhoneIcon, WhatsAppIcon } from "@/components/Icons";
 import LeadForm from "@/components/LeadForm";
+import VideoCard from "@/components/VideoCard";
 import { Breadcrumbs, CourseCard, JsonLd, PageHero, delay } from "@/components/ui";
 import { courseOptions, localeParam } from "@/lib/content";
 import { getDictionary, href, LOCALES, t } from "@/lib/i18n";
@@ -40,6 +42,7 @@ export default async function CoursePage({ params }: Params) {
   const dict = getDictionary(locale);
   const d = dict.course;
   const others = coursesInGroup(group.slug).filter((c) => c.slug !== course.slug);
+  const reel = reelFor(course.slug, group.slug);
   const url = `${site.url}${href(locale, `/courses/${group.slug}/${course.slug}`)}`;
 
   const info = [
@@ -207,6 +210,13 @@ export default async function CoursePage({ params }: Params) {
                 </a>
               </div>
             </div>
+
+            {reel && (
+              <div data-reveal="scale" className="card p-4">
+                <h2 className="mb-3 text-base font-extrabold">{d.videoTitle}</h2>
+                <VideoCard src={reel.src} poster={reel.poster} title={t(reel.title, locale)} orientation="portrait" playLabel={dict.common.playVideo} duration={`${reel.seconds} ${dict.common.seconds}`} className="mx-auto max-w-[280px]" sizes="280px" />
+              </div>
+            )}
 
             <div id="form" data-reveal="scale" className="card scroll-mt-28 border-brand-200 p-6 shadow-lift">
               <h2 className="text-lg font-extrabold">{d.registerTitle}</h2>
