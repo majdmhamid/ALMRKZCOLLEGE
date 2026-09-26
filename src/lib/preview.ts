@@ -40,8 +40,15 @@ export function sitePath(target: PreviewTarget): string {
   }
 }
 
+/** Public address of the site. On Vercel it is detected automatically. */
 export const serverURL = () =>
-  (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000').replace(/\/$/, '')
+  (
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL &&
+      `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
+    (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) ||
+    'http://localhost:3000'
+  ).replace(/\/$/, '')
 
 /**
  * Link that turns on Next.js draft mode (so unpublished changes are visible)

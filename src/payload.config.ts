@@ -5,6 +5,7 @@ import { s3Storage } from '@payloadcms/storage-s3'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { ar } from '@payloadcms/translations/languages/ar'
 import { he } from '@payloadcms/translations/languages/he'
+import crypto from 'crypto'
 import path from 'path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
@@ -26,6 +27,16 @@ import { SiteSettings } from './globals/SiteSettings'
 import { UiTexts } from './globals/UiTexts'
 import { revalidateAfterChange, revalidateAfterDelete, revalidateGlobal } from './hooks/revalidate'
 import { previewPath, serverURL } from './lib/preview'
+
+/*
+ * Database: DATABASE_URL (Neon on Vercel sets it automatically; POSTGRES_URL also accepted).
+ * Secret: PAYLOAD_SECRET, or — if not set — derived from the (already secret) database address,
+ * so a first deploy needs no manual setting.
+ */
+const databaseURL = process.env.DATABASE_URL || process.env.POSTGRES_URL || ''
+const secret =
+  process.env.PAYLOAD_SECRET ||
+  (databaseURL ? crypto.createHash('sha256').update(`almrkz:${databaseURL}`).digest('hex') : '')
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -135,10 +146,10 @@ export default buildConfig({
   })),
 
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
-    pool: { connectionString: process.env.DATABASE_URL || '' },
+    pool: { connectionString: databaseURL },
     migrationDir: path.resolve(dirname, 'migrations'),
     // Schema changes are applied by migrations in production (`npm run ci`).
     push: process.env.NODE_ENV !== 'production' && process.env.PAYLOAD_DB_PUSH !== 'false',
