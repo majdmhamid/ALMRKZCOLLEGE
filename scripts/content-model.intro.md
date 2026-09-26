@@ -25,11 +25,13 @@ are in the original handoff bundle under `assets/fonts/`, not in this repo.
 | Folder | Owner |
 |---|---|
 | `src/payload.config.ts`, `src/collections/**`, `src/globals/**`, `src/blocks/**`, `src/fields/**`, `src/hooks/**`, `src/access/**`, `src/admin/**`, `src/seed/**`, `src/migrations/**`, `src/app/(payload)/**`, `scripts/**` | admin-panel session |
-| `src/app/(frontend)/**`, `src/components/**` | website session |
+| `src/app/(frontend)/**`, `src/components/**` | public website (built on the admin-panel branch: `src/components/site/**`) |
 | `src/lib/rules.ts`, `src/lib/preview.ts` | shared — admin session writes, website imports. Ask before changing. |
 
-`src/app/(frontend)/layout.tsx` and `page.tsx` are placeholders from the admin session so
-the build passes — the website session replaces them freely.
+The public website (design Option A) is implemented in `src/app/(frontend)/[locale]/**` and
+`src/components/site/**`: homepage sections, `/courses`, `/courses/{group}`, `/course/{slug}`,
+`/news/{slug}`, the «سجّل اهتمامك» server action, draft preview and live preview.
+Published data is cached (tag `site`) and cleared by `src/hooks/revalidate.ts` on every save.
 
 ## How the website reads content
 

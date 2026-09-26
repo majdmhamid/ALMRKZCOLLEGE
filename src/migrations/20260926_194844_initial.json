@@ -17824,6 +17824,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "form_error": {
+          "name": "form_error",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "course_contact_for_price": {
           "name": "course_contact_for_price",
           "type": "varchar",
@@ -21031,6 +21037,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "4f54bd87-b472-4ad4-bdc6-ed8641a6a3ae",
+  "id": "b5707d62-2f96-43e1-ac61-1e553f540181",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

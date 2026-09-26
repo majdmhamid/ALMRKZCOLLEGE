@@ -24,6 +24,11 @@ const eslintConfig = [
     },
   },
   {
+    // Images are already resized to WebP by Payload (media sizes), so plain <img> is fine.
+    files: ['src/components/site/**'],
+    rules: { '@next/next/no-img-element': 'off' },
+  },
+  {
     ignores: ['.next/', 'src/payload-types.ts', 'src/payload-generated-schema.ts', 'src/migrations/', 'src/app/(payload)/admin/importMap.js'],
   },
 ]

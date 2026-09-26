@@ -1,0 +1,412 @@
+import { RichText } from '@payloadcms/richtext-lexical/react'
+import React from 'react'
+
+import type { Course, CourseGroup, News } from '@/payload-types'
+import { EMPLOYMENT_NOTICE, VOUCHER_TEXT, type SiteLocale } from '@/lib/rules'
+
+import { type Shared, asDoc, formatDate, groupHref, mediaAlt, mediaUrl, whatsappHref } from './data'
+import { CheckIcon, WhatsAppIcon } from './icons'
+import { CourseCard, RegisterForm } from './sections'
+
+export function PageHero({
+  image,
+  crumbs,
+  title,
+  sub,
+}: {
+  image?: string
+  crumbs: { href: string; label?: string | null }[]
+  title: string
+  sub?: string | null
+}) {
+  return (
+    <section className="page-hero">
+      <div className="bg" aria-hidden="true">
+        {image && <img src={image} alt="" className="cover" />}
+      </div>
+      <div className="in">
+        <nav className="crumbs">
+          {crumbs.map((c, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <span>/</span>}
+              <a href={c.href}>{c.label}</a>
+            </React.Fragment>
+          ))}
+        </nav>
+        <h1>{title}</h1>
+        {sub && <p className="sub">{sub}</p>}
+      </div>
+    </section>
+  )
+}
+
+const Check = () => (
+  <span className="check">
+    <CheckIcon />
+  </span>
+)
+
+const SCHEDULE: Record<SiteLocale, Record<string, string>> = {
+  ar: { morning: 'صباحي', evening: 'مسائي', weekend: 'نهاية الأسبوع', online: 'عن بُعد' },
+  he: { morning: 'בוקר', evening: 'ערב', weekend: 'סוף שבוע', online: 'מרחוק' },
+}
+
+const L = {
+  ar: {
+    about: 'عن الدورة',
+    topics: 'ماذا ستتعلّم',
+    facts: 'تفاصيل الدورة',
+    duration: 'المدة',
+    schedule: 'الدوام',
+    start: 'موعد البدء',
+    certificate: 'الشهادة',
+    body: 'الجهة المعتمِدة',
+    admission: 'شروط القبول',
+    age: 'العمر',
+    education: 'التعليم',
+    hebrew: 'اللغة العبرية',
+    experience: 'خبرة سابقة',
+    after: 'بعد التخرّج',
+    gallery: 'صور من الدورة',
+  },
+  he: {
+    about: 'על הקורס',
+    topics: 'מה לומדים',
+    facts: 'פרטי הקורס',
+    duration: 'משך',
+    schedule: 'מועדי לימוד',
+    start: 'מועד פתיחה',
+    certificate: 'תעודה',
+    body: 'גוף מאשר',
+    admission: 'תנאי קבלה',
+    age: 'גיל',
+    education: 'השכלה',
+    hebrew: 'עברית',
+    experience: 'ניסיון קודם',
+    after: 'אחרי הסיום',
+    gallery: 'תמונות מהקורס',
+  },
+}
+
+export function CoursePage({
+  c,
+  shared,
+  locale,
+}: {
+  c: Course
+  shared: Shared
+  locale: SiteLocale
+}) {
+  const t = L[locale]
+  const ui = shared.ui
+  const group = asDoc(c.group)
+  const a = c.admission
+  const admission = [
+    [t.age, a?.age],
+    [t.education, a?.education],
+    [t.hebrew, a?.hebrew],
+    [t.experience, a?.experience],
+  ].filter(([, v]) => v) as [string, string][]
+  const facts = [
+    [ui.common?.hours ?? '', c.hours ? String(c.hours) : ''],
+    [ui.common?.sessions ?? '', c.sessions ? String(c.sessions) : ''],
+    [t.duration, c.duration ?? ''],
+    [
+      t.schedule,
+      [(c.schedule ?? []).map((s) => SCHEDULE[locale][s]).join(' / '), c.scheduleDetails]
+        .filter(Boolean)
+        .join(' · '),
+    ],
+    [
+      t.start,
+      c.nextStart
+        ? formatDate(c.nextStart, locale)
+        : (c.nextStartNote ?? ui.common?.nextStart ?? ''),
+    ],
+  ].filter(([, v]) => v)
+  const gallery = (c.gallery ?? []).map((m) => asDoc(m)).filter(Boolean)
+  const video = mediaUrl(c.video)
+  return (
+    <>
+      <PageHero
+        image={mediaUrl(c.coverImage, 'hero')}
+        crumbs={[
+          { href: `/${locale}`, label: ui.nav?.home },
+          { href: `/${locale}/courses`, label: ui.nav?.courses },
+          ...(group ? [{ href: groupHref(locale, group), label: group.name }] : []),
+        ]}
+        title={c.name}
+        sub={c.shortDescription}
+      />
+      <div className="detail">
+        <div>
+          {(Boolean(c.fullDescription) || Boolean(c.highlights?.length)) && (
+            <section className="card glass">
+              <h2>{t.about}</h2>
+              {c.fullDescription && (
+                <div className="prose">
+                  <RichText data={c.fullDescription} />
+                </div>
+              )}
+              {!!c.highlights?.length && (
+                <ul className="bullets" style={{ marginTop: 14 }}>
+                  {c.highlights.map((h) => (
+                    <li key={h.id}>
+                      <Check />
+                      {h.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+          {!!c.topics?.length && (
+            <section className="card glass">
+              <h2>{t.topics}</h2>
+              <ul className="bullets">
+                {c.topics.map((x) => (
+                  <li key={x.id}>
+                    <Check />
+                    {x.topic}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          <section className="card glass">
+            <h2>{t.certificate}</h2>
+            <ul className="facts-list">
+              <li>
+                <span>{t.certificate}</span>
+                <b>{c.certificate}</b>
+              </li>
+              <li>
+                <span>{t.body}</span>
+                <b>{c.certifyingBody}</b>
+              </li>
+            </ul>
+            {c.certificateValue && (
+              <p className="prose" style={{ marginTop: 12 }}>
+                {c.certificateValue}
+              </p>
+            )}
+          </section>
+          {(admission.length > 0 || !!a?.other?.length) && (
+            <section className="card glass">
+              <h2>{t.admission}</h2>
+              <ul className="facts-list">
+                {admission.map(([k, v]) => (
+                  <li key={k}>
+                    <span>{k}</span>
+                    <b>{v}</b>
+                  </li>
+                ))}
+                {(a?.other ?? []).map((o) => (
+                  <li key={o.id}>
+                    <span>{o.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {c.careerGuidance && (
+            <section className="card glass">
+              <h2>{t.after}</h2>
+              <p className="prose">{c.careerGuidance}</p>
+              <p className="note muted" style={{ marginTop: 12 }}>
+                {EMPLOYMENT_NOTICE[locale]}
+              </p>
+            </section>
+          )}
+          {(gallery.length > 0 || video || c.youtubeUrl) && (
+            <section className="card glass">
+              <h2>{t.gallery}</h2>
+              {video && (
+                <video
+                  src={video}
+                  poster={mediaUrl(c.videoPoster, 'wide')}
+                  controls
+                  playsInline
+                  style={{ width: '100%', borderRadius: 16, marginBottom: 12 }}
+                />
+              )}
+              <div className="gallery-grid">
+                {gallery.map((m) => (
+                  <img key={m!.id} src={mediaUrl(m, 'card')} alt={mediaAlt(m)} loading="lazy" />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+        <aside className="sticky-side">
+          <section className="card glass">
+            <h2>{t.facts}</h2>
+            <ul className="facts-list">
+              {facts.map(([k, v]) => (
+                <li key={k}>
+                  <span>{k}</span>
+                  <b>{v}</b>
+                </li>
+              ))}
+            </ul>
+          </section>
+          {c.voucherEligible && <p className="note">{VOUCHER_TEXT[locale]}</p>}
+          {ui.course?.contactForPrice && <p className="note muted">{ui.course.contactForPrice}</p>}
+          <a
+            href={whatsappHref(
+              shared,
+              `${shared.settings.contact?.whatsappMessage ?? ''} — ${c.name}`,
+            )}
+            target="_blank"
+            rel="noopener"
+            className="btn btn-wa"
+            style={{ height: 54, borderRadius: 16 }}
+          >
+            <WhatsAppIcon />
+            {ui.common?.whatsappLong}
+          </a>
+          <section className="card glass" id="register">
+            <h2>{ui.common?.registerInterest}</h2>
+            <RegisterForm
+              shared={shared}
+              locale={locale}
+              source={`/${locale}/course/${c.slug}`}
+              defaultCourse={c.id}
+            />
+          </section>
+        </aside>
+      </div>
+    </>
+  )
+}
+
+export function GroupPage({
+  g,
+  shared,
+  locale,
+}: {
+  g: CourseGroup
+  shared: Shared
+  locale: SiteLocale
+}) {
+  const courses = shared.courses.filter((c) => (asDoc(c.group)?.id ?? c.group) === g.id)
+  return (
+    <>
+      <PageHero
+        image={mediaUrl(g.image, 'hero')}
+        crumbs={[
+          { href: `/${locale}`, label: shared.ui.nav?.home },
+          { href: `/${locale}/courses`, label: shared.ui.nav?.courses },
+        ]}
+        title={g.name}
+        sub={g.description || g.tagline}
+      />
+      <div className="wrap" style={{ padding: '40px 20px 56px' }}>
+        {courses.length ? (
+          <div className="course-grid">
+            {courses.map((c, i) => (
+              <CourseCard key={c.id} c={c} shared={shared} locale={locale} i={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="card glass" style={{ textAlign: 'center' }}>
+            <p className="prose">{shared.ui.course?.contactForPrice}</p>
+            <a
+              href={whatsappHref(
+                shared,
+                `${shared.settings.contact?.whatsappMessage ?? ''} — ${g.name}`,
+              )}
+              target="_blank"
+              rel="noopener"
+              className="btn btn-wa"
+              style={{ height: 50, padding: '0 20px', marginTop: 14 }}
+            >
+              <WhatsAppIcon />
+              {shared.ui.common?.whatsappLong}
+            </a>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
+export function AllCoursesPage({ shared, locale }: { shared: Shared; locale: SiteLocale }) {
+  return (
+    <>
+      <PageHero
+        image={mediaUrl(shared.groups[0]?.image, 'hero')}
+        crumbs={[{ href: `/${locale}`, label: shared.ui.nav?.home }]}
+        title={shared.ui.nav?.allCourses ?? shared.ui.nav?.courses ?? ''}
+      />
+      <div className="wrap" style={{ padding: '40px 20px 56px', display: 'grid', gap: 40 }}>
+        {shared.groups.map((g) => {
+          const courses = shared.courses.filter((c) => (asDoc(c.group)?.id ?? c.group) === g.id)
+          if (!courses.length) return null
+          return (
+            <section key={g.id}>
+              <div className="section-head" style={{ marginBottom: 18 }}>
+                <div>
+                  <h2 className="h2" style={{ fontSize: 'clamp(24px,3vw,34px)' }}>
+                    <a href={groupHref(locale, g)}>{g.name}</a>
+                  </h2>
+                  {g.tagline && <p className="lead">{g.tagline}</p>}
+                </div>
+              </div>
+              <div className="course-grid">
+                {courses.map((c, i) => (
+                  <CourseCard key={c.id} c={c} shared={shared} locale={locale} i={i} />
+                ))}
+              </div>
+            </section>
+          )
+        })}
+      </div>
+    </>
+  )
+}
+
+export function NewsPage({ n, shared, locale }: { n: News; shared: Shared; locale: SiteLocale }) {
+  const gallery = (n.gallery ?? []).map((m) => asDoc(m)).filter(Boolean)
+  return (
+    <>
+      <PageHero
+        image={mediaUrl(n.coverImage, 'hero')}
+        crumbs={[
+          { href: `/${locale}`, label: shared.ui.nav?.home },
+          { href: `/${locale}#news`, label: shared.ui.nav?.news },
+        ]}
+        title={n.title}
+        sub={formatDate(n.publishedAt, locale)}
+      />
+      <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 20px 56px' }}>
+        <article className="card glass">
+          {n.excerpt && (
+            <p className="prose" style={{ fontWeight: 700 }}>
+              {n.excerpt}
+            </p>
+          )}
+          {n.content && (
+            <div className="prose" style={{ marginTop: 14 }}>
+              <RichText data={n.content} />
+            </div>
+          )}
+          {mediaUrl(n.coverImage, 'wide') && (
+            <img
+              src={mediaUrl(n.coverImage, 'wide')}
+              alt={mediaAlt(n.coverImage)}
+              style={{ width: '100%', borderRadius: 16, marginTop: 18 }}
+            />
+          )}
+          {gallery.length > 0 && (
+            <div className="gallery-grid" style={{ marginTop: 14 }}>
+              {gallery.map((m) => (
+                <img key={m!.id} src={mediaUrl(m, 'card')} alt={mediaAlt(m)} loading="lazy" />
+              ))}
+            </div>
+          )}
+        </article>
+      </div>
+    </>
+  )
+}

@@ -24,6 +24,7 @@ import { Homepage } from './globals/Homepage'
 import { Navigation } from './globals/Navigation'
 import { SiteSettings } from './globals/SiteSettings'
 import { UiTexts } from './globals/UiTexts'
+import { revalidateAfterChange, revalidateAfterDelete, revalidateGlobal } from './hooks/revalidate'
 import { previewPath, serverURL } from './lib/preview'
 
 const filename = fileURLToPath(import.meta.url)
@@ -106,8 +107,32 @@ export default buildConfig({
     fallback: true,
   },
 
-  collections: [Courses, CourseGroups, News, SuccessStories, Staff, Partners, Media, Leads, Users],
-  globals: [Homepage, UiTexts, Gallery, SiteSettings, Navigation],
+  collections: [
+    Courses,
+    CourseGroups,
+    News,
+    SuccessStories,
+    Staff,
+    Partners,
+    Media,
+    Leads,
+    Users,
+  ].map((c) =>
+    ['leads', 'users'].includes(c.slug)
+      ? c
+      : {
+          ...c,
+          hooks: {
+            ...c.hooks,
+            afterChange: [...(c.hooks?.afterChange ?? []), revalidateAfterChange],
+            afterDelete: [...(c.hooks?.afterDelete ?? []), revalidateAfterDelete],
+          },
+        },
+  ),
+  globals: [Homepage, UiTexts, Gallery, SiteSettings, Navigation].map((g) => ({
+    ...g,
+    hooks: { ...g.hooks, afterChange: [...(g.hooks?.afterChange ?? []), revalidateGlobal] },
+  })),
 
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

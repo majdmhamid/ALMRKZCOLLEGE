@@ -9,6 +9,9 @@ const dirname = path.dirname(__filename)
 const nextConfig: NextConfig = {
   // Keep our own CLAUDE.md untouched (next dev would append its own block).
   agentRules: false,
+  async redirects() {
+    return [{ source: '/', destination: '/ar', permanent: false }]
+  },
   images: {
     localPatterns: [
       {

@@ -45,11 +45,14 @@
 - `docs/CONTENT-MODEL.md` — كل البيانات الموجودة (مولَّد تلقائياً: `npm run generate:content-model`)
 - `docs/دليل-لوحة-التحكم.md` — دليل لوحة التحكم لحسين وماجد
 
-### جلستان تعملان بالتوازي — لا تعدّل ملفات الجلسة الأخرى
-| المجلد | الجلسة |
+### أين كل شيء
+| المجلد | ما فيه |
 |---|---|
-| `src/payload.config.ts`, `src/collections/**`, `src/globals/**`, `src/blocks/**`, `src/fields/**`, `src/hooks/**`, `src/access/**`, `src/admin/**`, `src/seed/**`, `src/migrations/**`, `src/app/(payload)/**`, `scripts/**` | لوحة التحكم |
-| `src/app/(frontend)/**`, `src/components/**` | الموقع |
-| `src/lib/rules.ts`, `src/lib/preview.ts` | مشترك — لوحة التحكم تكتب، الموقع يستورد |
+| `src/payload.config.ts`, `src/collections/**`, `src/globals/**`, `src/blocks/**`, `src/fields/**`, `src/hooks/**`, `src/access/**`, `src/admin/**` | لوحة التحكم |
+| `src/app/(frontend)/[locale]/**`, `src/components/site/**` | الموقع العام — تصميم **Option A - Video Scroll** (`/ar`, `/he`) |
+| `src/seed/**` | تعبئة قاعدة البيانات من التصميم (`npm run seed`) — `src/seed/design/` فيه `content.js` وصور التصميم |
+| `src/lib/rules.ts` | النصوص الثابتة الإلزامية (المنحة، تنويه التشغيل) وفحص الأسعار/وعود العمل |
+
+الموقع ولوحة التحكم بُنيا في نفس الفرع `claude/compassionate-noether-g5lec6`.
 
 بعد أي تغيير في الحقول: `npm run generate` (الأنواع + importMap + CONTENT-MODEL) و `npm run migrate:create`.

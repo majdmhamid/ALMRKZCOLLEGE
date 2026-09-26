@@ -4,7 +4,7 @@
  *
  * Safe to run again: anything that already exists (matched by slug / design file,
  * or a settings page that is already filled) is left untouched, so editors'
- * changes are never overwritten. `npm run seed -- --force-pages` refills the
+ * changes are never overwritten. `SEED_FORCE_PAGES=1 npm run seed` refills the
  * pages (homepage, fixed texts, gallery, menu, site settings) from the design.
  */
 import type { CollectionSlug, GlobalSlug, Payload } from 'payload'
@@ -17,7 +17,7 @@ import * as A from './optionA'
 import type { L } from './optionA'
 
 type Locale = 'ar' | 'he'
-const FORCE_PAGES = process.argv.includes('--force-pages')
+const FORCE_PAGES = process.argv.includes('--force-pages') || process.env.SEED_FORCE_PAGES === '1'
 
 const design = loadDesign()
 const D = design.dict
@@ -453,7 +453,13 @@ async function run(payload: Payload) {
         common: { ...d.common, whatsappContact: d.hero.ctaWhatsapp },
         stats: d.stats,
         trust: d.trust,
-        form: d.form,
+        form: {
+          ...d.form,
+          error:
+            l === 'ar'
+              ? 'صار خطأ. تأكد من رقم الهاتف وحاول مرة ثانية، أو راسلنا على واتساب.'
+              : 'משהו השתבש. בדקו את מספר הטלפון ונסו שוב, או כתבו לנו בוואטסאפ.',
+        },
         course: { contactForPrice: d.course.contactForPrice },
       }
     },

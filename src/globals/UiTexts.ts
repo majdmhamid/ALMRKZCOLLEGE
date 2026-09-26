@@ -139,6 +139,7 @@ export const UiTexts: GlobalConfig = {
               ['privacy', 'جملة الخصوصية'],
               ['successTitle', 'عنوان رسالة النجاح'],
               ['successText', 'نص رسالة النجاح'],
+              ['error', 'رسالة خطأ (إذا لم يُرسَل الطلب)'],
             ]),
           ],
         },

@@ -1720,6 +1720,7 @@ export interface UiText {
     privacy?: string | null;
     successTitle?: string | null;
     successText?: string | null;
+    error?: string | null;
   };
   course?: {
     /**
@@ -2477,6 +2478,7 @@ export interface UiTextsSelect<T extends boolean = true> {
         privacy?: T;
         successTitle?: T;
         successText?: T;
+        error?: T;
       };
   course?:
     | T

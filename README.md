@@ -30,7 +30,7 @@
 ```bash
 cp .env.example .env        # عبّئ DATABASE_URL و PAYLOAD_SECRET
 npm install
-npm run dev                 # الموقع: http://localhost:3000  ·  لوحة التحكم: /admin
+npm run dev                 # الموقع: http://localhost:3000/ar  ·  لوحة التحكم: /admin
 npm run seed                # يعبّئ قاعدة البيانات بالمحتوى الأولي
 npm run build
 ```

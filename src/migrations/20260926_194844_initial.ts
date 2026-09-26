@@ -1547,6 +1547,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"form_privacy" varchar,
   	"form_success_title" varchar,
   	"form_success_text" varchar,
+  	"form_error" varchar,
   	"course_contact_for_price" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
   	"_locale" "_locales" NOT NULL,
