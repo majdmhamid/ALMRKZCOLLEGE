@@ -24,3 +24,15 @@
 ## 🖼️ الصور والفيديوهات القديمة
 مجلد `assets/` وسكربت `scripts/fetch-media.sh` لجمع صور وفيديوهات الكلية من
 صفحاتها على الإنترنت — التفاصيل في [`assets/README.md`](assets/README.md).
+
+## 🛠️ للمبرمج (Claude)
+
+```bash
+cp .env.example .env        # عبّئ DATABASE_URL و PAYLOAD_SECRET
+npm install
+npm run dev                 # الموقع: http://localhost:3000  ·  لوحة التحكم: /admin
+npm run seed                # يعبّئ قاعدة البيانات بالمحتوى الأولي
+npm run build
+```
+
+بنية البيانات: [`docs/CONTENT-MODEL.md`](docs/CONTENT-MODEL.md).

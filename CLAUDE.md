@@ -41,5 +41,15 @@
 التطوير على الفرع: `claude/almrkz-college-website-wzvy6c`
 
 ## الحالة الحالية
-**مرحلة التخطيط. لا يوجد كود بعد.**
-البناء يبدأ بعد الاطلاع على الموقع الحالي والحصول على موافقة حسين أو ماجد على الخطة.
+هيكل المشروع موجود: **Next.js + Payload CMS 3** في مشروع واحد (لوحة التحكم على `/admin`).
+- `docs/CONTENT-MODEL.md` — كل البيانات الموجودة (مولَّد تلقائياً: `npm run generate:content-model`)
+- `docs/دليل-لوحة-التحكم.md` — دليل لوحة التحكم لحسين وماجد
+
+### جلستان تعملان بالتوازي — لا تعدّل ملفات الجلسة الأخرى
+| المجلد | الجلسة |
+|---|---|
+| `src/payload.config.ts`, `src/collections/**`, `src/globals/**`, `src/blocks/**`, `src/fields/**`, `src/hooks/**`, `src/access/**`, `src/admin/**`, `src/seed/**`, `src/migrations/**`, `src/app/(payload)/**`, `scripts/**` | لوحة التحكم |
+| `src/app/(frontend)/**`, `src/components/**` | الموقع |
+| `src/lib/rules.ts`, `src/lib/preview.ts` | مشترك — لوحة التحكم تكتب، الموقع يستورد |
+
+بعد أي تغيير في الحقول: `npm run generate` (الأنواع + importMap + CONTENT-MODEL) و `npm run migrate:create`.

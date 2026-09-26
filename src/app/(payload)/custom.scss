@@ -1,0 +1,14 @@
+// Admin panel tweaks — كلية المركز
+
+// The rich-text editor parks its hidden popups at translate(-10000px). In a
+// right-to-left page that makes the whole screen ~10,000px wide and pushes the
+// form out of view. Hidden popups are simply not rendered instead.
+[style*='translate(-10000px'] {
+  display: none !important;
+}
+
+// Help texts under fields: slightly bigger for easier reading.
+.field-description {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
