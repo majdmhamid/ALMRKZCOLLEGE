@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-primary), var(--font-secondary), system-ui, sans-serif;
+
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-canvas: #f6f7fb;
+  --color-card: #ffffff;
+
+  /* Status colors (match the badges) */
+  --color-admin: #2563eb;   /* לחתימתך — waiting for the admin */
+  --color-waiting: #ea580c; /* ממתין לחתימה — waiting for the client */
+  --color-signed: #16a34a;  /* נחתם ✓ */
+  --color-final: #7c3aed;   /* סופי */
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+/* Numbers, IDs, phone numbers and links read left-to-right inside RTL text. */
+.ltr-nums {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

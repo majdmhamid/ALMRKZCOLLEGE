@@ -4,9 +4,23 @@
     {
       "name": "almrkz-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "signing-mock",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "signing",
+        "run",
+        "dev:mock"
+      ],
+      "port": 3100
     }
   ]
 }

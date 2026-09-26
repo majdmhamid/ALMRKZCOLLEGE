@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // تطبيق التوقيع الإلكتروني مستقل وله إعداداته الخاصة
+    "signing/**",
   ]),
 ]);
 
