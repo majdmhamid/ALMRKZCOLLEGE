@@ -1,30 +1,26 @@
-# ALMRKZCOLLEGE
+# موقع كلية المركز للتأهيل المهني — أم الفحم
 
-Asset repository for **كلية المركز / מכללת המרכז להכשרה מקצועית**
-(Al-Merkaz College for Professional Training, Umm el-Fahm) — collecting images
-and video from the college's existing web presence for use in the new website.
+مستودع تطوير الموقع الجديد لكلية المركز للتأهيل المهني (تأسست 2008، بإشراف وزارة العمل).
+الموقع الحالي: `almrkz.net` — والهدف بناء نسخة جديدة أحدث وأفضل بكثير.
 
-## Contents
+## 👥 أصحاب القرار
+- **حسين** — إدارة المشروع
+- **ماجد** — صاحب الكلية
 
-| Path | What it is |
+موافقة أي واحد منهما ملزِمة.
+
+## 📁 وين ألاقي شو
+
+| الملف | شو فيه |
 |---|---|
-| `assets/sources.json` | Every known public page of the college, and where its media should land |
-| `assets/` | Image and video assets, grouped by source — **currently empty**, see below |
-| `scripts/fetch-media.sh` | Downloads the media described in `sources.json` |
+| [`docs/PLAN.md`](docs/PLAN.md) | **الخطة الكاملة** — اقرأ هذا أولاً |
+| [`docs/RESEARCH.md`](docs/RESEARCH.md) | بحث المواقع الشبيهة والمنافسين |
+| [`docs/OPEN-ITEMS.md`](docs/OPEN-ITEMS.md) | المهام المطلوبة من حسين وماجد |
 
-## Status
+## ⚠️ الوضع الحالي
+المشروع في **مرحلة التخطيط**. لم يُكتب أي كود بعد.
+مطلوب قبل البدء: الاطلاع على الموقع الحالي + حسم ملكية الدومين (تفاصيل في `docs/OPEN-ITEMS.md`).
 
-The assets folders are empty. The media could not be downloaded from the Claude
-Code web session: its egress proxy permits only package registries and GitHub,
-so every social platform and the college's own site returned `403`.
-
-To populate them, run this on a machine with normal internet access:
-
-```bash
-pip install -U yt-dlp gallery-dl
-./scripts/fetch-media.sh
-```
-
-Read `assets/README.md` first — `sources.json` holds unverified URLs that should
-be checked before the first run, and Instagram/Facebook need browser cookies to
-return more than a few posts.
+## 🖼️ الصور والفيديوهات القديمة
+مجلد `assets/` وسكربت `scripts/fetch-media.sh` لجمع صور وفيديوهات الكلية من
+صفحاتها على الإنترنت — التفاصيل في [`assets/README.md`](assets/README.md).
