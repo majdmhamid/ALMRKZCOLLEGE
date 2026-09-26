@@ -8,6 +8,8 @@ import { enforceContentRules } from '@/hooks/enforceContentRules'
 export const MAX_VIDEO_MB = 40
 export const MAX_IMAGE_MB = 10
 
+const webp = { format: 'webp' as const, options: { quality: 80 } }
+
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'صورة / فيديو', plural: 'الصور والفيديو' },
@@ -29,13 +31,15 @@ export const Media: CollectionConfig = {
     mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'video/quicktime'],
     focalPoint: true,
     adminThumbnail: 'thumbnail',
+    // Resized copies in WebP (small + fast). The original file is kept as uploaded
+    // (only shrunk if huge), so logos and SVGs are never altered.
+    resizeOptions: { width: 2560, height: 2560, fit: 'inside', withoutEnlargement: true },
     imageSizes: [
-      { name: 'thumbnail', width: 400, height: 300, position: 'centre' },
-      { name: 'card', width: 800, height: 600, position: 'centre' },
-      { name: 'wide', width: 1600 },
-      { name: 'hero', width: 2400 },
+      { name: 'thumbnail', width: 400, height: 300, position: 'centre', formatOptions: webp },
+      { name: 'card', width: 800, height: 600, position: 'centre', formatOptions: webp },
+      { name: 'wide', width: 1600, formatOptions: webp },
+      { name: 'hero', width: 2400, formatOptions: webp },
     ],
-    formatOptions: { format: 'webp', options: { quality: 82 } },
   },
   fields: [
     {
