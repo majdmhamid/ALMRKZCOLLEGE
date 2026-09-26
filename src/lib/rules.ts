@@ -9,15 +9,13 @@ export type SiteLocale = 'ar' | 'he'
 /** Shown wherever employment / career guidance is mentioned. */
 export const EMPLOYMENT_NOTICE: Record<SiteLocale, string> = {
   ar: 'الكلية تقدّم مرافقة وتوجيه مهني، ولا تلتزم بتأمين مكان عمل.',
-  // TODO(owners): confirm the Hebrew wording.
-  he: 'המכללה מעניקה ליווי והכוונה מקצועית, ואינה מתחייבת למציאת מקום עבודה.',
+  he: 'המכללה מעניקה ליווי והכוונה מקצועית, ואינה מתחייבת להשמה במקום עבודה.',
 }
 
 /** Shown on every course marked «ملائمة لمنحة (שובר)». */
 export const VOUCHER_TEXT: Record<SiteLocale, string> = {
-  ar: 'الدورة ملائمة للحصول على منحة — تواصل معنا للاستشارة',
-  // TODO(owners): confirm the Hebrew wording.
-  he: 'הקורס מתאים לקבלת שובר/מענק — צרו קשר לייעוץ',
+  ar: 'الدورة ملائمة للحصول على منحة — تواصل معنا للاستشارة.',
+  he: 'הקורס מתאים לקבלת שובר הכשרה – צרו קשר לייעוץ.',
 }
 
 /** Approved way to talk about what happens after the course. */

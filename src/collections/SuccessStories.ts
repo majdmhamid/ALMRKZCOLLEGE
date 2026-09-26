@@ -14,7 +14,8 @@ export const SuccessStories: CollectionConfig = {
     useAsTitle: 'graduateName',
     defaultColumns: ['graduateName', 'course', 'graduationYear', '_status'],
     group: 'أخبار وقصص',
-    description: 'قصص خريجين حقيقيين — بموافقتهم على نشر الاسم والصورة.',
+    description:
+      'خريجون حقيقيون — بموافقتهم على نشر الاسم والصورة والقصة. لا تنشر قصة لم يؤكّدها الخريج نفسه.',
     preview: (doc, { locale }) =>
       previewPath({ collection: 'success-stories', slug: doc?.slug as string, locale }),
   },
@@ -47,8 +48,16 @@ export const SuccessStories: CollectionConfig = {
       label: 'اقتباس قصير (بكلماته)',
       type: 'textarea',
       localized: true,
-      required: true,
       maxLength: 280,
+      admin: { description: 'بدونه يظهر الخريج بالصورة والاسم فقط (بدون قصة).' },
+    },
+    {
+      name: 'excerpt',
+      label: 'القصة باختصار',
+      type: 'textarea',
+      localized: true,
+      maxLength: 500,
+      admin: { description: '2–3 جمل تظهر تحت الاقتباس في الصفحة الرئيسية.' },
     },
     {
       name: 'currentRole',
@@ -69,6 +78,12 @@ export const SuccessStories: CollectionConfig = {
       relationTo: 'media',
       filterOptions: { mimeType: { contains: 'video' } },
       admin: { description: 'فيديو قصير ومضغوط (أقل من دقيقة، MP4).' },
+    },
+    {
+      name: 'videoDuration',
+      label: 'مدة الفيديو',
+      type: 'text',
+      admin: { description: 'مثال: 1:12' },
     },
     {
       name: 'featured',

@@ -54,17 +54,17 @@ export const Media: CollectionConfig = {
       },
     },
     {
+      // Which design file this came from (filled by the seed script only).
+      name: 'sourceFile',
+      type: 'text',
+      index: true,
+      admin: { hidden: true },
+    },
+    {
       name: 'caption',
       label: 'تعليق يظهر تحت الصورة (اختياري)',
       type: 'text',
       localized: true,
-    },
-    {
-      name: 'showInGallery',
-      label: 'تظهر في «معرض الصور والفيديو»',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: { position: 'sidebar' },
     },
   ],
   hooks: {

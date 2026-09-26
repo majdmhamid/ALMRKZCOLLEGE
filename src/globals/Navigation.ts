@@ -97,6 +97,13 @@ export const Navigation: GlobalConfig = {
               ],
             },
             {
+              name: 'contactTitle',
+              label: 'عنوان عمود «اتصل بنا»',
+              type: 'text',
+              localized: true,
+              admin: { description: 'العنوان والهواتف والإيميل تُؤخذ من «إعدادات الموقع».' },
+            },
+            {
               name: 'copyright',
               label: 'سطر الحقوق',
               type: 'text',

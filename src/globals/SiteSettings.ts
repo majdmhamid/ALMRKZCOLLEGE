@@ -35,6 +35,7 @@ export const SiteSettings: GlobalConfig = {
               admin: { description: 'مثال: «كلية المركز».' },
             },
             { name: 'tagline', label: 'شعار / جملة تعريف قصيرة', type: 'text', localized: true },
+            { name: 'city', label: 'المدينة', type: 'text', localized: true },
             {
               name: 'accreditation',
               label: 'جملة الاعتماد',

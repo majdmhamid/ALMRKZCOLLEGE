@@ -71,6 +71,8 @@ export interface Config {
     'course-groups': CourseGroup;
     news: News;
     'success-stories': SuccessStory;
+    staff: Staff;
+    partners: Partner;
     media: Media;
     leads: Lead;
     users: User;
@@ -90,6 +92,8 @@ export interface Config {
     'course-groups': CourseGroupsSelect<false> | CourseGroupsSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
     'success-stories': SuccessStoriesSelect<false> | SuccessStoriesSelect<true>;
+    staff: StaffSelect<false> | StaffSelect<true>;
+    partners: PartnersSelect<false> | PartnersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -104,10 +108,16 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('ar' | 'he') | ('ar' | 'he')[];
   globals: {
+    homepage: Homepage;
+    'ui-texts': UiText;
+    gallery: Gallery;
     'site-settings': SiteSetting;
     navigation: Navigation;
   };
   globalsSelect: {
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
+    'ui-texts': UiTextsSelect<false> | UiTextsSelect<true>;
+    gallery: GallerySelect<false> | GallerySelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
   };
@@ -195,11 +205,15 @@ export interface Course {
   /**
    * مثال: «4 أشهر» / «4 חודשים».
    */
-  duration: string;
+  duration?: string | null;
   /**
    * مجموع ساعات الدورة (رقم فقط).
    */
   hours?: number | null;
+  /**
+   * كم مرة يأتي الطالب (رقم فقط).
+   */
+  sessions?: number | null;
   schedule?: ('morning' | 'evening' | 'weekend' | 'online')[] | null;
   /**
    * مثال: «مرتين بالأسبوع، الأحد والثلاثاء 17:00–21:00».
@@ -247,7 +261,7 @@ export interface Course {
       | null;
   };
   /**
-   * عند التفعيل يظهر على الموقع النص الثابت: «الدورة ملائمة للحصول على منحة — تواصل معنا للاستشارة» — هذا النص لا يُعدَّل.
+   * عند التفعيل يظهر على الموقع النص الثابت: «الدورة ملائمة للحصول على منحة — تواصل معنا للاستشارة.» — هذا النص لا يُعدَّل.
    */
   voucherEligible?: boolean | null;
   /**
@@ -301,10 +315,18 @@ export interface Course {
 export interface CourseGroup {
   id: number;
   name: string;
+  /**
+   * للأماكن الضيّقة. مثال: «اللحام» بدل «الحديد واللحام».
+   */
+  shortName?: string | null;
+  /**
+   * مثال: «مهنة مطلوبة في كل مصنع وورشة وموقع بناء».
+   */
+  tagline?: string | null;
   description?: string | null;
   image?: (number | null) | Media;
   /**
-   * صورة صغيرة بسيطة (يُفضّل SVG أو PNG شفّاف).
+   * رمز صغير يظهر في الدائرة البيضاء (PNG شفّاف أو SVG).
    */
   icon?: (number | null) | Media;
   /**
@@ -347,8 +369,8 @@ export interface Media {
    * جملة قصيرة تصف ما يظهر (مثال: «طالب يتدرّب على اللحام في ورشة الكلية»). مهم لجوجل وللمكفوفين. اكتبها بالعربي وبالعبري.
    */
   alt: string;
+  sourceFile?: string | null;
   caption?: string | null;
-  showInGallery?: boolean | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -441,7 +463,7 @@ export interface News {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * قصص خريجين حقيقيين — بموافقتهم على نشر الاسم والصورة.
+ * خريجون حقيقيون — بموافقتهم على نشر الاسم والصورة والقصة. لا تنشر قصة لم يؤكّدها الخريج نفسه.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "success-stories".
@@ -452,7 +474,14 @@ export interface SuccessStory {
   course?: (number | null) | Course;
   graduationYear?: number | null;
   photo?: (number | null) | Media;
-  quote: string;
+  /**
+   * بدونه يظهر الخريج بالصورة والاسم فقط (بدون قصة).
+   */
+  quote?: string | null;
+  /**
+   * 2–3 جمل تظهر تحت الاقتباس في الصفحة الرئيسية.
+   */
+  excerpt?: string | null;
   /**
    * حقيقة عن الخريج فقط (مثال: «يعمل اليوم كلحّام في شركة بناء»). الصياغة المسموحة فقط: «مرافقة وتوجيه مهني بعد التخرّج» — مثل: توجيه عن سوق العمل، الشركات، والفرص. ممنوع: «ضمان تشغيل»، «شغل مضمون»، «بنشغّلك بعد الدورة»، «הבטחת תעסוקה». الموقع يعرض تلقائياً التنويه: «الكلية تقدّم مرافقة وتوجيه مهني، ولا تلتزم بتأمين مكان عمل.»
    */
@@ -476,6 +505,10 @@ export interface SuccessStory {
    * فيديو قصير ومضغوط (أقل من دقيقة، MP4).
    */
   video?: (number | null) | Media;
+  /**
+   * مثال: 1:12
+   */
+  videoDuration?: string | null;
   featured?: boolean | null;
   /**
    * الجزء الأخير من عنوان الصفحة على الإنترنت. إذا تركته فارغاً يُملأ تلقائياً من الاسم. لا تغيّره بعد النشر حتى لا تنكسر الروابط القديمة.
@@ -488,6 +521,55 @@ export interface SuccessStory {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staff".
+ */
+export interface Staff {
+  id: number;
+  name: string;
+  /**
+   * مثال: «مركّز دورات اللحام».
+   */
+  role: string;
+  /**
+   * 3–4 جمل. تظهر مختصرة مع زر «اقرأ المزيد».
+   */
+  bio?: string | null;
+  /**
+   * صورة طولية (4:5)، الوجه واضح.
+   */
+  photo?: (number | null) | Media;
+  slug?: string | null;
+  /**
+   * الرقم الأصغر يظهر أولاً (1 قبل 2).
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * الجهات المعتمِدة والشركات الشريكة — لوغوهاتها تظهر في شريط «بالتعاون مع».
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners".
+ */
+export interface Partner {
+  id: number;
+  name: string;
+  /**
+   * PNG شفّاف أو SVG، مقصوص بدون فراغ حوله.
+   */
+  logo: number | Media;
+  url?: string | null;
+  slug?: string | null;
+  /**
+   * الرقم الأصغر يظهر أولاً (1 قبل 2).
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * كل من عبّأ استمارة «سجّل اهتمامك» في الموقع. بعد التواصل مع الشخص غيّر الحالة إلى «تمّ التواصل». يصل إيميل للكلية مع كل طلب جديد.
@@ -676,6 +758,14 @@ export interface PayloadLockedDocument {
         value: number | SuccessStory;
       } | null)
     | ({
+        relationTo: 'staff';
+        value: number | Staff;
+      } | null)
+    | ({
+        relationTo: 'partners';
+        value: number | Partner;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -752,6 +842,7 @@ export interface CoursesSelect<T extends boolean = true> {
       };
   duration?: T;
   hours?: T;
+  sessions?: T;
   schedule?: T;
   scheduleDetails?: T;
   nextStart?: T;
@@ -800,6 +891,8 @@ export interface CoursesSelect<T extends boolean = true> {
  */
 export interface CourseGroupsSelect<T extends boolean = true> {
   name?: T;
+  shortName?: T;
+  tagline?: T;
   description?: T;
   image?: T;
   icon?: T;
@@ -853,9 +946,11 @@ export interface SuccessStoriesSelect<T extends boolean = true> {
   graduationYear?: T;
   photo?: T;
   quote?: T;
+  excerpt?: T;
   currentRole?: T;
   story?: T;
   video?: T;
+  videoDuration?: T;
   featured?: T;
   slug?: T;
   order?: T;
@@ -865,12 +960,39 @@ export interface SuccessStoriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staff_select".
+ */
+export interface StaffSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  bio?: T;
+  photo?: T;
+  slug?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners_select".
+ */
+export interface PartnersSelect<T extends boolean = true> {
+  name?: T;
+  logo?: T;
+  url?: T;
+  slug?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  sourceFile?: T;
   caption?: T;
-  showInGallery?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1042,6 +1164,599 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * أقسام الصفحة الرئيسية من الأعلى للأسفل. اسحب القسم (⋮⋮) لتغيير ترتيبه، أو علّم «إخفاء هذا القسم مؤقتاً»، أو أضف قسماً جديداً من الزر في الأسفل.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  sections?:
+    | (
+        | HeroBlock
+        | StatsBlock
+        | CourseGroupsBlock
+        | FeaturedCoursesBlock
+        | WhyBlock
+        | SuccessStoriesBlock
+        | StaffBlock
+        | VideosBlock
+        | NewsBlock
+        | PartnersBlock
+        | EmployersBlock
+        | FaqBlock
+        | RegisterBlock
+        | GalleryBlock
+      )[]
+    | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  /**
+   * يعمل تلقائياً بدون صوت ويتكرر. يجب أن يكون قصيراً جداً (10–30 ثانية) ومضغوطاً — أقل من 5 ميغابايت إن أمكن.
+   */
+  video?: (number | null) | Media;
+  /**
+   * تظهر قبل أن يبدأ الفيديو، وعلى الأجهزة التي لا تشغّل الفيديو. يُفضّل لقطة من نفس الفيديو.
+   */
+  poster?: (number | null) | Media;
+  /**
+   * مثال: «معتمدة من وزارة العمل · منذ 2008».
+   */
+  badge?: string | null;
+  title: string;
+  kicker?: string | null;
+  text?: string | null;
+  subtitle?: string | null;
+  /**
+   * مثال: «اللي بإيدو صنعة بملك قلعة».
+   */
+  slogan?: string | null;
+  whatsappButton?: string | null;
+  registerButton?: string | null;
+  coursesLink?: string | null;
+  scrollHint?: string | null;
+  showGroupsStrip?: boolean | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock".
+ */
+export interface StatsBlock {
+  items?:
+    | {
+        value: number;
+        suffix?: string | null;
+        label: string;
+        /**
+         * مثال: courses
+         */
+        anchor?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseGroupsBlock".
+ */
+export interface CourseGroupsBlock {
+  kicker?: string | null;
+  title: string;
+  subtitle?: string | null;
+  swipeHint?: string | null;
+  /**
+   * اتركه فارغاً لعرض كل المجموعات المنشورة حسب ترتيبها. أو اختر مجموعات معيّنة واسحبها لترتيبها.
+   */
+  groups?: (number | CourseGroup)[] | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'courseGroups';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturedCoursesBlock".
+ */
+export interface FeaturedCoursesBlock {
+  kicker?: string | null;
+  title: string;
+  allCoursesButton?: string | null;
+  /**
+   * اتركه فارغاً لعرض الدورات المعلَّمة «دورة مميّزة» تلقائياً. أو اختر دورات معيّنة واسحبها لترتيبها.
+   */
+  courses?: (number | Course)[] | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'featuredCourses';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WhyBlock".
+ */
+export interface WhyBlock {
+  kicker?: string | null;
+  title: string;
+  items?:
+    | {
+        title: string;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  image?: (number | null) | Media;
+  pills?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * مثال: 2008
+   */
+  badgeNumber?: string | null;
+  badgeText?: string | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'why';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SuccessStoriesBlock".
+ */
+export interface SuccessStoriesBlock {
+  kicker?: string | null;
+  title: string;
+  subtitle?: string | null;
+  /**
+   * مثال: «فيديو قصة النجاح».
+   */
+  videoLabel?: string | null;
+  /**
+   * اتركه فارغاً لعرض القصص المعلَّمة «تظهر في الصفحة الرئيسية». تظهر فقط القصص التي فيها اقتباس.
+   */
+  stories?: (number | SuccessStory)[] | null;
+  rotateSeconds?: number | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'successStories';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StaffBlock".
+ */
+export interface StaffBlock {
+  kicker?: string | null;
+  title: string;
+  subtitle?: string | null;
+  /**
+   * اتركه فارغاً لعرض كل الطاقم حسب الترتيب.
+   */
+  members?: (number | Staff)[] | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'staff';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideosBlock".
+ */
+export interface VideosBlock {
+  kicker?: string | null;
+  title: string;
+  subtitle?: string | null;
+  promo?: {
+    /**
+     * يُفضّل دقيقة واحدة تقريباً، MP4 مضغوط، أقل من 40 ميغابايت.
+     */
+    video?: (number | null) | Media;
+    youtubeUrl?: string | null;
+    /**
+     * تظهر قبل الضغط على «تشغيل».
+     */
+    poster?: (number | null) | Media;
+    /**
+     * مثال: 1:00
+     */
+    durationLabel?: string | null;
+    /**
+     * مثال: «إعلان تعريفي».
+     */
+    kind?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
+    playLabel?: string | null;
+  };
+  reels?:
+    | {
+        title: string;
+        poster?: (number | null) | Media;
+        /**
+         * فيديو طولي قصير (15–30 ثانية)، MP4 مضغوط.
+         */
+        video?: (number | null) | Media;
+        /**
+         * مثال: 0:20
+         */
+        durationLabel?: string | null;
+        /**
+         * زر «تفاصيل الدورة» يفتح واتساب باسم هذه الدورة.
+         */
+        course?: (number | null) | Course;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * اسم الدورة يُضاف بعدها تلقائياً. مثال: «مرحبا، بدي تفاصيل عن: ».
+   */
+  whatsappMessage?: string | null;
+  swipeHint?: string | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videos';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsBlock".
+ */
+export interface NewsBlock {
+  kicker?: string | null;
+  title: string;
+  /**
+   * تظهر آخر الأخبار المنشورة تلقائياً (المثبّتة أولاً).
+   */
+  count?: number | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'news';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PartnersBlock".
+ */
+export interface PartnersBlock {
+  title: string;
+  /**
+   * اتركه فارغاً لعرض كل الشركاء حسب الترتيب.
+   */
+  partners?: (number | Partner)[] | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'partners';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EmployersBlock".
+ */
+export interface EmployersBlock {
+  kicker?: string | null;
+  title: string;
+  text?: string | null;
+  items?:
+    | {
+        title: string;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  whatsappButton?: string | null;
+  hiringButton?: string | null;
+  /**
+   * بدون وعود. مثال: «الكلية على تواصل دائم مع خريجيها. تواصل معنا ونوجّه إليك خريجين ملائمين.»
+   */
+  hiringText?: string | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'employers';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  kicker?: string | null;
+  title: string;
+  text?: string | null;
+  /**
+   * عند الحديث عن ما بعد التخرّج: الصياغة المسموحة فقط: «مرافقة وتوجيه مهني بعد التخرّج» — مثل: توجيه عن سوق العمل، الشركات، والفرص. ممنوع: «ضمان تشغيل»، «شغل مضمون»، «بنشغّلك بعد الدورة»، «הבטחת תעסוקה». الموقع يعرض تلقائياً التنويه: «الكلية تقدّم مرافقة وتوجيه مهني، ولا تلتزم بتأمين مكان عمل.»
+   */
+  items?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RegisterBlock".
+ */
+export interface RegisterBlock {
+  kicker?: string | null;
+  title: string;
+  text?: string | null;
+  /**
+   * نص ثابت لا يُعدَّل: «الدورة ملائمة للحصول على منحة — تواصل معنا للاستشارة.»
+   */
+  showVoucherNote?: boolean | null;
+  bullets?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * رقم الواتساب يُضاف تلقائياً من «إعدادات الموقع».
+   */
+  whatsappButton?: string | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'register';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  kicker?: string | null;
+  title: string;
+  subtitle?: string | null;
+  /**
+   * الصور تُؤخذ من صفحة «معرض الصور والفيديو» بنفس الترتيب.
+   */
+  count?: number | null;
+  /**
+   * تستعمله روابط القائمة (مثل #faq). لا تغيّره إلا إذا غيّرت رابط القائمة أيضاً.
+   */
+  anchor?: string | null;
+  /**
+   * القسم يبقى محفوظاً لكنه لا يظهر في الموقع.
+   */
+  hidden?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * كلمات وأزرار تتكرر في كل الموقع: القائمة، الأزرار، الاستمارة… غيّر النص هنا فيتغيّر في كل مكان. نص المنحة وتنبيه التشغيل ثابتان ولا يُعدَّلان (قواعد الكلية).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ui-texts".
+ */
+export interface UiText {
+  id: number;
+  /**
+   * يظهر في النسخة العربية «עברית»، وفي العبرية «العربية».
+   */
+  otherLang?: string | null;
+  a11y?: string | null;
+  nav?: {
+    home?: string | null;
+    courses?: string | null;
+    allCourses?: string | null;
+    about?: string | null;
+    graduates?: string | null;
+    gallery?: string | null;
+    news?: string | null;
+    employers?: string | null;
+    contact?: string | null;
+    faq?: string | null;
+    staff?: string | null;
+    menu?: string | null;
+    close?: string | null;
+  };
+  pageTitles?: {
+    graduatesTitle?: string | null;
+  };
+  common?: {
+    readMore?: string | null;
+    viewCourse?: string | null;
+    allCourses?: string | null;
+    contactUs?: string | null;
+    whatsapp?: string | null;
+    whatsappLong?: string | null;
+    whatsappContact?: string | null;
+    call?: string | null;
+    registerInterest?: string | null;
+    hours?: string | null;
+    sessions?: string | null;
+    courseCount?: string | null;
+    /**
+     * مثال: «مسائي · 17:00–21:00».
+     */
+    evening?: string | null;
+    nextStart?: string | null;
+    swipe?: string | null;
+  };
+  /**
+   * تستعملها صفحات الموقع الداخلية. أرقام الصفحة الرئيسية تُعدَّل من قسم «أرقام».
+   */
+  stats?: {
+    years?: string | null;
+    courses?: string | null;
+    groups?: string | null;
+    partners?: string | null;
+    graduates?: string | null;
+    alumni?: string | null;
+  };
+  /**
+   * جمل قصيرة تظهر في أكثر من مكان (مثل: «منذ 2008»، «بإشراف وزارة العمل»).
+   */
+  trust?:
+    | {
+        title?: string | null;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  form?: {
+    name?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    course?: string | null;
+    courseSelect?: string | null;
+    courseAny?: string | null;
+    message?: string | null;
+    submit?: string | null;
+    privacy?: string | null;
+    successTitle?: string | null;
+    successText?: string | null;
+  };
+  course?: {
+    /**
+     * بدون أرقام وبدون أسعار — الأسعار لا تُعرض أبداً.
+     */
+    contactForPrice?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * صور حقيقية من الورشات والتدريبات، وفيديوهات يوتيوب. اسحب لتغيير الترتيب.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery".
+ */
+export interface Gallery {
+  id: number;
+  title?: string | null;
+  intro?: string | null;
+  images?: (number | Media)[] | null;
+  videos?:
+    | {
+        title: string;
+        /**
+         * مثال: https://www.youtube.com/watch?v=c3PP4-TM3Y0
+         */
+        youtubeUrl?: string | null;
+        file?: (number | null) | Media;
+        thumbnail?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * اللوغو، معلومات الاتصال، السوشال ميديا، وإعدادات جوجل — تظهر في كل صفحات الموقع.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1055,6 +1770,7 @@ export interface SiteSetting {
    */
   shortName?: string | null;
   tagline?: string | null;
+  city?: string | null;
   /**
    * مثال: «بإشراف وزارة العمل منذ 2008».
    */
@@ -1167,7 +1883,7 @@ export interface Navigation {
       | {
           label: string;
           link?: {
-            type?: ('page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
+            type?: ('anchor' | 'page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
             page?:
               | (
                   | 'home'
@@ -1178,9 +1894,16 @@ export interface Navigation {
                   | 'news'
                   | 'companies'
                   | 'contact'
+                  | 'staff'
+                  | 'faq'
                   | 'register'
+                  | 'accessibility'
                 )
               | null;
+            /**
+             * نفس «اسم القسم في الرابط» في الصفحة الرئيسية. مثال: fields ، why ، graduates ، video ، news ، employers ، faq ، register
+             */
+            anchor?: string | null;
             course?: (number | null) | Course;
             courseGroup?: (number | null) | CourseGroup;
             /**
@@ -1197,7 +1920,7 @@ export interface Navigation {
             | {
                 label: string;
                 link?: {
-                  type?: ('page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
+                  type?: ('anchor' | 'page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
                   page?:
                     | (
                         | 'home'
@@ -1208,9 +1931,16 @@ export interface Navigation {
                         | 'news'
                         | 'companies'
                         | 'contact'
+                        | 'staff'
+                        | 'faq'
                         | 'register'
+                        | 'accessibility'
                       )
                     | null;
+                  /**
+                   * نفس «اسم القسم في الرابط» في الصفحة الرئيسية. مثال: fields ، why ، graduates ، video ، news ، employers ، faq ، register
+                   */
+                  anchor?: string | null;
                   course?: (number | null) | Course;
                   courseGroup?: (number | null) | CourseGroup;
                   /**
@@ -1233,7 +1963,7 @@ export interface Navigation {
       show?: boolean | null;
       label?: string | null;
       link?: {
-        type?: ('page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
+        type?: ('anchor' | 'page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
         page?:
           | (
               | 'home'
@@ -1244,9 +1974,16 @@ export interface Navigation {
               | 'news'
               | 'companies'
               | 'contact'
+              | 'staff'
+              | 'faq'
               | 'register'
+              | 'accessibility'
             )
           | null;
+        /**
+         * نفس «اسم القسم في الرابط» في الصفحة الرئيسية. مثال: fields ، why ، graduates ، video ، news ، employers ، faq ، register
+         */
+        anchor?: string | null;
         course?: (number | null) | Course;
         courseGroup?: (number | null) | CourseGroup;
         /**
@@ -1270,7 +2007,7 @@ export interface Navigation {
             | {
                 label: string;
                 link?: {
-                  type?: ('page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
+                  type?: ('anchor' | 'page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
                   page?:
                     | (
                         | 'home'
@@ -1281,9 +2018,16 @@ export interface Navigation {
                         | 'news'
                         | 'companies'
                         | 'contact'
+                        | 'staff'
+                        | 'faq'
                         | 'register'
+                        | 'accessibility'
                       )
                     | null;
+                  /**
+                   * نفس «اسم القسم في الرابط» في الصفحة الرئيسية. مثال: fields ، why ، graduates ، video ، news ، employers ، faq ، register
+                   */
+                  anchor?: string | null;
                   course?: (number | null) | Course;
                   courseGroup?: (number | null) | CourseGroup;
                   /**
@@ -1303,6 +2047,10 @@ export interface Navigation {
         }[]
       | null;
     /**
+     * العنوان والهواتف والإيميل تُؤخذ من «إعدادات الموقع».
+     */
+    contactTitle?: string | null;
+    /**
      * {year} تُستبدل بالسنة الحالية تلقائياً. مثال: «© {year} كلية المركز. جميع الحقوق محفوظة.»
      */
     copyright?: string | null;
@@ -1313,7 +2061,7 @@ export interface Navigation {
       | {
           label: string;
           link?: {
-            type?: ('page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
+            type?: ('anchor' | 'page' | 'course' | 'courseGroup' | 'whatsapp' | 'phone' | 'external') | null;
             page?:
               | (
                   | 'home'
@@ -1324,9 +2072,16 @@ export interface Navigation {
                   | 'news'
                   | 'companies'
                   | 'contact'
+                  | 'staff'
+                  | 'faq'
                   | 'register'
+                  | 'accessibility'
                 )
               | null;
+            /**
+             * نفس «اسم القسم في الرابط» في الصفحة الرئيسية. مثال: fields ، why ، graduates ، video ، news ، employers ، faq ، register
+             */
+            anchor?: string | null;
             course?: (number | null) | Course;
             courseGroup?: (number | null) | CourseGroup;
             /**
@@ -1348,12 +2103,420 @@ export interface Navigation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  sections?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        stats?: T | StatsBlockSelect<T>;
+        courseGroups?: T | CourseGroupsBlockSelect<T>;
+        featuredCourses?: T | FeaturedCoursesBlockSelect<T>;
+        why?: T | WhyBlockSelect<T>;
+        successStories?: T | SuccessStoriesBlockSelect<T>;
+        staff?: T | StaffBlockSelect<T>;
+        videos?: T | VideosBlockSelect<T>;
+        news?: T | NewsBlockSelect<T>;
+        partners?: T | PartnersBlockSelect<T>;
+        employers?: T | EmployersBlockSelect<T>;
+        faq?: T | FaqBlockSelect<T>;
+        register?: T | RegisterBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+      };
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  video?: T;
+  poster?: T;
+  badge?: T;
+  title?: T;
+  kicker?: T;
+  text?: T;
+  subtitle?: T;
+  slogan?: T;
+  whatsappButton?: T;
+  registerButton?: T;
+  coursesLink?: T;
+  scrollHint?: T;
+  showGroupsStrip?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock_select".
+ */
+export interface StatsBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        value?: T;
+        suffix?: T;
+        label?: T;
+        anchor?: T;
+        id?: T;
+      };
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseGroupsBlock_select".
+ */
+export interface CourseGroupsBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  subtitle?: T;
+  swipeHint?: T;
+  groups?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturedCoursesBlock_select".
+ */
+export interface FeaturedCoursesBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  allCoursesButton?: T;
+  courses?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WhyBlock_select".
+ */
+export interface WhyBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        text?: T;
+        id?: T;
+      };
+  image?: T;
+  pills?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  badgeNumber?: T;
+  badgeText?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SuccessStoriesBlock_select".
+ */
+export interface SuccessStoriesBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  subtitle?: T;
+  videoLabel?: T;
+  stories?: T;
+  rotateSeconds?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StaffBlock_select".
+ */
+export interface StaffBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  subtitle?: T;
+  members?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideosBlock_select".
+ */
+export interface VideosBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  subtitle?: T;
+  promo?:
+    | T
+    | {
+        video?: T;
+        youtubeUrl?: T;
+        poster?: T;
+        durationLabel?: T;
+        kind?: T;
+        title?: T;
+        subtitle?: T;
+        playLabel?: T;
+      };
+  reels?:
+    | T
+    | {
+        title?: T;
+        poster?: T;
+        video?: T;
+        durationLabel?: T;
+        course?: T;
+        id?: T;
+      };
+  whatsappMessage?: T;
+  swipeHint?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsBlock_select".
+ */
+export interface NewsBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  count?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PartnersBlock_select".
+ */
+export interface PartnersBlockSelect<T extends boolean = true> {
+  title?: T;
+  partners?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EmployersBlock_select".
+ */
+export interface EmployersBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  text?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        text?: T;
+        id?: T;
+      };
+  whatsappButton?: T;
+  hiringButton?: T;
+  hiringText?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock_select".
+ */
+export interface FaqBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  text?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RegisterBlock_select".
+ */
+export interface RegisterBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  text?: T;
+  showVoucherNote?: T;
+  bullets?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  whatsappButton?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  kicker?: T;
+  title?: T;
+  subtitle?: T;
+  count?: T;
+  anchor?: T;
+  hidden?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ui-texts_select".
+ */
+export interface UiTextsSelect<T extends boolean = true> {
+  otherLang?: T;
+  a11y?: T;
+  nav?:
+    | T
+    | {
+        home?: T;
+        courses?: T;
+        allCourses?: T;
+        about?: T;
+        graduates?: T;
+        gallery?: T;
+        news?: T;
+        employers?: T;
+        contact?: T;
+        faq?: T;
+        staff?: T;
+        menu?: T;
+        close?: T;
+      };
+  pageTitles?:
+    | T
+    | {
+        graduatesTitle?: T;
+      };
+  common?:
+    | T
+    | {
+        readMore?: T;
+        viewCourse?: T;
+        allCourses?: T;
+        contactUs?: T;
+        whatsapp?: T;
+        whatsappLong?: T;
+        whatsappContact?: T;
+        call?: T;
+        registerInterest?: T;
+        hours?: T;
+        sessions?: T;
+        courseCount?: T;
+        evening?: T;
+        nextStart?: T;
+        swipe?: T;
+      };
+  stats?:
+    | T
+    | {
+        years?: T;
+        courses?: T;
+        groups?: T;
+        partners?: T;
+        graduates?: T;
+        alumni?: T;
+      };
+  trust?:
+    | T
+    | {
+        title?: T;
+        text?: T;
+        id?: T;
+      };
+  form?:
+    | T
+    | {
+        name?: T;
+        phone?: T;
+        email?: T;
+        course?: T;
+        courseSelect?: T;
+        courseAny?: T;
+        message?: T;
+        submit?: T;
+        privacy?: T;
+        successTitle?: T;
+        successText?: T;
+      };
+  course?:
+    | T
+    | {
+        contactForPrice?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery_select".
+ */
+export interface GallerySelect<T extends boolean = true> {
+  title?: T;
+  intro?: T;
+  images?: T;
+  videos?:
+    | T
+    | {
+        title?: T;
+        youtubeUrl?: T;
+        file?: T;
+        thumbnail?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   shortName?: T;
   tagline?: T;
+  city?: T;
   accreditation?: T;
   foundedYear?: T;
   logoLight?: T;
@@ -1427,6 +2590,7 @@ export interface NavigationSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     page?: T;
+                    anchor?: T;
                     course?: T;
                     courseGroup?: T;
                     url?: T;
@@ -1442,6 +2606,7 @@ export interface NavigationSelect<T extends boolean = true> {
                       | {
                           type?: T;
                           page?: T;
+                          anchor?: T;
                           course?: T;
                           courseGroup?: T;
                           url?: T;
@@ -1462,6 +2627,7 @@ export interface NavigationSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     page?: T;
+                    anchor?: T;
                     course?: T;
                     courseGroup?: T;
                     url?: T;
@@ -1487,6 +2653,7 @@ export interface NavigationSelect<T extends boolean = true> {
                       | {
                           type?: T;
                           page?: T;
+                          anchor?: T;
                           course?: T;
                           courseGroup?: T;
                           url?: T;
@@ -1497,6 +2664,7 @@ export interface NavigationSelect<T extends boolean = true> {
                   };
               id?: T;
             };
+        contactTitle?: T;
         copyright?: T;
         bottomLinks?:
           | T
@@ -1507,6 +2675,7 @@ export interface NavigationSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     page?: T;
+                    anchor?: T;
                     course?: T;
                     courseGroup?: T;
                     url?: T;

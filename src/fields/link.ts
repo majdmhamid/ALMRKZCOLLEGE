@@ -19,9 +19,10 @@ export const linkField = ({
       name: 'type',
       label: 'نوع الرابط',
       type: 'select',
-      defaultValue: 'page',
+      defaultValue: 'anchor',
       required,
       options: [
+        { label: 'قسم في الصفحة الرئيسية', value: 'anchor' },
         { label: 'صفحة من الموقع', value: 'page' },
         { label: 'دورة', value: 'course' },
         { label: 'مجموعة دورات', value: 'courseGroup' },
@@ -43,9 +44,22 @@ export const linkField = ({
         { label: 'أخبار وإعلانات', value: 'news' },
         { label: 'للشركات والمشغّلين', value: 'companies' },
         { label: 'اتصل بنا', value: 'contact' },
+        { label: 'الطاقم', value: 'staff' },
+        { label: 'أسئلة شائعة', value: 'faq' },
         { label: 'استمارة سجّل اهتمامك', value: 'register' },
+        { label: 'إعلان الوصولية (נגישות)', value: 'accessibility' },
       ],
       admin: { condition: (_, sibling) => sibling?.type === 'page' },
+    },
+    {
+      name: 'anchor',
+      label: 'اسم القسم',
+      type: 'text',
+      admin: {
+        condition: (_, sibling) => sibling?.type === 'anchor',
+        description:
+          'نفس «اسم القسم في الرابط» في الصفحة الرئيسية. مثال: fields ، why ، graduates ، video ، news ، employers ، faq ، register',
+      },
     },
     {
       name: 'course',

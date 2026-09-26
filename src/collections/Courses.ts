@@ -98,18 +98,29 @@ export const Courses: CollectionConfig = {
           fields: [
             {
               name: 'duration',
-              label: 'مدة الدورة',
+              label: 'مدة الدورة (اختياري)',
               type: 'text',
               localized: true,
-              required: true,
               admin: { description: 'مثال: «4 أشهر» / «4 חודשים».' },
             },
             {
-              name: 'hours',
-              label: 'عدد الساعات',
-              type: 'number',
-              min: 0,
-              admin: { description: 'مجموع ساعات الدورة (رقم فقط).' },
+              type: 'row',
+              fields: [
+                {
+                  name: 'hours',
+                  label: 'عدد الساعات',
+                  type: 'number',
+                  min: 0,
+                  admin: { width: '50%', description: 'مجموع ساعات الدورة (رقم فقط).' },
+                },
+                {
+                  name: 'sessions',
+                  label: 'عدد اللقاءات',
+                  type: 'number',
+                  min: 0,
+                  admin: { width: '50%', description: 'كم مرة يأتي الطالب (رقم فقط).' },
+                },
+              ],
             },
             {
               name: 'schedule',

@@ -1,0 +1,57 @@
+import type { GlobalConfig } from 'payload'
+
+import { anyone, isStaff } from '@/access'
+import { enforceContentRulesGlobal } from '@/hooks/enforceContentRules'
+
+export const Gallery: GlobalConfig = {
+  slug: 'gallery',
+  label: 'معرض الصور والفيديو',
+  admin: {
+    group: 'الصفحات',
+    description: 'صور حقيقية من الورشات والتدريبات، وفيديوهات يوتيوب. اسحب لتغيير الترتيب.',
+  },
+  access: { read: anyone, update: isStaff },
+  fields: [
+    { name: 'title', label: 'العنوان', type: 'text', localized: true },
+    { name: 'intro', label: 'النص تحت العنوان', type: 'textarea', localized: true },
+    {
+      name: 'images',
+      label: 'الصور',
+      type: 'upload',
+      relationTo: 'media',
+      hasMany: true,
+      filterOptions: { mimeType: { contains: 'image' } },
+    },
+    {
+      name: 'videos',
+      label: 'فيديوهات',
+      type: 'array',
+      labels: { singular: 'فيديو', plural: 'فيديوهات' },
+      admin: { initCollapsed: true, components: { RowLabel: '@/admin/RowLabel#TitleRowLabel' } },
+      fields: [
+        { name: 'title', label: 'العنوان', type: 'text', localized: true, required: true },
+        {
+          name: 'youtubeUrl',
+          label: 'رابط يوتيوب',
+          type: 'text',
+          admin: { description: 'مثال: https://www.youtube.com/watch?v=c3PP4-TM3Y0' },
+        },
+        {
+          name: 'file',
+          label: 'أو ملف فيديو',
+          type: 'upload',
+          relationTo: 'media',
+          filterOptions: { mimeType: { contains: 'video' } },
+        },
+        {
+          name: 'thumbnail',
+          label: 'صورة الغلاف',
+          type: 'upload',
+          relationTo: 'media',
+          filterOptions: { mimeType: { contains: 'image' } },
+        },
+      ],
+    },
+  ],
+  hooks: { beforeValidate: [enforceContentRulesGlobal] },
+}

@@ -35,8 +35,22 @@ export const CourseGroups: CollectionConfig = {
       required: true,
     },
     {
+      name: 'shortName',
+      label: 'اسم مختصر',
+      type: 'text',
+      localized: true,
+      admin: { description: 'للأماكن الضيّقة. مثال: «اللحام» بدل «الحديد واللحام».' },
+    },
+    {
+      name: 'tagline',
+      label: 'جملة تعريف (على البطاقة)',
+      type: 'text',
+      localized: true,
+      admin: { description: 'مثال: «مهنة مطلوبة في كل مصنع وورشة وموقع بناء».' },
+    },
+    {
       name: 'description',
-      label: 'وصف قصير',
+      label: 'وصف أطول (لصفحة المجموعة)',
       type: 'textarea',
       localized: true,
     },
@@ -49,11 +63,11 @@ export const CourseGroups: CollectionConfig = {
     },
     {
       name: 'icon',
-      label: 'أيقونة (اختياري)',
+      label: 'أيقونة',
       type: 'upload',
       relationTo: 'media',
       filterOptions: { mimeType: { contains: 'image' } },
-      admin: { description: 'صورة صغيرة بسيطة (يُفضّل SVG أو PNG شفّاف).' },
+      admin: { description: 'رمز صغير يظهر في الدائرة البيضاء (PNG شفّاف أو SVG).' },
     },
     {
       name: 'courses',

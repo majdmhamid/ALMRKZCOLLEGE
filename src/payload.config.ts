@@ -15,10 +15,15 @@ import { Courses } from './collections/Courses'
 import { Leads } from './collections/Leads'
 import { Media } from './collections/Media'
 import { News } from './collections/News'
+import { Partners } from './collections/Partners'
+import { Staff } from './collections/Staff'
 import { SuccessStories } from './collections/SuccessStories'
 import { Users } from './collections/Users'
+import { Gallery } from './globals/Gallery'
+import { Homepage } from './globals/Homepage'
 import { Navigation } from './globals/Navigation'
 import { SiteSettings } from './globals/SiteSettings'
+import { UiTexts } from './globals/UiTexts'
 import { previewPath, serverURL } from './lib/preview'
 
 const filename = fileURLToPath(import.meta.url)
@@ -57,6 +62,9 @@ export default buildConfig({
     user: Users.slug,
     // No Gravatar (external service; the image is blocked on some networks).
     avatar: 'default',
+    components: {
+      graphics: { Logo: '@/admin/Logo#Logo' },
+    },
     importMap: { baseDir: path.resolve(dirname) },
     meta: {
       titleSuffix: ' — لوحة تحكم كلية المركز',
@@ -73,6 +81,7 @@ export default buildConfig({
         })
       },
       collections: ['courses', 'course-groups', 'news', 'success-stories'],
+      globals: ['homepage'],
       breakpoints: [
         { label: 'موبايل', name: 'mobile', width: 390, height: 844 },
         { label: 'تابلت', name: 'tablet', width: 820, height: 1180 },
@@ -97,8 +106,8 @@ export default buildConfig({
     fallback: true,
   },
 
-  collections: [Courses, CourseGroups, News, SuccessStories, Media, Leads, Users],
-  globals: [SiteSettings, Navigation],
+  collections: [Courses, CourseGroups, News, SuccessStories, Staff, Partners, Media, Leads, Users],
+  globals: [Homepage, UiTexts, Gallery, SiteSettings, Navigation],
 
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
