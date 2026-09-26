@@ -10,6 +10,15 @@ REM ============================================================
 cd /d "%~dp0"
 title Almerkaz College - local website
 
+if not exist package.json (
+  echo.
+  echo  The ZIP file is not extracted yet.
+  echo  Close this window, right-click the ZIP file, choose "Extract All",
+  echo  then open the NEW folder and double-click start-windows.bat there.
+  pause
+  exit /b 1
+)
+
 where node >nul 2>nul
 if errorlevel 1 (
   echo.
@@ -42,6 +51,10 @@ echo  Admin login: admin@almrkz.local / almrkz2008
 echo.
 start "" /min powershell -NoProfile -WindowStyle Hidden -Command "for($i=0;$i -lt 200;$i++){try{Invoke-WebRequest -UseBasicParsing http://localhost:3000/ar -TimeoutSec 60 | Out-Null; Start-Process 'http://localhost:3000/ar'; break}catch{Start-Sleep 2}}"
 call npm run dev
+echo.
+echo  The website stopped. If you did not close it yourself,
+echo  take a screenshot of this window and send it to Claude.
+pause
 goto end
 
 :fail
