@@ -20,7 +20,8 @@ export interface FileStore {
 export const paths = {
   original: (documentId: string) => `${documentId}/original.pdf`,
   final: (documentId: string, stamp: number) => `${documentId}/final-${stamp}.pdf`,
-  signature: (documentId: string, signerId: string) => `${documentId}/${signerId}.png`,
+  /** Unique per submission, so a rejected retry can never overwrite an accepted signature. */
+  signature: (documentId: string, signerId: string, stamp: number) => `${documentId}/${signerId}-${stamp}.png`,
   adminSignature: (userId: string, stamp: number) => `admins/${userId}-${stamp}.png`,
 };
 

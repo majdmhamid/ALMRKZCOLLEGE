@@ -10,3 +10,5 @@ next-env.d.ts
 .mock-data/
 # Playwright output
 test-results/
+# Copied from pdfjs-dist on install/build
+/public/pdfjs/

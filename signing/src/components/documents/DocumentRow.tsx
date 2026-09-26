@@ -53,7 +53,11 @@ export function DocumentRow({
   const signed = signedClientCount(doc);
   const isDraft = doc.status === "draft";
   const canMove = doc.in_signed_section || doc.status === "signed" || doc.status === "finalized";
-  const hasLinks = !isDraft && doc.status !== "finalized" && (doc.has_shared_link || doc.signers.some((s) => s.has_link));
+  // Shown even when every link was revoked, so the admin can issue a new one.
+  const canShare =
+    !isDraft &&
+    doc.status !== "finalized" &&
+    (doc.link_mode === "shared" || doc.signers.some((s) => !s.is_admin && s.status === "pending"));
 
   return (
     <li
@@ -113,7 +117,7 @@ export function DocumentRow({
               {handlers.onAdminSign && doc.admin_signs && adminPending(doc) && (
                 <IconButton icon={PenLine} label={t("rowActions.adminSign")} tone="blue" onClick={() => handlers.onAdminSign?.(doc)} />
               )}
-              {handlers.onCopyLink && hasLinks && (
+              {handlers.onCopyLink && canShare && (
                 <IconButton icon={ClipboardCopy} label={t("rowActions.copyLink")} tone="orange" onClick={() => handlers.onCopyLink?.(doc)} />
               )}
               {handlers.onMove && canMove && (

@@ -3,17 +3,20 @@
 import { CheckSquare, Trash2, Upload, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
-import { deleteDocumentsAction } from "@/app/admin/documents/actions";
+import { deleteDocumentsAction, getShareInfoAction, recordLinkCopiedAction } from "@/app/admin/documents/actions";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/buttons";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
+import { copyWhenReady } from "@/lib/clipboard";
 import { documentBadges, type DocumentListItem, type DocumentStats, type LinkMode } from "@/lib/domain";
+import type { ShareInfo } from "@/server/services/links";
 import type { NotificationItem } from "@/server/repo/notifications";
 import { DocumentGroups } from "./DocumentGroups";
 import type { RowHandlers } from "./DocumentRow";
 import { EditDocumentDialog } from "./EditDocumentDialog";
 import { NewDocumentDialog } from "./NewDocumentDialog";
+import { ShareDialog } from "./ShareDialog";
 import { StatCards } from "./StatCards";
 import { TopBar, type StatusFilter } from "./TopBar";
 import { UploadZone } from "./UploadZone";
@@ -61,6 +64,7 @@ export function DocumentsView(props: DocumentsViewProps) {
   const [draftToComplete, setDraftToComplete] = useState<DocumentListItem | null>(null);
   const [editing, setEditing] = useState<DocumentListItem | null>(null);
   const [deleting, setDeleting] = useState<DocumentListItem[] | null>(null);
+  const [sharing, setSharing] = useState<{ id: string; info: ShareInfo | null } | null>(null);
 
   const visible = useMemo(() => docs.filter((d) => matches(d, filter, search.trim())), [docs, filter, search]);
   const dateOf = useCallback(
@@ -94,6 +98,24 @@ export function DocumentsView(props: DocumentsViewProps) {
     onOpen: (doc) => window.open(`/admin/documents/${doc.id}/file`, "_blank", "noopener"),
     onEdit: setEditing,
     onDelete: (doc) => setDeleting([doc]),
+    onCopyLink: (doc) => {
+      const activeLinks =
+        doc.link_mode === "shared"
+          ? Number(doc.has_shared_link)
+          : doc.signers.filter((s) => !s.is_admin && s.status === "pending" && s.has_link).length;
+      if (activeLinks !== 1) {
+        setSharing({ id: doc.id, info: null });
+        return;
+      }
+      // One link: copy it on this click (the dialog then offers WhatsApp etc.).
+      const info = getShareInfoAction(doc.id);
+      const message = info.then((i) => i?.links.find((l) => l.message)?.message ?? Promise.reject(new Error("no link")));
+      void copyWhenReady(message).then((ok) => {
+        toast(ok ? t("share.copied") : t("share.copyFailed"), ok ? "ok" : "error");
+        if (ok) void info.then((i) => i && recordLinkCopiedAction({ documentId: doc.id, signerId: i.links.find((l) => l.message)?.signerId ?? null }));
+      });
+      void info.then((i) => setSharing({ id: doc.id, info: i }));
+    },
     onComplete: (doc) => {
       setQueue([]);
       setDraftToComplete(doc);
@@ -191,6 +213,7 @@ export function DocumentsView(props: DocumentsViewProps) {
         categories={props.categories}
         onClose={closeNew}
       />
+      <ShareDialog documentId={sharing?.id ?? null} initial={sharing?.info ?? null} onClose={() => setSharing(null)} />
       <EditDocumentDialog doc={editing} categories={props.categories} onClose={() => setEditing(null)} />
       <ConfirmDialog
         open={!!deleting}

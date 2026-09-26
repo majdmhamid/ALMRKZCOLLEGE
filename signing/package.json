@@ -4,6 +4,10 @@
   "private": true,
   "description": "PDF e-signature: upload, signing links, placement editor, finalize",
   "scripts": {
+    "postinstall": "node scripts/copy-pdf-worker.mjs",
+    "predev": "node scripts/copy-pdf-worker.mjs",
+    "predev:mock": "node scripts/copy-pdf-worker.mjs",
+    "prebuild": "node scripts/copy-pdf-worker.mjs",
     "dev": "next dev --port 3100",
     "dev:mock": "cross-env MOCK_BACKEND=1 next dev --port 3100",
     "build": "next build",

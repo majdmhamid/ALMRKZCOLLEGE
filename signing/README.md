@@ -11,6 +11,8 @@ Arabic + Hebrew, RTL. Next.js 16 (App Router) + Supabase + Tailwind v4.
 - **Tests:** `npm test` — ID check digit, token hashing/encryption, and the SQL
   migrations + RLS policies on PGlite (real Postgres in WASM).
 - **Screenshots:** start `dev:mock`, then `npm run screenshots` → `screenshots/`
+- **End-to-end signing check:** with `dev:mock` running on fresh data, `node scripts/e2e-sign.mjs`
+  (admin copies a link → phone verifies ID → reads → draws → submits → admin updates live)
 
 ## Layout
 

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { adminContext } from "@/server/context";
 import { markAllRead } from "@/server/repo/notifications";
+import { getShareInfo, recordLinkCopied, regenerateLink, resetLock, revokeLink } from "@/server/services/links";
 import {
   completeDocument,
   deleteDocuments,
@@ -48,4 +49,36 @@ export async function markNotificationsReadAction() {
   const { db } = await adminContext();
   await markAllRead(db);
   revalidatePath("/admin", "layout");
+}
+
+// ---------------------------------------------------------------------------
+// Signing links
+// ---------------------------------------------------------------------------
+
+type LinkRef = { documentId: string; signerId: string | null };
+
+export async function getShareInfoAction(documentId: string) {
+  return getShareInfo(await adminContext(), documentId);
+}
+
+export async function recordLinkCopiedAction(ref: LinkRef) {
+  await recordLinkCopied(await adminContext(), ref);
+}
+
+export async function revokeLinkAction(ref: LinkRef) {
+  const result = await revokeLink(await adminContext(), ref);
+  revalidatePath("/admin", "layout");
+  return result;
+}
+
+export async function regenerateLinkAction(ref: LinkRef) {
+  const result = await regenerateLink(await adminContext(), ref);
+  revalidatePath("/admin", "layout");
+  return result;
+}
+
+export async function resetLockAction(ref: LinkRef) {
+  const result = await resetLock(await adminContext(), ref);
+  revalidatePath("/admin", "layout");
+  return result;
 }

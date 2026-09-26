@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { LiveUpdates } from "@/components/LiveUpdates";
 import { MockBanner } from "@/components/MockBanner";
 import { ToastProvider } from "@/components/ui/Toast";
+import { isMockBackend } from "@/lib/env";
 import { requireAdmin } from "@/server/auth";
 import { logoutAction } from "../login/actions";
 import { AdminNav } from "./AdminNav";
@@ -13,6 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-dvh flex-col">
       <MockBanner />
+      <LiveUpdates mode={isMockBackend ? "mock" : "supabase"} />
       <div className="flex flex-1 flex-col lg:flex-row">
         <aside className="border-line bg-card lg:sticky lg:top-0 lg:h-dvh lg:w-60 lg:shrink-0 lg:border-e">
           <div className="flex h-full flex-col gap-4 p-3 lg:p-4">
