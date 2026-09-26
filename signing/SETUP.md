@@ -60,9 +60,9 @@ npm run secrets
 | `NEXT_PUBLIC_SUPABASE_URL` | **Project Settings** ← **Data API** ← **Project URL** |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | **Project Settings** ← **API Keys** ← المفتاح اللي اسمه **anon** أو **publishable** |
 | `SUPABASE_SERVICE_ROLE_KEY` | نفس الصفحة ← **service_role** أو **secret** (اضغط Reveal) |
-| `SUPABASE_DB_URL` | زر **Connect** فوق ← **Session pooler** ← انسخ الرابط، وحط كلمة سر قاعدة البيانات (من الخطوة ١) مكان `[YOUR-PASSWORD]` |
+| `SUPABASE_DB_URL` | زر **Connect** فوق ← **Transaction pooler** ← انسخ الرابط، وحط كلمة سر قاعدة البيانات (من الخطوة ١) مكان `[YOUR-PASSWORD]` |
 
-> ⚠️ **مفتاح `service_role` زي مفتاح الخزنة.** لا تبعته لحدا، ولا تحطه بواتساب أو إيميل.
+> ⚠️ **مفتاح `service_role` ورابط `SUPABASE_DB_URL` زي مفتاح الخزنة.** لا تبعتهم لحدا، ولا تحطهم بواتساب أو إيميل.
 
 ---
 
@@ -105,7 +105,7 @@ npm run dev
 1. ادخل على **https://vercel.com** واعمل حساب بحساب GitHub.
 2. **Add New** ← **Project** ← اختار `ALMRKZCOLLEGE`.
 3. **مهم:** بـ **Root Directory** اضغط **Edit** واختار `signing`.
-4. افتح **Environment Variables** وضيف كل سطر من `.env.local` **ما عدا** `SUPABASE_DB_URL` وأسطر الـ `MOCK`.
+4. افتح **Environment Variables** وضيف كل سطر من `.env.local` **ما عدا** أسطر الـ `MOCK`.
    - `NEXT_PUBLIC_APP_URL`: حط مؤقتاً أي إشي، وبعد النشر غيّره للعنوان اللي أعطاك إياه Vercel (مثلاً `https://almrkz-signing.vercel.app`) واعمل **Redeploy**.
 5. اضغط **Deploy**.
 

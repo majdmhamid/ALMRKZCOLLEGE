@@ -30,7 +30,18 @@
   "documents": {
     "title": "מסמכים",
     "subtitle": "ארכיון מסמכים משפטיים וחוזים",
-    "comingSoon": "רשימת המסמכים תגיע בשלב 2."
+    "upload": "העלאת מסמך",
+    "select": "בחר",
+    "cancelSelect": "ביטול בחירה",
+    "selectedCount": "{n, plural, one {נבחר מסמך אחד} other {נבחרו # מסמכים}}",
+    "selectAll": "בחר הכל",
+    "deleteSelected": "מחיקה",
+    "refresh": "רענון",
+    "newCase": "תיק חדש",
+    "search": "חיפוש מהיר…",
+    "empty": "אין מסמכים עדיין. העלו PDF כדי להתחיל.",
+    "noResults": "לא נמצאו מסמכים",
+    "docCount": "{n, plural, one {מסמך אחד} other {# מסמכים}}"
   },
   "signedPage": {
     "title": "נחתמו",
@@ -43,5 +54,116 @@
     "title": "חתימה על מסמך",
     "invalidLink": "הקישור אינו תקין או שבוטל. פנו לשולח המסמך.",
     "comingSoon": "דף החתימה יגיע בשלב 3."
+  },
+  "filter": {
+    "label": "סינון",
+    "all": "הכל",
+    "admin": "לחתימתך",
+    "waiting": "ממתין לחתימה",
+    "signed": "נחתם",
+    "finalized": "סופי",
+    "draft": "טיוטה"
+  },
+  "stats": {
+    "total": "סה״כ מסמכים",
+    "storage": "נפח אחסון",
+    "storageFiles": "{n, plural, one {קובץ אחד} other {# קבצים}}",
+    "signed": "נחתמו",
+    "waiting": "ממתינים לחתימה",
+    "finalized": "סופיים"
+  },
+  "uploadZone": {
+    "title": "גררו קובץ PDF לכאן או לחצו לבחירה",
+    "hint": "PDF בלבד · עד 50MB לקובץ",
+    "drop": "שחררו כדי להעלות"
+  },
+  "badge": {
+    "draft": "טיוטה",
+    "admin": "לחתימתך",
+    "waiting": "ממתין לחתימה",
+    "signed": "נחתם ✓",
+    "finalized": "סופי"
+  },
+  "progress": {
+    "of": "{signed}/{expected} חתמו",
+    "open": "{signed} חתמו"
+  },
+  "rowActions": {
+    "view": "צפייה",
+    "download": "הורדה",
+    "edit": "עריכת פרטים",
+    "delete": "מחיקה",
+    "copyLink": "העתקת קישור לחתימה",
+    "moveToSigned": "העברה לנחתמו",
+    "moveBack": "החזרה למסמכים",
+    "adminSign": "חתימה שלי",
+    "complete": "השלמת פרטים",
+    "select": "בחירת {title}"
+  },
+  "newDoc": {
+    "title": "מסמך חדש",
+    "file": "קובץ PDF",
+    "chooseFile": "בחירת קובץ",
+    "uploading": "מעלה… {pct}%",
+    "uploaded": "הקובץ הועלה",
+    "docTitle": "כותרת",
+    "category": "קטגוריה",
+    "categoryPlaceholder": "למשל: חוזה, ייפוי כוח",
+    "description": "תיאור (לא חובה)",
+    "descriptionHint": "נשלח ללקוח יחד עם הקישור ומוצג בדף החתימה",
+    "linkMode": "סוג קישור",
+    "perSigner": "קישור אישי לכל חותם",
+    "perSignerHint": "כל חותם מקבל קישור משלו ומאמת את מספר ת.ז שהזנתם",
+    "shared": "קישור אחד משותף",
+    "sharedHint": "כל מי שפותח את הקישור מזין שם ות.ז וחותם",
+    "maxSigners": "מקסימום חותמים (לא חובה)",
+    "signers": "חותמים",
+    "signerName": "שם מלא",
+    "signerId": "ת.ז",
+    "signerPhone": "טלפון (לא חובה)",
+    "addSigner": "הוספת חותם",
+    "removeSigner": "הסרת חותם",
+    "adminSigns": "גם אני חותם על המסמך",
+    "adminSignsHint": "המסמך יסומן \"לחתימתך\" עד שתחתמו",
+    "create": "יצירה",
+    "creating": "יוצר…",
+    "pages": "{n, plural, one {עמוד אחד} other {# עמודים}}"
+  },
+  "editDoc": {
+    "title": "עריכת פרטים"
+  },
+  "confirmDelete": {
+    "title": "למחוק את המסמך?",
+    "titleMany": "{n, plural, one {למחוק מסמך אחד?} other {למחוק # מסמכים?}}",
+    "body": "המסמך יוסר מהרשימה והקישורים שלו יפסיקו לעבוד.",
+    "confirm": "מחיקה"
+  },
+  "bell": {
+    "title": "התראות",
+    "empty": "אין התראות",
+    "signed": "{name} חתם/ה על \"{doc}\"",
+    "markRead": "סימון הכל כנקרא"
+  },
+  "toast": {
+    "created": "המסמך נוצר",
+    "saved": "נשמר",
+    "deleted": "{n, plural, one {המסמך נמחק} other {# מסמכים נמחקו}}"
+  },
+  "errors": {
+    "invalid": "יש שדה חסר או לא תקין",
+    "not_found": "המסמך לא נמצא",
+    "not_draft": "המסמך כבר נוצר",
+    "file_missing": "הקובץ לא הועלה עד הסוף. מחקו ונסו שוב.",
+    "no_signers": "הוסיפו לפחות חותם אחד",
+    "bad_id": "מספר ת.ז לא תקין (ספרת ביקורת שגויה)",
+    "duplicate_id": "אותו מספר ת.ז מופיע פעמיים",
+    "bad_phone": "מספר טלפון לא תקין",
+    "not_pdf": "אפשר להעלות קובצי PDF בלבד",
+    "too_large": "הקובץ גדול מ-50MB",
+    "encrypted": "הקובץ מוגן בסיסמה. הסירו את ההגנה ונסו שוב.",
+    "damaged": "הקובץ פגום ולא ניתן לקרוא אותו",
+    "empty": "לקובץ אין עמודים",
+    "upload_failed": "ההעלאה נכשלה. בדקו את החיבור ונסו שוב.",
+    "generic": "משהו השתבש. נסו שוב."
   }
 }

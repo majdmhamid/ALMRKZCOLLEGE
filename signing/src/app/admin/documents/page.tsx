@@ -1,17 +1,35 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/PageHeader";
+import { DocumentsView } from "@/components/documents/DocumentsView";
+import { adminContext } from "@/server/context";
+import { documentStats, listCategories, listDocuments } from "@/server/repo/documents";
+import { recentNotifications, unreadCount } from "@/server/repo/notifications";
+import { getSettings } from "@/server/repo/settings";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations("documents"))("title") };
 }
 
 export default async function DocumentsPage() {
-  const t = await getTranslations("documents");
+  const { db } = await adminContext();
+  const [docs, stats, unread, notifications, categories, settings] = await Promise.all([
+    listDocuments(db, "active"),
+    documentStats(db),
+    unreadCount(db),
+    recentNotifications(db),
+    listCategories(db),
+    getSettings(db),
+  ]);
+
   return (
-    <>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
-      <div className="rounded-2xl border border-dashed border-line bg-card p-10 text-center text-muted">{t("comingSoon")}</div>
-    </>
+    <DocumentsView
+      section="active"
+      docs={docs}
+      stats={stats}
+      unread={unread}
+      notifications={notifications}
+      categories={categories}
+      defaultLinkMode={settings.default_link_mode}
+    />
   );
 }

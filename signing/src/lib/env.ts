@@ -7,6 +7,11 @@ import { z } from "zod";
  */
 export const isMockBackend = process.env.MOCK_BACKEND === "1";
 
+/** Where mock mode keeps its database and files (MOCK_DATA_DIR overrides; tests use a temp dir). */
+export function mockDataDir(): string {
+  return process.env.MOCK_DATA_DIR || `${process.cwd()}/.mock-data`;
+}
+
 const b64Key = z
   .string()
   .refine((v) => Buffer.from(v, "base64").length === 32, "must be 32 bytes, base64-encoded");

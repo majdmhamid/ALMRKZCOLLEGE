@@ -30,6 +30,56 @@ const shots = [
   { name: "login-he", url: "/login", viewport: DESKTOP, locale: "he" },
   { name: "admin-documents-he", url: "/admin/documents", viewport: DESKTOP, locale: "he", admin: true },
   { name: "admin-documents-ar", url: "/admin/documents", viewport: DESKTOP, locale: "ar", admin: true },
+  {
+    name: "admin-documents-phone-he",
+    url: "/admin/documents",
+    viewport: PHONE,
+    locale: "he",
+    admin: true,
+    phone: true,
+    fullPage: true,
+  },
+  {
+    name: "admin-new-document-he",
+    url: "/admin/documents",
+    viewport: DESKTOP,
+    locale: "he",
+    admin: true,
+    viewportOnly: true,
+    run: async (page) => {
+      await page.getByRole("button", { name: "העלאת מסמך" }).click();
+      await page.locator("dialog[open]").waitFor();
+      await page.getByPlaceholder("שם מלא").fill("ליאן מחאמיד");
+      await page.getByPlaceholder("ת.ז").fill("123456782");
+      await page.getByPlaceholder("טלפון (לא חובה)").fill("052-555-1234");
+    },
+  },
+  {
+    name: "admin-select-mode-he",
+    url: "/admin/documents",
+    viewport: DESKTOP,
+    locale: "he",
+    admin: true,
+    viewportOnly: true,
+    run: async (page) => {
+      await page.getByRole("button", { name: "בחר", exact: true }).click();
+      const boxes = page.locator('[data-testid="document-row"] input[type="checkbox"]');
+      await boxes.nth(0).check();
+      await boxes.nth(2).check();
+      await page.locator('[data-testid="month-group"]').first().scrollIntoViewIfNeeded();
+    },
+  },
+  {
+    name: "admin-bell-he",
+    url: "/admin/documents",
+    viewport: DESKTOP,
+    locale: "he",
+    admin: true,
+    viewportOnly: true,
+    run: async (page) => {
+      await page.getByRole("button", { name: /התראות/ }).click();
+    },
+  },
   { name: "sign-phone-ar", url: "/sign/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ", viewport: PHONE, locale: "ar", phone: true },
   { name: "sign-phone-he", url: "/sign/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ", viewport: PHONE, locale: "he", phone: true },
 ];
@@ -63,7 +113,8 @@ try {
     // Hide the Next.js dev indicator so it doesn't cover content.
     await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
     const file = path.join(outDir, `${shot.name}.png`);
-    await page.screenshot({ path: file, fullPage: !shot.phone });
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: file, fullPage: shot.fullPage ?? (!shot.phone && !shot.viewportOnly) });
     console.log(`  ✓ ${path.relative(root, file)}`);
     await context.close();
   }

@@ -29,5 +29,8 @@ Arabic + Hebrew, RTL. Next.js 16 (App Router) + Supabase + Tailwind v4.
 - ID numbers: HMAC-SHA256 with `ID_HMAC_SECRET`; only the last 3 digits are kept in clear.
 - All buckets private; files reach browsers only as short-lived signed URLs.
 - RLS on every table: admins only. Rate-limit and lockout tables have no policies (service role only).
+- Server code talks to Postgres directly (`SUPABASE_DB_URL`, transaction pooler) for real
+  transactions; Storage and Auth go through supabase-js with the service-role key. In mock mode the
+  same SQL runs on PGlite with the real migrations.
 - PDFs upload straight from the admin's browser to Storage via a signed upload URL
   (Vercel caps request bodies at 4.5 MB).

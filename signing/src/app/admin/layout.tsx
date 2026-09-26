@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { MockBanner } from "@/components/MockBanner";
+import { ToastProvider } from "@/components/ui/Toast";
 import { requireAdmin } from "@/server/auth";
 import { logoutAction } from "../login/actions";
 import { AdminNav } from "./AdminNav";
@@ -39,7 +40,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </div>
           </div>
         </aside>
-        <main className="min-w-0 flex-1 p-4 lg:p-8">{children}</main>
+        <main className="min-w-0 flex-1 p-4 lg:p-8">
+          <ToastProvider>{children}</ToastProvider>
+        </main>
       </div>
     </div>
   );
