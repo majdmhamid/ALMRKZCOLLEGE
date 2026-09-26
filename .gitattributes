@@ -15,3 +15,6 @@
 # *.mp4  filter=lfs diff=lfs merge=lfs -text
 # *.webm filter=lfs diff=lfs merge=lfs -text
 # *.mov  filter=lfs diff=lfs merge=lfs -text
+
+# Windows scripts need Windows line endings
+*.bat text eol=crlf

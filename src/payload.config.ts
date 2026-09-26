@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
@@ -34,9 +35,17 @@ import { previewPath, serverURL } from './lib/preview'
  * so a first deploy needs no manual setting.
  */
 const databaseURL = process.env.DATABASE_URL || process.env.POSTGRES_URL || ''
+/**
+ * No database address (or `file:...`) = trying the site on your own computer:
+ * everything is kept in one local file (almrkz-local.db). Never used on the real hosting.
+ */
+const localFile = !databaseURL || databaseURL.startsWith('file:')
+if (localFile && process.env.VERCEL) {
+  throw new Error('DATABASE_URL is missing: connect a Postgres database (Neon) to the Vercel project.')
+}
 const secret =
   process.env.PAYLOAD_SECRET ||
-  (databaseURL ? crypto.createHash('sha256').update(`almrkz:${databaseURL}`).digest('hex') : '')
+  crypto.createHash('sha256').update(`almrkz:${databaseURL || 'local'}`).digest('hex')
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -148,12 +157,17 @@ export default buildConfig({
   editor: lexicalEditor(),
   secret,
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
-  db: postgresAdapter({
-    pool: { connectionString: databaseURL },
-    migrationDir: path.resolve(dirname, 'migrations'),
-    // Schema changes are applied by migrations in production (`npm run ci`).
-    push: process.env.NODE_ENV !== 'production' && process.env.PAYLOAD_DB_PUSH !== 'false',
-  }),
+  db: localFile
+    ? sqliteAdapter({
+        client: { url: databaseURL || 'file:./almrkz-local.db' },
+        push: true,
+      })
+    : postgresAdapter({
+        pool: { connectionString: databaseURL },
+        migrationDir: path.resolve(dirname, 'migrations'),
+        // Schema changes are applied by migrations in production (`npm run ci`).
+        push: process.env.NODE_ENV !== 'production' && process.env.PAYLOAD_DB_PUSH !== 'false',
+      }),
   email,
   sharp,
   upload: {

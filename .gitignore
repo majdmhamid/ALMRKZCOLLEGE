@@ -67,3 +67,6 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Local try-out database (start-windows.bat / start-mac.command)
+almrkz-local.db*
