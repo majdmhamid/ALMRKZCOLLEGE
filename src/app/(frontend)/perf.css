@@ -1,0 +1,15 @@
+/*
+ * Speed only — nothing here changes how the site looks.
+ *
+ * The homepage is long (a dozen sections, ~70 images). Without this, the phone lays out and
+ * shapes the text of the whole page before it can show the first screen. `content-visibility`
+ * lets the browser skip the layout of sections that are far below the fold until the visitor
+ * scrolls near them; anchors (#faq, #contact…) and the reveal animations still work.
+ * `contain-intrinsic-size` is only a placeholder height for the scrollbar before a section is
+ * first rendered (after that the browser remembers the real height).
+ */
+main > section:nth-child(n + 3),
+.footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}

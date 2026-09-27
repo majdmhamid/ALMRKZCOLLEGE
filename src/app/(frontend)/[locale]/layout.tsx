@@ -6,9 +6,18 @@ import { Footer, Header, MobileBar } from '@/components/site/chrome'
 import { RefreshRouteOnSave, RevealObserver } from '@/components/site/client'
 import { getShared, isDraft, isLocale, mediaUrl } from '@/components/site/data'
 import { serverURL } from '@/lib/preview'
+import type { SiteLocale } from '@/lib/rules'
 import '@/components/site/site.css'
+import '../fonts.css'
+import '../perf.css'
 
 export const revalidate = 60
+
+/** Fonts the first screen needs in each language (all fonts are self-hosted in /public/fonts). */
+const PRELOAD_FONTS: Record<SiteLocale, string[]> = {
+  ar: ['Almarai-400-arabic.woff2', 'Almarai-800-arabic.woff2'],
+  he: ['Heebo-var-hebrew.woff2', 'Almarai-400-latin.woff2'],
+}
 
 type Props = { children: React.ReactNode; params: Promise<{ locale: string }> }
 
@@ -44,11 +53,10 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} dir="rtl" className="no-js">
       <head>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap"
-        />
+        {/* Speed: fetch the main fonts right away (with the CSS) instead of after the first layout. */}
+        {PRELOAD_FONTS[locale].map((f) => (
+          <link key={f} rel="preload" href={`/fonts/${f}`} as="font" type="font/woff2" crossOrigin="" />
+        ))}
       </head>
       <body>
         <div className="page">
