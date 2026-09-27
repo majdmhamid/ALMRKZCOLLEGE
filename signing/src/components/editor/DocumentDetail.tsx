@@ -1,12 +1,16 @@
 "use client";
 
-import { ArrowRight, ClipboardCopy, Download, FileText, History, MapPin } from "lucide-react";
+import { ArrowRight, ClipboardCopy, Download, FileCheck2, FileText, History, LockOpen, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+import { finalizeAction, unlockAction } from "@/app/admin/documents/actions";
 import { ShareDialog } from "@/components/documents/ShareDialog";
 import { StatusBadge } from "@/components/StatusBadge";
-import { documentBadges, expectedClientSigners, signedClientCount, type DocumentListItem } from "@/lib/domain";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
+import { allSigned, documentBadges, expectedClientSigners, signedClientCount, type DocumentListItem } from "@/lib/domain";
 import type { Placement } from "@/server/repo/placements";
 import type { EditorSignature, HistoryEvent } from "@/server/services/editor";
 import { HistoryList } from "./HistoryList";
@@ -26,9 +30,30 @@ export function DocumentDetail({
   const t = useTranslations();
   const [tab, setTab] = useState<"editor" | "history">("editor");
   const [sharing, setSharing] = useState(false);
+  const [editor, setEditor] = useState({ saved: true, placements: 0, unplaced: 0 });
+  const [confirm, setConfirm] = useState<"finalize" | "unlock" | null>(null);
+  const [working, setWorking] = useState(false);
+  const router = useRouter();
+  const toast = useToast();
+  const onStatus = useCallback((s: typeof editor) => setEditor(s), []);
   const expected = expectedClientSigners(doc);
   const signed = signedClientCount(doc);
   const finalized = doc.status === "finalized";
+  const ready = allSigned(doc);
+  const canFinalize = !finalized && ready && editor.saved && editor.placements > 0;
+
+  const run = async (action: "finalize" | "unlock") => {
+    setWorking(true);
+    const result = await (action === "finalize" ? finalizeAction(doc.id) : unlockAction(doc.id)).catch(() => null);
+    setWorking(false);
+    setConfirm(null);
+    if (result?.ok) {
+      toast(t(action === "finalize" ? "finalize.done" : "finalize.unlocked"));
+      // The editor must start again from the server state (read-only ↔ editable).
+      router.refresh();
+    } else toast(t(`finalize.errors.${result?.error ?? "invalid"}`), "error");
+  };
+
   const canShare = !finalized && (doc.link_mode === "shared" || doc.signers.some((s) => !s.is_admin && s.status === "pending"));
 
   return (
@@ -73,8 +98,38 @@ export function DocumentDetail({
             className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-line bg-card px-4 text-sm font-semibold hover:bg-slate-50"
           >
             <Download className="size-4" />
-            {t("detail.download")}
+            {finalized ? t("finalize.downloadFinal") : t("detail.download")}
           </a>
+          {finalized && (
+            <a
+              href={`/admin/documents/${doc.id}/file?kind=original&download=1`}
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-medium text-muted hover:bg-slate-100 hover:text-ink"
+            >
+              {t("finalize.downloadOriginal")}
+            </a>
+          )}
+          {finalized ? (
+            <button
+              type="button"
+              onClick={() => setConfirm("unlock")}
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-semibold text-final hover:bg-violet-100"
+            >
+              <LockOpen className="size-4" />
+              {t("finalize.unlock")}
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={!canFinalize}
+              title={ready ? undefined : t("finalize.notReady")}
+              onClick={() => setConfirm("finalize")}
+              data-testid="finalize"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-brand hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+            >
+              <FileCheck2 className="size-4" />
+              {t("finalize.button")}
+            </button>
+          )}
         </div>
       </header>
 
@@ -103,11 +158,43 @@ export function DocumentDetail({
 
       {/* Keep the editor mounted while viewing history so unsaved moves aren't lost. */}
       <div hidden={tab !== "editor"}>
-        <PlacementEditor documentId={doc.id} signatures={signatures} initialPlacements={placements} readOnly={finalized} />
+        {/* key: remount from server data when finalized ↔ unlocked. */}
+        <PlacementEditor
+          key={doc.status}
+          documentId={doc.id}
+          signatures={signatures}
+          initialPlacements={placements}
+          readOnly={finalized}
+          onStatus={onStatus}
+        />
       </div>
       {tab === "history" && <HistoryList events={history} />}
 
       <ShareDialog documentId={sharing ? doc.id : null} initial={null} onClose={() => setSharing(false)} />
+      <ConfirmDialog
+        open={confirm === "finalize"}
+        title={t("finalize.confirmTitle")}
+        body={
+          <>
+            <p>{t("finalize.confirmBody")}</p>
+            {editor.unplaced > 0 && (
+              <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 font-medium text-amber-800">{t("finalize.unplacedWarning", { n: editor.unplaced })}</p>
+            )}
+          </>
+        }
+        confirmLabel={working ? t("finalize.working") : t("finalize.button")}
+        onConfirm={() => run("finalize")}
+        onClose={() => setConfirm(null)}
+      />
+      <ConfirmDialog
+        open={confirm === "unlock"}
+        danger
+        title={t("finalize.unlockTitle")}
+        body={t("finalize.unlockBody")}
+        confirmLabel={t("finalize.unlock")}
+        onConfirm={() => run("unlock")}
+        onClose={() => setConfirm(null)}
+      />
     </>
   );
 }

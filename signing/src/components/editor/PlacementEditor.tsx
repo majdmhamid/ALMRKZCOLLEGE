@@ -37,11 +37,14 @@ export function PlacementEditor({
   signatures,
   initialPlacements,
   readOnly,
+  onStatus,
 }: {
   documentId: string;
   signatures: EditorSignature[];
   initialPlacements: Placement[];
   readOnly: boolean;
+  /** Lets the page know whether everything is saved (Finalize waits for it). */
+  onStatus?: (status: { saved: boolean; placements: number; unplaced: number }) => void;
 }) {
   const t = useTranslations("editor");
   const fmt = useFormatters();
@@ -56,6 +59,7 @@ export function PlacementEditor({
   const [save, setSave] = useState<SaveState>("idle");
   const [drag, setDrag] = useState<Drag | null>(null);
   const [aspects, setAspects] = useState<Record<string, number>>({});
+  const lastSaved = useRef(JSON.stringify(initialPlacements));
 
   const zoom = ZOOMS[zoomIndex];
   const pageWidth = Math.max(200, Math.floor((containerWidth - 48) * zoom));
@@ -64,9 +68,16 @@ export function PlacementEditor({
   const countFor = (signerId: string) => placements.filter((p) => p.signer_id === signerId).length;
   const notPlaced = signed.filter((s) => countFor(s.signerId) === 0);
 
+  useEffect(() => {
+    onStatus?.({
+      saved: JSON.stringify(placements) === lastSaved.current && save !== "saving",
+      placements: placements.length,
+      unplaced: notPlaced.length,
+    });
+  }, [placements, save, notPlaced.length, onStatus]);
+
   // ---------------------------------------------------------------- autosave
   // Save only real changes (also avoids a save on mount when effects run twice in dev).
-  const lastSaved = useRef(JSON.stringify(initialPlacements));
   const retry = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     const json = JSON.stringify(placements);

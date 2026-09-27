@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { adminContext } from "@/server/context";
 import { markAllRead } from "@/server/repo/notifications";
 import { savePlacements } from "@/server/services/editor";
+import { finalizeDocument, moveDocuments, unlockDocument } from "@/server/services/finalize";
 import { getShareInfo, recordLinkCopied, regenerateLink, resetLock, revokeLink } from "@/server/services/links";
 import {
   completeDocument,
@@ -90,4 +91,26 @@ export async function resetLockAction(ref: LinkRef) {
 
 export async function savePlacementsAction(documentId: string, placements: unknown) {
   return savePlacements(await adminContext(), documentId, placements);
+}
+
+// ---------------------------------------------------------------------------
+// Finalize / unlock / Signed section
+// ---------------------------------------------------------------------------
+
+export async function finalizeAction(documentId: string) {
+  const result = await finalizeDocument(await adminContext(), documentId);
+  revalidatePath("/admin", "layout");
+  return result;
+}
+
+export async function unlockAction(documentId: string) {
+  const result = await unlockDocument(await adminContext(), documentId);
+  revalidatePath("/admin", "layout");
+  return result;
+}
+
+export async function moveDocumentsAction(ids: string[], toSigned: boolean) {
+  const result = await moveDocuments(await adminContext(), ids, toSigned);
+  revalidatePath("/admin", "layout");
+  return result;
 }

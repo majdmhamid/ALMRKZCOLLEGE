@@ -1,10 +1,15 @@
 "use client";
 
-import { CheckSquare, Trash2, Upload, X } from "lucide-react";
+import { ArrowLeftRight, CheckSquare, Trash2, Upload, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
-import { deleteDocumentsAction, getShareInfoAction, recordLinkCopiedAction } from "@/app/admin/documents/actions";
+import {
+  deleteDocumentsAction,
+  getShareInfoAction,
+  moveDocumentsAction,
+  recordLinkCopiedAction,
+} from "@/app/admin/documents/actions";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/buttons";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -96,7 +101,18 @@ export function DocumentsView(props: DocumentsViewProps) {
       return next;
     });
 
+  const move = async (ids: string[]) => {
+    const toSigned = section === "active";
+    const result = await moveDocumentsAction(ids, toSigned).catch(() => null);
+    if (!result?.ok) return toast(t("errors.generic"), "error");
+    if (result.moved) toast(t(toSigned ? "move.movedToSigned" : "move.movedBack", { n: result.moved }));
+    if (result.skipped) toast(t("move.skipped", { n: result.skipped }), "error");
+    setSelected(new Set());
+    setSelectMode(false);
+  };
+
   const handlers: RowHandlers = {
+    onMove: (doc) => void move([doc.id]),
     onOpen: (doc) => router.push(`/admin/documents/${doc.id}`),
     onView: (doc) => window.open(`/admin/documents/${doc.id}/file`, "_blank", "noopener"),
     onEdit: setEditing,
@@ -128,17 +144,15 @@ export function DocumentsView(props: DocumentsViewProps) {
 
   return (
     <>
-      {section === "active" && (
-        <TopBar
-          unread={props.unread}
-          notifications={props.notifications}
-          filter={filter}
-          onFilter={setFilter}
-          search={search}
-          onSearch={setSearch}
-          onNewCase={() => openFiles([])}
-        />
-      )}
+      <TopBar
+        unread={props.unread}
+        notifications={props.notifications}
+        filter={filter}
+        onFilter={setFilter}
+        search={search}
+        onSearch={setSearch}
+        onNewCase={() => openFiles([])}
+      />
 
       <PageHeader
         title={t(section === "signed" ? "signedPage.title" : "documents.title")}
@@ -181,6 +195,16 @@ export function DocumentsView(props: DocumentsViewProps) {
             <button
               type="button"
               disabled={!selected.size}
+              onClick={() => void move([...selected])}
+              data-testid="bulk-move"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-3 py-1.5 font-semibold hover:bg-white/25 disabled:opacity-40"
+            >
+              <ArrowLeftRight className="size-4" />
+              {t(section === "active" ? "move.toSigned" : "move.back")}
+            </button>
+            <button
+              type="button"
+              disabled={!selected.size}
               onClick={() => setDeleting(docs.filter((d) => selected.has(d.id)))}
               className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 font-semibold hover:bg-red-500 disabled:opacity-40"
             >
@@ -193,7 +217,7 @@ export function DocumentsView(props: DocumentsViewProps) {
 
       {visible.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-line bg-card p-10 text-center text-muted">
-          {docs.length === 0 ? t("documents.empty") : t("documents.noResults")}
+          {docs.length === 0 ? t(section === "signed" ? "signedPage.empty" : "documents.empty") : t("documents.noResults")}
         </div>
       ) : (
         <DocumentGroups

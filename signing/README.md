@@ -15,6 +15,8 @@ Looks like the college website (green #158942 / #88bb3c, Almarai + Heebo).
 - **End-to-end signing check:** with `dev:mock` running on fresh data, `node scripts/e2e-sign.mjs`
   (admin copies a link → phone verifies ID → reads → draws → submits → admin updates live)
 - **Placement editor check:** `node scripts/e2e-editor.mjs` (drag, resize, reload, zoom, delete, history)
+- **Finalize check:** `node scripts/e2e-finalize.mjs` on fresh mock data (place → finalize → download →
+  unlock → finalize → move to Signed and back)
 
 ## Layout
 
