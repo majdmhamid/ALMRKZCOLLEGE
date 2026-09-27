@@ -21,6 +21,7 @@ import {
   SocialIcon,
   WhatsAppIcon,
 } from './icons'
+import { legalLinks } from './legal-links'
 
 type Props = { shared: Shared; locale: SiteLocale }
 
@@ -77,6 +78,16 @@ export function Footer({ shared, locale }: Props) {
   const year = String(new Date().getFullYear())
   const phones = contact?.phones ?? []
   const office = phones[0]
+  const bottomLinks = (footer?.bottomLinks ?? []).map((l) => ({
+    key: l.id ?? l.label,
+    href: linkHref(l.link, locale, shared),
+    label: l.label,
+  }))
+  // Accessibility statement + privacy policy are always linked, even if the menu in the admin
+  // panel does not have them (older databases pointed «إعلان الوصولية» to #contact).
+  for (const l of legalLinks(locale)) {
+    if (!bottomLinks.some((b) => b.href === l.href)) bottomLinks.push({ key: l.href, ...l })
+  }
   return (
     <footer className="footer" id="contact">
       <div className="footer-grid">
@@ -176,9 +187,9 @@ export function Footer({ shared, locale }: Props) {
       <div className="footer-bottom">
         <div>
           <span>{(footer?.copyright ?? '').replace('{year}', year)}</span>
-          <span style={{ display: 'flex', gap: 14 }}>
-            {(footer?.bottomLinks ?? []).map((l) => (
-              <a key={l.id ?? l.label} href={linkHref(l.link, locale, shared)}>
+          <span style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+            {bottomLinks.map((l) => (
+              <a key={l.key} href={l.href}>
                 {l.label}
               </a>
             ))}

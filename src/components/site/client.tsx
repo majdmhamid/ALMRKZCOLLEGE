@@ -388,6 +388,8 @@ export type FormLabels = {
   message: string
   submit: string
   privacy: string
+  /** Link to the privacy policy page, shown after the privacy sentence. */
+  privacyLink?: { href: string; label: string }
   successTitle: string
   successText: string
   error: string
@@ -492,7 +494,17 @@ export function LeadForm({
       <button type="submit" className="submit" disabled={pending}>
         {labels.submit}
       </button>
-      <p className="privacy">{labels.privacy}</p>
+      <p className="privacy">
+        {labels.privacy}
+        {labels.privacyLink && (
+          <>
+            {' '}
+            <a href={labels.privacyLink.href} style={{ textDecoration: 'underline' }}>
+              {labels.privacyLink.label}
+            </a>
+          </>
+        )}
+      </p>
     </form>
   )
 }
