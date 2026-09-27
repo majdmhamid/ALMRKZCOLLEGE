@@ -6,6 +6,9 @@ REM     http://localhost:3000/ar      (website)
 REM     http://localhost:3000/admin   (admin panel)
 REM  Admin login: admin@almrkz.local / almrkz2008
 REM  To stop: close this black window.
+REM
+REM  New version? Download the new ZIP, extract it, and double-click
+REM  start-windows.bat inside it. Your edits in the admin panel are kept.
 REM ============================================================
 title Almerkaz College - local website
 cd /d "%~dp0"
@@ -36,45 +39,57 @@ if %NODEMAJOR% LSS 20 (
   goto fail
 )
 
-REM ---- 2. Run from a short folder (Windows fails with very long paths) ----
+REM ---- 2. Copy to a short folder (Windows fails with very long paths) ----
+REM      UPDATED=1 when new files arrived (a new version was downloaded).
 set "HOME_DIR=%USERPROFILE%\almrkz-site"
+set "UPDATED=0"
 if /i not "%CD%"=="%HOME_DIR%" (
   echo.
   echo  Copying the website to %HOME_DIR% ...
-  robocopy "%CD%" "%HOME_DIR%" /E /XD node_modules .next /NFL /NDL /NJH /NJS /NP >nul
+  robocopy "%CD%" "%HOME_DIR%" /E /XD node_modules .next /XF almrkz-local.db* /XX /NFL /NDL /NJH /NJS /NP >nul
   if errorlevel 8 goto fail
+  if errorlevel 1 set "UPDATED=1"
 )
 cd /d "%HOME_DIR%"
+if not exist .next\BUILD_ID set "UPDATED=1"
+if not exist node_modules set "UPDATED=1"
 
-REM ---- 3. Install (first time only) ----
-if not exist node_modules (
+REM ---- 3. Install + prepare (first time, and after each new version) ----
+if "%UPDATED%"=="1" (
   echo.
-  echo  [1/3] Installing - first time only, takes 5-10 minutes...
+  echo  [1/3] Installing - takes a few minutes the first time...
   call npm install --no-audit --no-fund
   if errorlevel 1 goto fail
 )
 
-REM ---- 4. Fill with the design content (first time only) ----
-if not exist almrkz-local.db (
+if "%UPDATED%"=="1" goto seed
+if not exist almrkz-local.db goto seed
+goto build
+:seed
+echo.
+echo  [2/3] Preparing the content...
+set SEED_ADMIN_EMAIL=admin@almrkz.local
+set SEED_ADMIN_PASSWORD=almrkz2008
+call npm run seed
+if errorlevel 1 goto fail
+
+:build
+if "%UPDATED%"=="1" (
   echo.
-  echo  [2/3] Filling the website with the content of the design...
-  set SEED_ADMIN_EMAIL=admin@almrkz.local
-  set SEED_ADMIN_PASSWORD=almrkz2008
-  call npm run seed
-  if errorlevel 1 (
-    if exist almrkz-local.db del /q almrkz-local.db
-    goto fail
-  )
+  echo  [3/3] Preparing the fast version of the website - 3-5 minutes, only after a new version...
+  if exist .next rmdir /s /q .next
+  call npm run build
+  if errorlevel 1 goto fail
 )
 
-REM ---- 5. Start ----
+REM ---- 4. Start ----
 echo.
-echo  [3/3] Starting... the browser opens by itself in a minute.
+echo  Starting... the browser opens by itself.
 echo  Keep this window open. Closing it stops the website.
 echo  Admin login: admin@almrkz.local / almrkz2008
 echo.
 start "" /min powershell -NoProfile -WindowStyle Hidden -Command "for($i=0;$i -lt 300;$i++){try{Invoke-WebRequest -UseBasicParsing http://localhost:3000/ar -TimeoutSec 120 | Out-Null; Start-Process 'http://localhost:3000/ar'; break}catch{Start-Sleep 2}}"
-call npm run dev -- -p 3000
+call npm run start -- -p 3000
 echo.
 echo  The website stopped.
 
