@@ -1,7 +1,6 @@
 "use server";
 
-import { site } from "@content/site";
-import { getCourse } from "@content/courses";
+import { getPublishedSiteData } from "@/lib/data";
 
 /**
  * استقبال استمارة "سجّل اهتمامك".
@@ -45,6 +44,7 @@ export async function submitLead(_prev: LeadState, formData: FormData): Promise<
   if (!PHONE_RE.test(normalizePhone(phone))) fieldErrors.phone = locale === "he" ? "נא להזין מספר טלפון תקין." : "اكتب رقم هاتف صحيح.";
   if (Object.keys(fieldErrors).length) return { status: "error", fieldErrors };
 
+  const { site, getCourse } = await getPublishedSiteData();
   const course = getCourse(courseSlug);
   const courseName = course ? `${course.name.ar} / ${course.name.he}` : courseSlug === "any" || !courseSlug ? "استشارة عامة" : courseSlug;
 

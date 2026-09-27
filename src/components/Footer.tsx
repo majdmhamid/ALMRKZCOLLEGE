@@ -1,18 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import { site } from "@content/site";
 import type { Dictionary } from "@content/i18n";
+import type { Site } from "@/lib/site-data";
 import { href, type Locale } from "@/lib/i18n";
 import { FacebookIcon, MailIcon, PhoneIcon, PinIcon, WhatsAppIcon, YouTubeIcon } from "./Icons";
 
 interface Props {
   locale: Locale;
   dict: Dictionary;
+  site: Site;
   groups: { slug: string; name: string }[];
 }
 
 /** التذييل بنسخة فاتحة: خلفية فاتحة ونصوص داكنة، وشريط أخضر غامق رفيع في الأسفل فقط */
-export default function Footer({ locale, dict, groups }: Props) {
+export default function Footer({ locale, dict, site, groups }: Props) {
   const year = new Date().getFullYear();
   const quick = [
     { to: href(locale, "/courses"), label: dict.nav.courses },

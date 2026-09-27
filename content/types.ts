@@ -12,10 +12,11 @@ export const DEFAULT_LOCALE: Locale = "ar";
 export type Localized = Record<Locale, string>;
 export type LocalizedList = Record<Locale, string[]>;
 
-export type GroupSlug = "welding" | "hvac" | "construction-safety";
+/** معرّف المجموعة (welding, hvac, construction-safety...) — نص حر لأن لوحة التحكم تضيف مجموعات */
+export type GroupSlug = string;
 
 export interface Group {
-  slug: GroupSlug;
+  slug: string;
   order: number;
   name: Localized;
   /** اسم قصير للقوائم والبطاقات */
@@ -28,7 +29,7 @@ export interface Group {
 
 export interface Course {
   slug: string;
-  group: GroupSlug;
+  group: string;
   /** رقم الصفحة في الموقع القديم (للمرجع فقط) */
   legacyId: number;
   order: number;
@@ -75,11 +76,12 @@ export interface Partner {
   url?: string;
 }
 
-export type GalleryCategory = "welding" | "hvac" | "construction" | "events";
+/** تصنيف صورة المعرض (welding, hvac, construction, events...) — نص حر لأن لوحة التحكم تضيف تصنيفات */
+export type GalleryCategory = string;
 
 export interface GalleryImage {
   src: string;
-  category: GalleryCategory;
+  category: string;
   alt: Localized;
 }
 

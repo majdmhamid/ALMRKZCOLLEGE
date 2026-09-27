@@ -1,6 +1,7 @@
 @import "tailwindcss";
-/* تطبيق التوقيع (signing/) مستقل — لا نمسح ملفاته هنا */
-@source not "../../signing";
+/* ملفات لا تحوي أصناف CSS */
+@source not "../../docs";
+@source not "../../assets";
 
 /*
   ألوان الهوية (من الموقع القديم):
@@ -27,6 +28,14 @@
   --color-surface-2: #edf3e8;
   --color-line: #e3e8e0;
   --color-whatsapp: #25d366;
+  /* التوقيع الإلكتروني (src/features/signing) */
+  --color-muted: #6b7a7f;
+  --color-canvas: #f6f8f4;
+  --color-card: #ffffff;
+  --color-admin: #2563eb; /* بانتظار توقيعك */
+  --color-waiting: #ea580c; /* بانتظار توقيع العميل */
+  --color-signed: #158942; /* تم التوقيع */
+  --color-final: #7c3aed; /* نهائي */
   --font-sans: var(--font-almarai), var(--font-heebo), ui-sans-serif, system-ui, sans-serif;
   --font-hebrew: var(--font-heebo), var(--font-almarai), ui-sans-serif, system-ui, sans-serif;
   --shadow-card: 0 1px 2px rgb(16 40 20 / 0.05), 0 10px 28px -14px rgb(16 40 20 / 0.2);
@@ -715,4 +724,10 @@ html.a11y-no-motion .header-smart.is-hidden {
   .btn-primary::after {
     display: none;
   }
+}
+
+/* أرقام، هويات، هواتف وروابط تُقرأ من اليسار لليمين داخل نص RTL (التوقيع الإلكتروني) */
+.ltr-nums {
+  direction: ltr;
+  unicode-bidi: isolate;
 }

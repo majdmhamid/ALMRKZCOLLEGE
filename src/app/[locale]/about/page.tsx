@@ -1,25 +1,27 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { gallery } from "@content/media";
-import { partners, staff } from "@content/people";
-import { site } from "@content/site";
+import { PartnerBadge, StaffCard } from "@/components/cards";
 import { AwardIcon, CheckIcon, ShieldIcon } from "@/components/Icons";
 import { Breadcrumbs, CtaBand, PageHero, SectionHeading, delay } from "@/components/ui";
 import { localeParam } from "@/lib/content";
-import { getDictionary, href, t } from "@/lib/i18n";
+import { getSiteData } from "@/lib/data";
+import { href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  return pageMetadata({ locale, path: "/about", title: dict.about.title, description: dict.about.metaDescription, image: "/images/hero/about.webp" });
+  const data = await getSiteData();
+  const dict = data.dict(locale);
+  return pageMetadata({ siteName: data.site.name, locale, path: "/about", title: dict.about.title, description: dict.about.metaDescription, image: "/images/hero/about.webp" });
 }
 
 export default async function AboutPage({ params }: Params) {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
+  const data = await getSiteData();
+  const { site, gallery, partners, staff } = data;
+  const dict = data.dict(locale);
   const a = dict.about;
   const facilityImages = [gallery.find((g) => g.category === "welding"), gallery.find((g) => g.category === "hvac"), gallery.find((g) => g.category === "events")].filter(Boolean);
 
@@ -55,7 +57,7 @@ export default async function AboutPage({ params }: Params) {
                 <p className="text-sm text-ink-soft">{dict.trust[1].text}</p>
               </div>
             </div>
-            <Image src="/images/partners/ministry-of-labor.png" alt={t(partners[0].name, locale)} width={160} height={160} className="mx-auto h-28 w-auto" />
+            <Image src="/images/partners/ministry-of-labor.png" alt={t(partners[0]?.name, locale)} width={160} height={160} className="mx-auto h-28 w-auto" />
           </div>
         </div>
       </section>
@@ -95,13 +97,7 @@ export default async function AboutPage({ params }: Params) {
           <SectionHeading title={a.staffTitle} text={a.staffSubtitle} center />
           <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
             {staff.map((s, i) => (
-              <div key={s.slug} data-reveal style={delay(i * 80)} className="text-center">
-                <div className="relative mx-auto aspect-square w-full max-w-[180px] overflow-hidden rounded-full border-4 border-white shadow-card">
-                  <Image src={s.image} alt={t(s.name, locale)} fill sizes="180px" className="object-cover" />
-                </div>
-                <h3 className="mt-3 font-extrabold">{t(s.name, locale)}</h3>
-                <p className="text-sm leading-snug text-ink-soft">{t(s.role, locale)}</p>
-              </div>
+              <StaffCard key={s.slug} name={t(s.name, locale)} role={t(s.role, locale)} image={s.image} style={delay(i * 80)} />
             ))}
           </div>
         </div>
@@ -112,16 +108,13 @@ export default async function AboutPage({ params }: Params) {
           <SectionHeading title={a.partnersTitle} center />
           <div className="flex flex-wrap items-center justify-center gap-8">
             {partners.map((p) => (
-              <div key={p.slug} className="flex flex-col items-center gap-2">
-                <Image src={p.image} alt="" width={120} height={120} className="h-24 w-24 rounded-full object-contain" />
-                <span className="text-sm font-bold">{t(p.name, locale)}</span>
-              </div>
+              <PartnerBadge key={p.slug} name={t(p.name, locale)} image={p.image} />
             ))}
           </div>
         </div>
       </section>
 
-      <CtaBand locale={locale} title={dict.home.ctaTitle} text={dict.home.ctaText} primary={dict.common.registerInterest} whatsapp={dict.common.whatsappLong} />
+      <CtaBand locale={locale} title={dict.home.ctaTitle} text={dict.home.ctaText} primary={dict.common.registerInterest} whatsapp={dict.common.whatsappLong} whatsappUrl={site.whatsappUrl} />
     </>
   );
 }

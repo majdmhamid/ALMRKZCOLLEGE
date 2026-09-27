@@ -42,3 +42,11 @@ npm-debug.log*
 !assets/videos/promo/*.mp4
 !assets/videos/promo/*.webm
 !assets/videos/promo/*.mov
+
+# لوحة التحكم — المحتوى والصور المحفوظة محلياً (وضع التجربة بدون Supabase)
+/.cms-data/
+# التوقيع الإلكتروني — بيانات وضع التجربة، ونسخة pdf.js (بتنعمل وقت التثبيت/التشغيل)
+/.mock-data/
+/public/pdfjs/
+/test-results/
+/screenshots/

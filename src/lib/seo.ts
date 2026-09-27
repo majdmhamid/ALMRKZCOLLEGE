@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { site } from "@content/site";
+import { SITE_URL, type Site } from "./site-data";
+import type { Localized } from "@content/types";
 import { LOCALES, ogLocale, t, type Locale } from "./i18n";
 
 interface PageMeta {
+  /** اسم الكلية (من معلومات الكلية) — لاسم الموقع في بطاقة المشاركة */
+  siteName: Localized;
   locale: Locale;
   /** المسار بدون بادئة اللغة، مثل "/courses/welding" */
   path: string;
@@ -14,21 +17,21 @@ interface PageMeta {
 /**
  * يبني بيانات SEO لكل صفحة: العنوان، الوصف، الرابط الأساسي، hreflang للغتين، وبطاقة المشاركة.
  */
-export function pageMetadata({ locale, path, title, description, image }: PageMeta): Metadata {
+export function pageMetadata({ siteName, locale, path, title, description, image }: PageMeta): Metadata {
   const clean = path === "/" ? "" : path;
-  const languages = Object.fromEntries(LOCALES.map((l) => [l, `${site.url}/${l}${clean}`]));
+  const languages = Object.fromEntries(LOCALES.map((l) => [l, `${SITE_URL}/${l}${clean}`]));
   return {
     title,
     description,
     alternates: {
-      canonical: `${site.url}/${locale}${clean}`,
-      languages: { ...languages, "x-default": `${site.url}/ar${clean}` },
+      canonical: `${SITE_URL}/${locale}${clean}`,
+      languages: { ...languages, "x-default": `${SITE_URL}/ar${clean}` },
     },
     openGraph: {
       title,
       description,
-      url: `${site.url}/${locale}${clean}`,
-      siteName: t(site.name, locale),
+      url: `${SITE_URL}/${locale}${clean}`,
+      siteName: t(siteName, locale),
       locale: ogLocale(locale),
       type: "website",
       images: [{ url: image ?? "/images/hero/home.webp", width: 1920, height: 1280, alt: title }],
@@ -38,7 +41,7 @@ export function pageMetadata({ locale, path, title, description, image }: PageMe
 }
 
 /** بيانات Schema.org للكلية — تظهر لجوجل كمؤسسة تعليمية */
-export function organizationJsonLd(locale: Locale) {
+export function organizationJsonLd(site: Site, locale: Locale) {
   return {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
@@ -69,6 +72,6 @@ export function courseJsonLd(locale: Locale, course: { name: string; description
     description: course.description,
     url: course.url,
     inLanguage: locale,
-    provider: { "@id": `${site.url}/#organization` },
+    provider: { "@id": `${SITE_URL}/#organization` },
   };
 }

@@ -1,11 +1,10 @@
-import { site } from "@content/site";
 import { WhatsAppIcon } from "./Icons";
 
 /** زر واتساب عائم — يظهر على الشاشات الكبيرة فقط (على الموبايل يوجد شريط ثابت أسفل الشاشة فيه واتساب) */
-export default function WhatsAppButton({ label }: { label: string }) {
+export default function WhatsAppButton({ label, url }: { label: string; url: string }) {
   return (
     <a
-      href={site.whatsappUrl}
+      href={url}
       target="_blank"
       rel="noopener"
       aria-label={label}

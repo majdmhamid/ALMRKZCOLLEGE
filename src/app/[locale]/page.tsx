@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { courses, featuredCourses, coursesInGroup, getCourse } from "@content/courses";
-import { gallery, promoVideo, reels } from "@content/media";
-import { news } from "@content/news";
-import { graduates, partners } from "@content/people";
-import { site } from "@content/site";
 import { AwardIcon, GiftIcon, ShieldIcon, WhatsAppIcon, ArrowIcon, CheckIcon, ChevronIcon, LayersIcon, UsersIcon, ClockIcon } from "@/components/Icons";
 import Carousel from "@/components/Carousel";
+import { GraduateTile } from "@/components/cards";
 import Counter from "@/components/Counter";
 import HeroCollage from "@/components/HeroCollage";
 import HeroMedia from "@/components/HeroMedia";
@@ -18,16 +14,19 @@ import RotatingWords from "@/components/RotatingWords";
 import Tilt from "@/components/Tilt";
 import { CourseCard, GroupCard, NewsCard, SectionHeading, delay } from "@/components/ui";
 import VideoCard from "@/components/VideoCard";
-import { courseOptions, localeParam, sortedGroups } from "@/lib/content";
-import { courseCount, getDictionary, href, t } from "@/lib/i18n";
+import { localeParam } from "@/lib/content";
+import { getSiteData } from "@/lib/data";
+import { courseCount, href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  const meta = pageMetadata({ locale, path: "/", title: `${site.name[locale]} — ${site.city[locale]}`, description: dict.hero.text });
+  const data = await getSiteData();
+  const { site } = data;
+  const dict = data.dict(locale);
+  const meta = pageMetadata({ siteName: site.name, locale, path: "/", title: `${site.name[locale]} — ${site.city[locale]}`, description: dict.hero.text });
   return { ...meta, title: { absolute: `${site.name[locale]} — ${site.city[locale]} | ${dict.hero.badge}` } };
 }
 
@@ -37,16 +36,17 @@ const heroSlides = ["/images/hero/poster.webp", "/images/hero/home.webp", "/imag
 /** الصور العائمة فوق الفيديو (سطح المكتب) — صور حقيقية من الورشات والميدان */
 const collageSrcs = ["/images/gallery/welding/768616178606144.webp", "/images/news/hvac-practical-lessons/2.webp", "/images/courses/scaffolding-builder.webp"];
 
-/** صور شريط "لمحة من ورشاتنا" — اختيار متنوع من معرض الصور الحقيقي */
-const pick = (category: string, n: number, skip = 0) => gallery.filter((g) => g.category === category).slice(skip, skip + n);
-const strip = [...pick("welding", 3), ...pick("hvac", 2), ...pick("construction", 3, 1), ...pick("events", 2)];
-
 export default async function HomePage({ params }: Params) {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  const featured = featuredCourses();
-  const latestNews = news.slice(0, 3);
-  const someGraduates = graduates.slice(0, 8);
+  const data = await getSiteData();
+  const { site, sortedGroups, partners, promoVideo, reels } = data;
+  const dict = data.dict(locale);
+  /** صور شريط "لمحة من ورشاتنا" — اختيار متنوع من معرض الصور الحقيقي */
+  const pick = (category: string, n: number, skip = 0) => data.gallery.filter((g) => g.category === category).slice(skip, skip + n);
+  const strip = [...pick("welding", 3), ...pick("hvac", 2), ...pick("construction", 3, 1), ...pick("events", 2)];
+  const featured = data.featuredCourses();
+  const latestNews = data.news.slice(0, 3);
+  const someGraduates = data.graduates.slice(0, 8);
   const groupName = (slug: string) => t(sortedGroups.find((g) => g.slug === slug)?.name, locale);
   const carouselLabels = { prev: dict.common.prev, next: dict.common.next, swipe: dict.common.swipe };
   const years = new Date().getFullYear() - site.foundedYear;
@@ -54,7 +54,7 @@ export default async function HomePage({ params }: Params) {
 
   const stats = [
     { value: years, label: dict.stats.years, icon: AwardIcon },
-    { value: courses.length, label: dict.stats.courses, icon: LayersIcon },
+    { value: data.courses.length, label: dict.stats.courses, icon: LayersIcon },
     { value: sortedGroups.length, label: dict.stats.groups, icon: ClockIcon },
     { value: partners.length, label: dict.stats.partners, icon: UsersIcon },
   ];
@@ -131,7 +131,7 @@ export default async function HomePage({ params }: Params) {
                       </span>
                       <span className="min-w-0">
                         <span className="block text-xs font-extrabold leading-tight sm:text-sm">{t(g.shortName, locale)}</span>
-                        <span className="hidden text-xs text-ink-muted sm:block">{courseCount(locale, coursesInGroup(g.slug).length)}</span>
+                        <span className="hidden text-xs text-ink-muted sm:block">{courseCount(locale, data.coursesInGroup(g.slug).length)}</span>
                       </span>
                       <ArrowIcon width={16} height={16} className="ms-auto hidden shrink-0 text-brand-600 transition-transform group-hover:-translate-x-1 sm:block" />
                     </Link>
@@ -193,7 +193,7 @@ export default async function HomePage({ params }: Params) {
           <div className="grid gap-6 md:grid-cols-3">
             {sortedGroups.map((g, i) => (
               <Tilt key={g.slug} className="tilt-shine h-full rounded-2xl">
-                <GroupCard group={g} locale={locale} count={courseCount(locale, coursesInGroup(g.slug).length)} style={delay(i * 120)} />
+                <GroupCard group={g} locale={locale} count={courseCount(locale, data.coursesInGroup(g.slug).length)} style={delay(i * 120)} />
               </Tilt>
             ))}
           </div>
@@ -325,19 +325,9 @@ export default async function HomePage({ params }: Params) {
             </Link>
           </div>
           <Carousel labels={carouselLabels} className="-mx-4 px-4 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-8 lg:overflow-visible">
-            {someGraduates.map((g, i) => {
-              const course = getCourse(g.course);
-              return (
-                <div key={g.slug} data-reveal style={delay(i * 70)} className="group w-[42%] text-center sm:w-[30%] lg:w-auto">
-                  <div className="relative mx-auto aspect-[3/4] w-full overflow-hidden rounded-2xl bg-brand-100 shadow-card">
-                    <Image src={g.image} alt={t(g.name, locale)} fill sizes="(min-width: 1024px) 150px, 40vw" className="object-cover transition duration-700 ease-out group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-brand-900/60 to-transparent opacity-0 transition duration-500 group-hover:opacity-100" aria-hidden="true" />
-                  </div>
-                  <p className="mt-2 font-bold leading-tight">{t(g.name, locale)}</p>
-                  <p className="text-xs leading-snug text-ink-soft">{t(course?.name, locale)}</p>
-                </div>
-              );
-            })}
+            {someGraduates.map((g, i) => (
+              <GraduateTile key={g.slug} name={t(g.name, locale)} image={g.image} courseName={t(data.getCourse(g.course)?.name, locale)} style={delay(i * 70)} className="w-[42%] sm:w-[30%] lg:w-auto" />
+            ))}
           </Carousel>
         </div>
       </section>
@@ -422,7 +412,7 @@ export default async function HomePage({ params }: Params) {
             </ul>
           </div>
           <div data-reveal="scale" style={delay(120)} className="card p-6 md:p-8 lg:col-span-3">
-            <LeadForm locale={locale} dict={dict.form} whatsappLabel={dict.common.whatsappLong} courses={courseOptions(locale)} source="home" />
+            <LeadForm locale={locale} dict={dict.form} whatsappLabel={dict.common.whatsappLong} whatsappUrl={site.whatsappUrl} courses={data.courseOptions(locale)} source="home" />
           </div>
         </div>
       </section>

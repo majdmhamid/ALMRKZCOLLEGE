@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { site } from "@content/site";
 import { Breadcrumbs, PageHero } from "@/components/ui";
 import { localeParam } from "@/lib/content";
-import { getDictionary, href } from "@/lib/i18n";
+import { getSiteData } from "@/lib/data";
+import { href } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  return pageMetadata({ locale, path: "/accessibility", title: dict.accessibility.title, description: dict.accessibility.metaDescription });
+  const data = await getSiteData();
+  const dict = data.dict(locale);
+  return pageMetadata({ siteName: data.site.name, locale, path: "/accessibility", title: dict.accessibility.title, description: dict.accessibility.metaDescription });
 }
 
 export default async function AccessibilityPage({ params }: Params) {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
+  const data = await getSiteData();
+  const { site } = data;
+  const dict = data.dict(locale);
   const a = dict.accessibility;
   return (
     <>

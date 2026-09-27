@@ -1,20 +1,21 @@
 "use client";
 
 import type { MouseEvent } from "react";
-import { site } from "@content/site";
 import { href, type Locale } from "@/lib/i18n";
 import { PhoneIcon, WhatsAppIcon } from "./Icons";
 
 interface Props {
   locale: Locale;
   labels: { call: string; whatsapp: string; register: string };
+  phoneIntl: string;
+  whatsappUrl: string;
 }
 
 /**
  * شريط ثابت أسفل الشاشة على الموبايل: اتصال · واتساب · سجّل اهتمامك.
  * زر التسجيل ينزل للاستمارة الموجودة في نفس الصفحة إن وُجدت، وإلا يفتح صفحة "اتصل بنا".
  */
-export default function MobileBar({ locale, labels }: Props) {
+export default function MobileBar({ locale, labels, phoneIntl, whatsappUrl }: Props) {
   const goToForm = (e: MouseEvent<HTMLAnchorElement>) => {
     const local = document.getElementById("form") ?? document.getElementById("register");
     if (!local) return; // لا استمارة في هذه الصفحة → الرابط يودّي لصفحة اتصل بنا
@@ -34,11 +35,11 @@ export default function MobileBar({ locale, labels }: Props) {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex h-16 items-stretch divide-x divide-line rtl:divide-x-reverse">
-        <a href={`tel:${site.phoneIntl}`} className={`${item} text-ink hover:bg-surface`}>
+        <a href={`tel:${phoneIntl}`} className={`${item} text-ink hover:bg-surface`}>
           <PhoneIcon width={22} height={22} className="text-brand-600" />
           {labels.call}
         </a>
-        <a href={site.whatsappUrl} target="_blank" rel="noopener" className={`${item} text-ink hover:bg-surface`}>
+        <a href={whatsappUrl} target="_blank" rel="noopener" className={`${item} text-ink hover:bg-surface`}>
           <WhatsAppIcon width={24} height={24} className="text-whatsapp" />
           {labels.whatsapp}
         </a>

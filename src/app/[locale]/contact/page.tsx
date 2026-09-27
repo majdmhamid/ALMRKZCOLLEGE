@@ -1,23 +1,26 @@
 import type { Metadata } from "next";
-import { site } from "@content/site";
 import { ClockIcon, MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from "@/components/Icons";
 import LeadForm from "@/components/LeadForm";
 import { Breadcrumbs, PageHero } from "@/components/ui";
-import { courseOptions, localeParam } from "@/lib/content";
-import { getDictionary, href, t } from "@/lib/i18n";
+import { localeParam } from "@/lib/content";
+import { getSiteData } from "@/lib/data";
+import { href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  return pageMetadata({ locale, path: "/contact", title: dict.contact.title, description: dict.contact.metaDescription });
+  const data = await getSiteData();
+  const dict = data.dict(locale);
+  return pageMetadata({ siteName: data.site.name, locale, path: "/contact", title: dict.contact.title, description: dict.contact.metaDescription });
 }
 
 export default async function ContactPage({ params }: Params) {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
+  const data = await getSiteData();
+  const { site } = data;
+  const dict = data.dict(locale);
   const c = dict.contact;
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(site.mapQuery)}&hl=${locale}&z=15&output=embed`;
   const directions = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.mapQuery)}`;
@@ -69,7 +72,7 @@ export default async function ContactPage({ params }: Params) {
           <div id="form" data-reveal="scale" className="card scroll-mt-28 p-6 md:p-8 lg:col-span-3">
             <h2 className="h3">{c.formTitle}</h2>
             <p className="mb-6 mt-1 text-ink-soft">{c.formText}</p>
-            <LeadForm locale={locale} dict={dict.form} whatsappLabel={dict.common.whatsappLong} courses={courseOptions(locale)} source="contact" />
+            <LeadForm locale={locale} dict={dict.form} whatsappLabel={dict.common.whatsappLong} whatsappUrl={data.site.whatsappUrl} courses={data.courseOptions(locale)} source="contact" />
           </div>
         </div>
       </section>

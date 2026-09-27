@@ -1,0 +1,210 @@
+/* لوحة التحكم — إضافات فوق أنماط الموقع (globals.css) */
+
+/* المعاينة بالعبري تستعمل خط الموقع العبري */
+.admin-body [lang="he"] {
+  font-family: var(--font-hebrew);
+}
+
+/* خانات النص الطويل تكبر مع الكتابة */
+.admin-body textarea.input {
+  field-sizing: content;
+  min-height: 4.5rem;
+  max-height: 24rem;
+  resize: vertical;
+}
+
+/* خانة نص تبدو مثل نص البطاقة تماماً، وتظهر كخانة فقط عند المرور أو الكتابة */
+.inline-edit {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  padding: 0.125rem 0.375rem;
+  margin: -0.125rem -0.375rem;
+  width: calc(100% + 0.75rem);
+  outline: 1.5px dashed transparent;
+  transition: outline-color 0.15s, background-color 0.15s;
+  resize: none;
+  field-sizing: content;
+}
+.inline-edit:hover {
+  outline-color: var(--color-brand-300);
+  background: rgb(241 248 236 / 0.7);
+}
+.inline-edit:focus {
+  outline: 2px solid var(--color-brand-500);
+  background: #fff;
+}
+.inline-edit::placeholder {
+  color: var(--color-ink-muted);
+  opacity: 0.8;
+  font-weight: 400;
+}
+select.inline-edit {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* بطاقة قابلة للتعديل: أزرار تظهر عند المرور */
+.edit-card .edit-tools {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.edit-card:hover .edit-tools,
+.edit-card:focus-within .edit-tools {
+  opacity: 1;
+  transform: none;
+}
+@media (hover: none) {
+  .edit-card .edit-tools {
+    opacity: 1;
+    transform: none;
+  }
+}
+.edit-card.is-dragging {
+  opacity: 0.35;
+}
+.edit-card.drop-before::before {
+  content: "";
+  position: absolute;
+  inset-block: 0.5rem;
+  inset-inline-start: -0.8rem;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--color-brand-500);
+  z-index: 5;
+}
+
+/* زر تغيير الصورة فوق الصورة */
+.photo-drop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: rgb(7 55 27 / 0.55);
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+.photo-drop:hover,
+.photo-drop:focus-visible,
+.photo-drop.is-over,
+.photo-drop.is-busy,
+.photo-drop.is-empty {
+  opacity: 1;
+}
+.photo-drop.is-empty {
+  background: repeating-linear-gradient(135deg, var(--color-brand-50), var(--color-brand-50) 12px, #fff 12px, #fff 24px);
+  color: var(--color-brand-700);
+}
+
+/* بطاقة «إضافة» بخط متقطع */
+.add-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 2px dashed var(--color-brand-300);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.6);
+  color: var(--color-brand-700);
+  font-weight: 800;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+}
+.add-card:hover {
+  background: var(--color-brand-50);
+  border-color: var(--color-brand-500);
+  transform: translateY(-2px);
+}
+
+/* قائمة جانبية */
+.side-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-ink-soft);
+  transition: background-color 0.15s, color 0.15s;
+}
+.side-link:hover {
+  background: var(--color-brand-50);
+  color: var(--color-brand-800);
+}
+.side-link[aria-current="page"] {
+  background: var(--color-brand-600);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+.side-link[aria-current="page"] .side-count {
+  background: rgb(255 255 255 / 0.2);
+  color: #fff;
+}
+
+/* إطار «هيك رح تظهر على الموقع» */
+.site-frame {
+  border-radius: 1.25rem;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.site-frame-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+}
+.site-frame-bar i {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+/* مصغّر صفحة كاملة داخل الإطار */
+.page-mini {
+  width: 1280px;
+  transform-origin: top right;
+  pointer-events: none;
+}
+
+@keyframes admin-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.admin-pop {
+  animation: admin-pop 0.25s var(--ease-out-expo) both;
+}
+@keyframes admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.admin-spin {
+  animation: admin-spin 0.8s linear infinite;
+}

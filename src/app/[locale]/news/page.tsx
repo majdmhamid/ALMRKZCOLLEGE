@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { news } from "@content/news";
 import { Breadcrumbs, CtaBand, NewsCard, PageHero, delay } from "@/components/ui";
 import { localeParam } from "@/lib/content";
-import { getDictionary, href } from "@/lib/i18n";
+import { getSiteData } from "@/lib/data";
+import { href } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  return pageMetadata({ locale, path: "/news", title: dict.news.title, description: dict.news.metaDescription });
+  const data = await getSiteData();
+  const dict = data.dict(locale);
+  return pageMetadata({ siteName: data.site.name, locale, path: "/news", title: dict.news.title, description: dict.news.metaDescription });
 }
 
 export default async function NewsPage({ params }: Params) {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
+  const data = await getSiteData();
+  const { news } = data;
+  const dict = data.dict(locale);
   return (
     <>
       <PageHero title={dict.news.title} text={dict.news.intro} image="/images/news/certificates-ceremony-2026/2.webp">
@@ -28,7 +31,7 @@ export default async function NewsPage({ params }: Params) {
           ))}
         </div>
       </section>
-      <CtaBand locale={locale} title={dict.home.ctaTitle} text={dict.home.ctaText} primary={dict.common.registerInterest} whatsapp={dict.common.whatsappLong} />
+      <CtaBand locale={locale} title={dict.home.ctaTitle} text={dict.home.ctaText} primary={dict.common.registerInterest} whatsapp={dict.common.whatsappLong} whatsappUrl={data.site.whatsappUrl} />
     </>
   );
 }

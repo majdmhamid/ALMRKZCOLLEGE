@@ -1,8 +1,9 @@
-import { DEFAULT_LOCALE, LOCALES, type Locale, type Localized } from "@content/types";
-import { getDictionary } from "@content/i18n";
+import type { Locale, Localized } from "@content/types";
 
-export { LOCALES, DEFAULT_LOCALE, getDictionary };
 export type { Locale };
+
+export const LOCALES: Locale[] = ["ar", "he"];
+export const DEFAULT_LOCALE: Locale = "ar";
 
 export const isLocale = (value: string): value is Locale => (LOCALES as string[]).includes(value);
 

@@ -1,24 +1,27 @@
 import type { Metadata } from "next";
-import { gallery, galleryCategories, promoVideo, reels, videos } from "@content/media";
 import GalleryGrid from "@/components/GalleryGrid";
 import { Breadcrumbs, PageHero, SectionHeading } from "@/components/ui";
 import VideoCard from "@/components/VideoCard";
 import YouTubeEmbed from "@/components/YouTubeEmbed";
 import { localeParam } from "@/lib/content";
-import { getDictionary, href, t } from "@/lib/i18n";
+import { getSiteData } from "@/lib/data";
+import { href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  return pageMetadata({ locale, path: "/gallery", title: dict.gallery.title, description: dict.gallery.metaDescription });
+  const data = await getSiteData();
+  const dict = data.dict(locale);
+  return pageMetadata({ siteName: data.site.name, locale, path: "/gallery", title: dict.gallery.title, description: dict.gallery.metaDescription });
 }
 
 export default async function GalleryPage({ params }: Params) {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
+  const data = await getSiteData();
+  const { gallery, galleryCategories, promoVideo, reels, videos } = data;
+  const dict = data.dict(locale);
 
   return (
     <>

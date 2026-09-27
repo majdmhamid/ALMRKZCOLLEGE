@@ -1,33 +1,37 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { coursesInGroup } from "@content/courses";
-import { getGroup, groups } from "@content/groups";
 import { Breadcrumbs, CourseCard, CtaBand, PageHero } from "@/components/ui";
 import { localeParam } from "@/lib/content";
-import { courseCount, getDictionary, href, LOCALES, t } from "@/lib/i18n";
+import { getPublishedSiteData, getSiteData } from "@/lib/data";
+import { courseCount, href, LOCALES, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string; group: string }> };
 
 export async function generateStaticParams() {
+  const { groups } = await getPublishedSiteData();
   return LOCALES.flatMap((locale) => groups.map((g) => ({ locale, group: g.slug })));
 }
+/** مجموعات جديدة من لوحة التحكم تُبنى عند أول زيارة */
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
   const { group: slug } = await params;
-  const group = getGroup(slug);
+  const data = await getSiteData();
+  const group = data.getGroup(slug);
   if (!group) return {};
-  return pageMetadata({ locale, path: `/courses/${group.slug}`, title: t(group.name, locale), description: t(group.description, locale), image: group.image });
+  return pageMetadata({ siteName: data.site.name, locale, path: `/courses/${group.slug}`, title: t(group.name, locale), description: t(group.description, locale), image: group.image });
 }
 
 export default async function GroupPage({ params }: Params) {
   const locale = await localeParam(params);
   const { group: slug } = await params;
-  const group = getGroup(slug);
+  const data = await getSiteData();
+  const group = data.getGroup(slug);
   if (!group) notFound();
-  const dict = getDictionary(locale);
-  const list = coursesInGroup(group.slug);
+  const dict = data.dict(locale);
+  const list = data.coursesInGroup(group.slug);
 
   return (
     <>
@@ -47,7 +51,7 @@ export default async function GroupPage({ params }: Params) {
         </div>
       </section>
 
-      <CtaBand locale={locale} title={dict.home.ctaTitle} text={dict.home.ctaText} primary={dict.common.registerInterest} whatsapp={dict.common.whatsappLong} />
+      <CtaBand locale={locale} title={dict.home.ctaTitle} text={dict.home.ctaText} primary={dict.common.registerInterest} whatsapp={dict.common.whatsappLong} whatsappUrl={data.site.whatsappUrl} />
     </>
   );
 }

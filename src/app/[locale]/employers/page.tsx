@@ -1,28 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getCourse } from "@content/courses";
 import { BuildingIcon, ShieldIcon, UsersIcon, WrenchIcon, ArrowIcon } from "@/components/Icons";
 import LeadForm from "@/components/LeadForm";
 import { Breadcrumbs, PageHero, SectionHeading, delay } from "@/components/ui";
-import { courseOptions, localeParam } from "@/lib/content";
-import { getDictionary, href, t } from "@/lib/i18n";
+import { localeParam } from "@/lib/content";
+import { getSiteData } from "@/lib/data";
+import { href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  return pageMetadata({ locale, path: "/employers", title: dict.employers.title, description: dict.employers.metaDescription, image: "/images/hero/employers.webp" });
+  const data = await getSiteData();
+  const dict = data.dict(locale);
+  return pageMetadata({ siteName: data.site.name, locale, path: "/employers", title: dict.employers.title, description: dict.employers.metaDescription, image: "/images/hero/employers.webp" });
 }
 
 const icons = [UsersIcon, ShieldIcon, WrenchIcon, BuildingIcon];
 
 export default async function EmployersPage({ params }: Params) {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
+  const data = await getSiteData();
+  const dict = data.dict(locale);
   const e = dict.employers;
-  const height = getCourse("work-at-height")!;
+  const height = data.getCourse("work-at-height");
 
   return (
     <>
@@ -47,10 +49,12 @@ export default async function EmployersPage({ params }: Params) {
               );
             })}
           </div>
-          <Link href={href(locale, `/courses/${height.group}/${height.slug}`)} className="btn btn-outline mt-8">
-            {t(height.name, locale)}
-            <ArrowIcon width={18} height={18} />
-          </Link>
+          {height && (
+            <Link href={href(locale, `/courses/${height.group}/${height.slug}`)} className="btn btn-outline mt-8">
+              {t(height.name, locale)}
+              <ArrowIcon width={18} height={18} />
+            </Link>
+          )}
         </div>
       </section>
 
@@ -74,7 +78,7 @@ export default async function EmployersPage({ params }: Params) {
             <p className="lead mt-3">{e.formText}</p>
           </div>
           <div className="card p-6 md:p-8 lg:col-span-3">
-            <LeadForm locale={locale} dict={dict.form} whatsappLabel={dict.common.whatsappLong} courses={courseOptions(locale)} source="employers" companyLabel={e.company} />
+            <LeadForm locale={locale} dict={dict.form} whatsappLabel={dict.common.whatsappLong} whatsappUrl={data.site.whatsappUrl} courses={data.courseOptions(locale)} source="employers" companyLabel={e.company} />
           </div>
         </div>
       </section>

@@ -1,12 +1,10 @@
 import type { MetadataRoute } from "next";
-import { courses } from "@content/courses";
-import { groups } from "@content/groups";
-import { news } from "@content/news";
-import { site } from "@content/site";
+import { getPublishedSiteData } from "@/lib/data";
 import { LOCALES } from "@/lib/i18n";
 
 /** خريطة الموقع لجوجل — كل صفحة باللغتين مع ربط hreflang */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { site, groups, courses, news } = await getPublishedSiteData();
   const staticPaths = ["", "/courses", "/about", "/graduates", "/gallery", "/news", "/employers", "/contact", "/accessibility"];
   const paths = [
     ...staticPaths,

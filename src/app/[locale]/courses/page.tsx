@@ -1,24 +1,27 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { coursesInGroup } from "@content/courses";
 import { ArrowIcon } from "@/components/Icons";
 import { Breadcrumbs, CourseCard, CtaBand, PageHero } from "@/components/ui";
-import { localeParam, sortedGroups } from "@/lib/content";
-import { courseCount, getDictionary, href, t } from "@/lib/i18n";
+import { localeParam } from "@/lib/content";
+import { getSiteData } from "@/lib/data";
+import { courseCount, href, t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
-  return pageMetadata({ locale, path: "/courses", title: dict.courses.title, description: dict.courses.metaDescription });
+  const data = await getSiteData();
+  const dict = data.dict(locale);
+  return pageMetadata({ siteName: data.site.name, locale, path: "/courses", title: dict.courses.title, description: dict.courses.metaDescription });
 }
 
 export default async function CoursesPage({ params }: Params) {
   const locale = await localeParam(params);
-  const dict = getDictionary(locale);
+  const data = await getSiteData();
+  const { sortedGroups, coursesInGroup } = data;
+  const dict = data.dict(locale);
   const labels = { hours: dict.common.hours, sessions: dict.common.sessions, view: dict.common.viewCourse };
 
   return (
@@ -59,7 +62,7 @@ export default async function CoursesPage({ params }: Params) {
         </section>
       ))}
 
-      <CtaBand locale={locale} title={dict.home.ctaTitle} text={dict.home.ctaText} primary={dict.common.registerInterest} whatsapp={dict.common.whatsappLong} />
+      <CtaBand locale={locale} title={dict.home.ctaTitle} text={dict.home.ctaText} primary={dict.common.registerInterest} whatsapp={dict.common.whatsappLong} whatsappUrl={data.site.whatsappUrl} />
     </>
   );
 }

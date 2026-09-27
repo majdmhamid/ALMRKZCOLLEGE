@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import type { Course, Group, NewsPost } from "@content/types";
-import { site } from "@content/site";
 import { formatDate, href, t, type Locale } from "@/lib/i18n";
 import { ArrowIcon, CalendarIcon, ClockIcon, LayersIcon, WhatsAppIcon } from "./Icons";
 
@@ -167,7 +166,7 @@ export function NewsCard({ post, locale, readMore, style }: { post: NewsPost; lo
 }
 
 /* ---------- بطاقة دعوة للتواصل (لمسة خضراء داخل الصفحة بدل شريط داكن كامل) ---------- */
-export function CtaBand({ locale, title, text, primary, whatsapp }: { locale: Locale; title: string; text: string; primary: string; whatsapp: string }) {
+export function CtaBand({ locale, title, text, primary, whatsapp, whatsappUrl }: { locale: Locale; title: string; text: string; primary: string; whatsapp: string; whatsappUrl: string }) {
   return (
     <section className="section pt-0">
       <div className="container-x">
@@ -183,7 +182,7 @@ export function CtaBand({ locale, title, text, primary, whatsapp }: { locale: Lo
               <Link href={href(locale, "/contact#form")} className="btn btn-white btn-lg">
                 {primary}
               </Link>
-              <a href={site.whatsappUrl} target="_blank" rel="noopener" className="btn btn-whatsapp btn-lg">
+              <a href={whatsappUrl} target="_blank" rel="noopener" className="btn btn-whatsapp btn-lg">
                 <WhatsAppIcon />
                 {whatsapp}
               </a>

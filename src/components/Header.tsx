@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { site } from "@content/site";
 import type { Dictionary } from "@content/i18n";
+import type { Site } from "@/lib/site-data";
 import { href, switchLocalePath, type Locale } from "@/lib/i18n";
 import Ticker from "./Ticker";
 import {
@@ -32,12 +32,13 @@ interface NavGroup {
 interface Props {
   locale: Locale;
   dict: Dictionary;
+  site: Site;
   groups: NavGroup[];
   /** آخر الأخبار لشريط "جديد" في الشريط العلوي */
   ticker?: { label: string; items: { title: string; to: string }[] };
 }
 
-export default function Header({ locale, dict, groups, ticker }: Props) {
+export default function Header({ locale, dict, site, groups, ticker }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);

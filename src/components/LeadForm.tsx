@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState } from "react";
-import { site } from "@content/site";
 import type { Dictionary } from "@content/i18n";
 import { submitLead, type LeadState } from "@/app/actions/lead";
 import type { Locale } from "@/lib/i18n";
@@ -11,6 +10,7 @@ interface Props {
   locale: Locale;
   dict: Dictionary["form"];
   whatsappLabel: string;
+  whatsappUrl: string;
   courses: { value: string; label: string }[];
   defaultCourse?: string;
   /** من أي صفحة أُرسل الطلب (للتتبع فقط) */
@@ -22,7 +22,7 @@ interface Props {
 
 const initial: LeadState = { status: "idle" };
 
-export default function LeadForm({ locale, dict, whatsappLabel, courses, defaultCourse, source, companyLabel, compact }: Props) {
+export default function LeadForm({ locale, dict, whatsappLabel, whatsappUrl, courses, defaultCourse, source, companyLabel, compact }: Props) {
   const [state, action, pending] = useActionState(submitLead, initial);
 
   if (state.status === "success") {
@@ -33,7 +33,7 @@ export default function LeadForm({ locale, dict, whatsappLabel, courses, default
         </div>
         <h3 className="text-xl font-extrabold">{dict.successTitle}</h3>
         <p className="mt-2 text-ink-soft">{dict.successText}</p>
-        <a href={site.whatsappUrl} target="_blank" rel="noopener" className="btn btn-whatsapp mt-4">
+        <a href={whatsappUrl} target="_blank" rel="noopener" className="btn btn-whatsapp mt-4">
           <WhatsAppIcon />
           {whatsappLabel}
         </a>
@@ -111,7 +111,7 @@ export default function LeadForm({ locale, dict, whatsappLabel, courses, default
         <button type="submit" disabled={pending} className="btn btn-primary btn-lg disabled:opacity-60">
           {pending ? dict.sending : dict.submit}
         </button>
-        <a href={site.whatsappUrl} target="_blank" rel="noopener" className="btn btn-whatsapp">
+        <a href={whatsappUrl} target="_blank" rel="noopener" className="btn btn-whatsapp">
           <WhatsAppIcon />
           {whatsappLabel}
         </a>
