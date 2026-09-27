@@ -1,19 +1,11 @@
-import Link from 'next/link'
+'use client'
 
+import { usePathname } from 'next/navigation'
+
+import { NotFoundContent } from '@/components/site/not-found-content'
+
+/** 404 inside /ar/... or /he/... — in the language of the address, with that language's links. */
 export default function NotFound() {
-  return (
-    <div style={{ padding: '160px 20px 80px', textAlign: 'center' }}>
-      <h1 className="h2">404</h1>
-      <p className="lead" style={{ margin: '12px auto' }}>
-        الصفحة غير موجودة · הדף לא נמצא
-      </p>
-      <Link
-        href="/ar"
-        className="btn btn-green"
-        style={{ height: 48, padding: '0 20px', marginTop: 12 }}
-      >
-        كلية المركز
-      </Link>
-    </div>
-  )
+  const locale = /^\/he(\/|$)/.test(usePathname() ?? '') ? 'he' : 'ar'
+  return <NotFoundContent locale={locale} />
 }
