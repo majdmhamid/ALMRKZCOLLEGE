@@ -30,9 +30,9 @@ import { revalidateAfterChange, revalidateAfterDelete, revalidateGlobal } from '
 import { previewPath, serverURL } from './lib/preview'
 
 /*
- * Database: DATABASE_URL (Neon on Vercel sets it automatically; POSTGRES_URL also accepted).
- * Secret: PAYLOAD_SECRET, or — if not set — derived from the (already secret) database address,
- * so a first deploy needs no manual setting.
+ * Database: DATABASE_URL (Supabase "Session pooler" connection string; POSTGRES_URL also accepted).
+ * Secret: PAYLOAD_SECRET (`npm run secrets` fills it). If not set (e.g. trying the site locally)
+ * it is derived from the database address — which changes if the DB password changes.
  */
 const databaseURL = process.env.DATABASE_URL || process.env.POSTGRES_URL || ''
 /**
@@ -41,7 +41,7 @@ const databaseURL = process.env.DATABASE_URL || process.env.POSTGRES_URL || ''
  */
 const localFile = !databaseURL || databaseURL.startsWith('file:')
 if (localFile && process.env.VERCEL) {
-  throw new Error('DATABASE_URL is missing: connect a Postgres database (Neon) to the Vercel project.')
+  throw new Error('DATABASE_URL is missing: add the Supabase connection string to Vercel.')
 }
 const secret =
   process.env.PAYLOAD_SECRET ||

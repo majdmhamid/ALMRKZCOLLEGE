@@ -1,6 +1,7 @@
 /**
- * Fills ID_HMAC_SECRET, TOKEN_ENC_KEY and SESSION_SECRET in .env.local — only
- * the ones that are empty or missing. Never overwrites an existing value.
+ * Fills PAYLOAD_SECRET, ID_HMAC_SECRET, TOKEN_ENC_KEY and SESSION_SECRET in
+ * .env.local — only the ones that are empty or missing. Never overwrites an
+ * existing value — also one already set in .env (a new one in .env.local would hide it).
  * Usage: npm run secrets
  */
 import { randomBytes } from "node:crypto";
@@ -9,12 +10,21 @@ import path from "node:path";
 import { root } from "./load-env.mjs";
 
 const file = path.join(root, ".env.local");
+const dotEnv = path.join(root, ".env");
+const dotEnvText = existsSync(dotEnv) ? readFileSync(dotEnv, "utf8") : "";
 if (!existsSync(file)) {
-  copyFileSync(path.join(root, ".env.example"), file);
-  console.log("  أنشأت .env.local من .env.example");
+  if (existsSync(dotEnv)) {
+    // .env موجود: .env.local بس للمفاتيح (نسخة من .env.example كانت رح تغطّي على قيم .env)
+    writeFileSync(file, "");
+    console.log("  أنشأت .env.local للمفاتيح بس");
+  } else {
+    copyFileSync(path.join(root, ".env.example"), file);
+    console.log("  أنشأت .env.local من .env.example");
+  }
 }
 
 const generators = {
+  PAYLOAD_SECRET: () => randomBytes(32).toString("hex"),
   ID_HMAC_SECRET: () => randomBytes(48).toString("base64url"),
   TOKEN_ENC_KEY: () => randomBytes(32).toString("base64"),
   SESSION_SECRET: () => randomBytes(48).toString("base64url"),
@@ -24,8 +34,13 @@ let text = readFileSync(file, "utf8");
 for (const [name, make] of Object.entries(generators)) {
   const re = new RegExp(`^${name}=(.*)$`, "m");
   const match = text.match(re);
+  const inDotEnv = dotEnvText.match(re);
   if (match && match[1].trim()) {
     console.log(`  ✓ ${name} موجود — ما لمسته`);
+  } else if (inDotEnv && inDotEnv[1].trim()) {
+    // سطر فاضي بـ .env.local كان رح يغطّي على القيمة اللي بـ .env — منشيله
+    text = text.replace(new RegExp(`^${name}=[ \t]*\r?\n?`, "m"), "");
+    console.log(`  ✓ ${name} موجود بـ .env — ما لمسته`);
   } else if (match) {
     text = text.replace(re, `${name}=${make()}`);
     console.log(`  + ${name}`);
