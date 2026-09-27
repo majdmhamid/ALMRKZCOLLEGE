@@ -23,9 +23,11 @@ import {
   formatDate,
   groupHref,
   mediaAlt,
+  mediaDims,
   mediaUrl,
   whatsappHref,
 } from './data'
+import { HeroVideo } from './hero-video'
 import type { getHomeData } from './data'
 import { ArrowIcon, CheckIcon, ChevronDown, PlayIcon, WhatsAppIcon } from './icons'
 
@@ -84,7 +86,15 @@ export function CourseCard({
   return (
     <article data-reveal="" className="glass lift zoom course-card" style={delay(i, 90)}>
       <a href={courseHref(locale, c)} className="course-media" style={{ display: 'block' }}>
-        {img && <img src={img} alt={mediaAlt(c.coverImage)} className="cover" />}
+        {img && (
+          <img
+            src={img}
+            alt={mediaAlt(c.coverImage)}
+            className="cover"
+            loading="lazy"
+            decoding="async"
+          />
+        )}
         {group && <span className="tag">{group.name}</span>}
       </a>
       <div className="course-body">
@@ -130,26 +140,24 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
   return (
     <section id={b.anchor || 'top'} className="hero">
       <div className="hero-bg" aria-hidden="true">
-        {poster && <img src={poster} alt="" className="cover poster" />}
-        {video && (
-          <video
-            muted
-            loop
-            playsInline
-            autoPlay
-            preload="auto"
-            poster={poster}
-            src={video}
-            className="cover"
-          />
+        {poster && (
+          <img src={poster} alt="" className="cover poster" fetchPriority="high" decoding="async" />
         )}
+        {video && <HeroVideo src={video} poster={poster} />}
         <div className="hero-shade" />
         <div className="hero-dots" />
         <div className="hero-scan" />
       </div>
       <div className="hero-inner">
         <div>
-          {logo && <img src={logo} alt={shared.settings.siteName ?? ''} className="hero-logo" />}
+          {logo && (
+            <img
+              src={logo}
+              alt={shared.settings.siteName ?? ''}
+              className="hero-logo"
+              {...mediaDims(shared.settings.logoDark)}
+            />
+          )}
           {b.badge && (
             <div>
               <span className="hero-badge">
@@ -199,7 +207,16 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
                     aria-hidden={i >= shared.groups.length}
                   >
                     <span className="ic">
-                      {icon && <img src={icon} alt="" width={24} height={24} />}
+                      {icon && (
+                        <img
+                          src={icon}
+                          alt=""
+                          width={24}
+                          height={24}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
                     </span>
                     <span className="nm">{g.name}</span>
                     {cl && <span className="ct">{cl}</span>}
@@ -273,14 +290,31 @@ function Groups({
                 style={delay(i, 120)}
               >
                 <div className="field-media">
-                  {img && <img src={img} alt={mediaAlt(g.image)} className="cover" />}
+                  {img && (
+                    <img
+                      src={img}
+                      alt={mediaAlt(g.image)}
+                      className="cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                   <div className="shade-bottom" />
                   <span className="pill-white">{nn(i)}</span>
                   {cl && <span className="pill-glass">{cl}</span>}
                 </div>
                 <div className="field-body">
                   <span className="field-icon">
-                    {icon && <img src={icon} alt="" width={36} height={36} />}
+                    {icon && (
+                      <img
+                        src={icon}
+                        alt=""
+                        width={36}
+                        height={36}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
                   </span>
                   <span style={{ flex: 1 }}>
                     <h3>{g.name}</h3>
@@ -357,7 +391,15 @@ function Why({ b, n }: { b: Extract<Section, { blockType: 'why' }> } & Ctx) {
         </div>
         <div data-reveal="" style={{ position: 'relative' }}>
           <div className="zoom why-photo">
-            {img && <img src={img} alt={mediaAlt(b.image)} className="cover" />}
+            {img && (
+              <img
+                src={img}
+                alt={mediaAlt(b.image)}
+                className="cover"
+                loading="lazy"
+                decoding="async"
+              />
+            )}
             <div className="shade" />
             <div className="why-pills">
               {(b.pills ?? []).map((p) => (
@@ -446,7 +488,14 @@ function StaffSection({
           {loop.map((s, i) => (
             <article key={i} dir="rtl" className="staff-card" aria-hidden={i >= staff.length}>
               <div className="staff-photo">
-                {mediaUrl(s.photo, 'card') && <img src={mediaUrl(s.photo, 'card')} alt={s.name} />}
+                {mediaUrl(s.photo, 'card') && (
+                  <img
+                    src={mediaUrl(s.photo, 'card')}
+                    alt={s.name}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
               </div>
               <div className="staff-info">
                 <h3>{s.name}</h3>
@@ -495,7 +544,9 @@ function Videos({ b, shared, n }: { b: Extract<Section, { blockType: 'videos' }>
                 youtubeId={youtubeId(promo?.youtubeUrl)}
                 playLabel={promo?.playLabel}
               >
-                {poster && <img src={poster} alt="" className="cover" />}
+                {poster && (
+                  <img src={poster} alt="" className="cover" loading="lazy" decoding="async" />
+                )}
                 <div className="stage-shade" />
                 <span className="play ring">
                   <PlayIcon size={38} />
@@ -522,7 +573,9 @@ function Videos({ b, shared, n }: { b: Extract<Section, { blockType: 'videos' }>
               return (
                 <div key={r.id} data-reveal="" className="reel" style={delay(i, 80)}>
                   <Reel video={mediaUrl(r.video)}>
-                    {img && <img src={img} alt="" className="cover" />}
+                    {img && (
+                      <img src={img} alt="" className="cover" loading="lazy" decoding="async" />
+                    )}
                     <div className="shade" />
                     <span className="play ring">
                       <PlayIcon size={26} />
@@ -586,7 +639,15 @@ function NewsSection({
                 style={delay(i, 100)}
               >
                 <div className="course-media">
-                  {img && <img src={img} alt={mediaAlt(x.coverImage)} className="cover" />}
+                  {img && (
+                    <img
+                      src={img}
+                      alt={mediaAlt(x.coverImage)}
+                      className="cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                   <time className="tag" dateTime={x.publishedAt}>
                     {formatDate(x.publishedAt, locale)}
                   </time>
@@ -627,7 +688,16 @@ function Partners({ b, home }: { b: Extract<Section, { blockType: 'partners' }> 
         <div className="partners-track">
           {[...partners, ...partners].map((p, i) => {
             const logo = mediaUrl(p.logo as Media)
-            const img = logo && <img src={logo} alt={p.name} title={p.name} />
+            const img = logo && (
+              <img
+                src={logo}
+                alt={p.name}
+                title={p.name}
+                {...mediaDims(p.logo as Media)}
+                loading="lazy"
+                decoding="async"
+              />
+            )
             return (
               <div key={i} className="partner" aria-hidden={i >= partners.length}>
                 {p.url ? (
@@ -834,6 +904,8 @@ function GallerySection({ b, home, n }: { b: Extract<Section, { blockType: 'gall
               src={mediaUrl(m, 'card')}
               alt={m.alt}
               loading="lazy"
+              decoding="async"
+              {...mediaDims(m)}
             />
           ))}
         </div>

@@ -3,7 +3,15 @@ import React from 'react'
 import type { SiteLocale } from '@/lib/rules'
 
 import { HeaderMenu, LangSwitch } from './client'
-import { type Shared, isExternal, linkHref, mediaUrl, telHref, whatsappHref } from './data'
+import {
+  type Shared,
+  isExternal,
+  linkHref,
+  mediaDims,
+  mediaUrl,
+  telHref,
+  whatsappHref,
+} from './data'
 import {
   HomeIcon,
   LayersIcon,
@@ -27,7 +35,11 @@ export function Header({ shared, locale }: Props) {
     <header className="header">
       <div className="glass header-bar">
         <a href={`/${locale}`} className="header-logo">
-          {logo ? <img src={logo} alt={settings.siteName ?? ''} /> : <b>{settings.siteName}</b>}
+          {logo ? (
+            <img src={logo} alt={settings.siteName ?? ''} {...mediaDims(settings.logoLight)} />
+          ) : (
+            <b>{settings.siteName}</b>
+          )}
         </a>
         <nav className="header-nav show-desktop">
           {links.map((l, i) => (
@@ -70,7 +82,14 @@ export function Footer({ shared, locale }: Props) {
       <div className="footer-grid">
         <div>
           {logo && (
-            <img src={logo} alt={settings.siteName ?? ''} style={{ height: 48, width: 'auto' }} />
+            <img
+              src={logo}
+              alt={settings.siteName ?? ''}
+              {...mediaDims(settings.logoDark)}
+              loading="lazy"
+              decoding="async"
+              style={{ height: 48, width: 'auto' }}
+            />
           )}
           {footer?.about && <p className="footer-about">{footer.about}</p>}
           <div className="socials">

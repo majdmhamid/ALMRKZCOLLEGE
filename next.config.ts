@@ -61,7 +61,8 @@ const payloadHeaders = config.headers
 config.headers = async () => {
   const rules = (await payloadHeaders?.()) ?? []
   return rules.flatMap((rule) => {
-    const isPayloadRule = rule.source === '/:path*' && rule.headers.some((h) => h.key === 'Critical-CH')
+    const isPayloadRule =
+      rule.source === '/:path*' && rule.headers.some((h) => h.key === 'Critical-CH')
     if (!isPayloadRule) return [rule]
     return [
       { ...rule, source: '/admin' },

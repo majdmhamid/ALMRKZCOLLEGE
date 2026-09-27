@@ -3,10 +3,11 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 
 import { Footer, Header, MobileBar } from '@/components/site/chrome'
-import { RefreshRouteOnSave, RevealObserver } from '@/components/site/client'
+import { RevealObserver } from '@/components/site/client'
 import { getShared, isDraft, isLocale, mediaUrl } from '@/components/site/data'
 import { serverURL } from '@/lib/preview'
 import type { SiteLocale } from '@/lib/rules'
+import { RefreshRouteOnSave } from '../refresh-on-save'
 import '@/components/site/site.css'
 import '../fonts.css'
 import '../perf.css'
@@ -55,7 +56,14 @@ export default async function LocaleLayout({ children, params }: Props) {
       <head>
         {/* Speed: fetch the main fonts right away (with the CSS) instead of after the first layout. */}
         {PRELOAD_FONTS[locale].map((f) => (
-          <link key={f} rel="preload" href={`/fonts/${f}`} as="font" type="font/woff2" crossOrigin="" />
+          <link
+            key={f}
+            rel="preload"
+            href={`/fonts/${f}`}
+            as="font"
+            type="font/woff2"
+            crossOrigin=""
+          />
         ))}
       </head>
       <body>
