@@ -36,7 +36,7 @@
 ## قاعدة بيانات وتخزين — مشروع Supabase واحد
 - `DATABASE_URL` (Payload) و`SUPABASE_DB_URL` (التوقيع) = نفس Postgres تبع Supabase. أسماء الجداول ما بتتضارب (فحصتها).
 - صور الموقع: Supabase Storage عبر S3 (`S3_*`، bucket عام `media`). ملفات التوقيع: buckets خاصة (`originals`، `finals`، `signatures`) عبر المفتاح السري.
-- `npm run ci` (بناء Vercel): `payload migrate` ← `scripts/migrate.mjs --if-configured` (ملفات `supabase/migrations`) ← seed ← build.
+- `npm run ci` (بناء Vercel): `payload migrate` ← `scripts/migrate.mjs --if-configured` (ملفات `supabase/migrations`) ← seed ← build. الـ seed بيعبّي محتوى التصميم **مرة وحدة بس** (أول نشر / قاعدة فاضية) وبيحفظ علامة `almrkz:design-seeded` بجدول `payload_kv`؛ بعدها بيعمل بس أول مدير (إذا ما في مستخدمين) — اللي بينحذف ما بيرجع. إعادة تعبئة مقصودة: `npx cross-env SEED_FORCE=1 npm run seed` (أو `SEED_FORCE_PAGES=1` لتعبئة الصفحات كمان).
 
 ## الفحوصات (2026-09-27)
 - `npm test`: 91 اختبار ✓ · `node scripts/e2e-{sign,editor,finalize,admin}.mjs http://localhost:<port>` ✓ (بدها `.mock-data` جديد)

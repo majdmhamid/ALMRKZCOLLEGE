@@ -220,15 +220,15 @@ export function CoursePage({
               </ul>
             </section>
           )}
-          {c.careerGuidance && (
-            <section className="card glass">
-              <h2>{t.after}</h2>
-              <p className="prose">{c.careerGuidance}</p>
-              <p className="note muted" style={{ marginTop: 12 }}>
-                {EMPLOYMENT_NOTICE[locale]}
-              </p>
-            </section>
-          )}
+          {/* Always shown (college rule): the fixed employment notice, even when the
+              course has no «بعد التخرّج» text of its own. */}
+          <section className="card glass">
+            <h2>{t.after}</h2>
+            {c.careerGuidance && <p className="prose">{c.careerGuidance}</p>}
+            <p className="note muted" style={c.careerGuidance ? { marginTop: 12 } : undefined}>
+              {EMPLOYMENT_NOTICE[locale]}
+            </p>
+          </section>
           {(gallery.length > 0 || video || c.youtubeUrl) && (
             <section className="card glass">
               <h2>{t.gallery}</h2>

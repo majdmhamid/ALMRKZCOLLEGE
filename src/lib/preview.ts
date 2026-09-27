@@ -8,12 +8,15 @@
  *   /{locale}/courses/{groupSlug}     a course group
  *   /{locale}/course/{slug}           one course
  *   /{locale}/news/{slug}             news item
- *   /{locale}/success-stories/{slug}  graduate story
+ *   /{locale}#graduates               graduate stories (a homepage section; no page of their own)
  */
 import type { SiteLocale } from './rules'
 
 export const LOCALES: SiteLocale[] = ['ar', 'he']
 export const DEFAULT_LOCALE: SiteLocale = 'ar'
+
+/** Anchor of the homepage section that shows the graduate stories (seed + sections.tsx). */
+export const STORIES_ANCHOR = 'graduates'
 
 export type PreviewTarget =
   | {
@@ -36,7 +39,8 @@ export function sitePath(target: PreviewTarget): string {
     case 'news':
       return `/${locale}/news/${slug}`
     case 'success-stories':
-      return `/${locale}/success-stories/${slug}`
+      // Design Option A shows graduate stories only in a homepage section.
+      return `/${locale}#${STORIES_ANCHOR}`
   }
 }
 
