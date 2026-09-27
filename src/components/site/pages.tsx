@@ -4,7 +4,16 @@ import React from 'react'
 import type { Course, CourseGroup, News } from '@/payload-types'
 import { EMPLOYMENT_NOTICE, VOUCHER_TEXT, type SiteLocale } from '@/lib/rules'
 
-import { type Shared, asDoc, formatDate, groupHref, mediaAlt, mediaUrl, whatsappHref } from './data'
+import {
+  type Shared,
+  asDoc,
+  formatDate,
+  groupHref,
+  mediaAlt,
+  mediaDims,
+  mediaUrl,
+  whatsappHref,
+} from './data'
 import { CheckIcon, WhatsAppIcon } from './icons'
 import { CourseCard, RegisterForm } from './sections'
 
@@ -22,7 +31,9 @@ export function PageHero({
   return (
     <section className="page-hero">
       <div className="bg" aria-hidden="true">
-        {image && <img src={image} alt="" className="cover" />}
+        {image && (
+          <img src={image} alt="" className="cover" fetchPriority="high" decoding="async" />
+        )}
       </div>
       <div className="in">
         <nav className="crumbs">
@@ -232,7 +243,14 @@ export function CoursePage({
               )}
               <div className="gallery-grid">
                 {gallery.map((m) => (
-                  <img key={m!.id} src={mediaUrl(m, 'card')} alt={mediaAlt(m)} loading="lazy" />
+                  <img
+                    key={m!.id}
+                    src={mediaUrl(m, 'card')}
+                    alt={mediaAlt(m)}
+                    loading="lazy"
+                    decoding="async"
+                    {...mediaDims(m)}
+                  />
                 ))}
               </div>
             </section>
@@ -395,13 +413,23 @@ export function NewsPage({ n, shared, locale }: { n: News; shared: Shared; local
             <img
               src={mediaUrl(n.coverImage, 'wide')}
               alt={mediaAlt(n.coverImage)}
-              style={{ width: '100%', borderRadius: 16, marginTop: 18 }}
+              loading="lazy"
+              decoding="async"
+              {...mediaDims(n.coverImage)}
+              style={{ width: '100%', height: 'auto', borderRadius: 16, marginTop: 18 }}
             />
           )}
           {gallery.length > 0 && (
             <div className="gallery-grid" style={{ marginTop: 14 }}>
               {gallery.map((m) => (
-                <img key={m!.id} src={mediaUrl(m, 'card')} alt={mediaAlt(m)} loading="lazy" />
+                <img
+                  key={m!.id}
+                  src={mediaUrl(m, 'card')}
+                  alt={mediaAlt(m)}
+                  loading="lazy"
+                  decoding="async"
+                  {...mediaDims(m)}
+                />
               ))}
             </div>
           )}

@@ -1,7 +1,6 @@
 'use client'
 
-import { RefreshRouteOnSave as PayloadRefresh } from '@payloadcms/live-preview-react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import React, { useActionState, useEffect, useRef, useState } from 'react'
 
 import type { LeadState } from './actions'
@@ -41,12 +40,6 @@ export function RevealObserver() {
     }
   }, [])
   return null
-}
-
-/** Live preview inside /admin: reload the page whenever the editor saves. */
-export function RefreshRouteOnSave({ serverURL }: { serverURL: string }) {
-  const router = useRouter()
-  return <PayloadRefresh refresh={() => router.refresh()} serverURL={serverURL} />
 }
 
 type MenuLink = { href: string; label: string }
@@ -238,7 +231,7 @@ export function Stories({
         <p className="story-quote">“{s.quote}”</p>
         {s.body && <p className="story-body">{s.body}</p>}
         <div className="story-who">
-          {s.image && <img src={s.image} alt="" />}
+          {s.image && <img src={s.image} alt="" decoding="async" />}
           <div>
             <b>{s.name}</b>
             {s.now && <small>{s.now}</small>}
@@ -262,7 +255,7 @@ export function Stories({
           />
         ) : (
           <>
-            {s.image && <img src={s.image} alt={s.name} className="cover" />}
+            {s.image && <img src={s.image} alt={s.name} className="cover" decoding="async" />}
             <div
               className="shade-bottom"
               style={{ background: 'linear-gradient(to top,rgba(5,38,19,.8),rgba(5,38,19,0) 55%)' }}

@@ -134,6 +134,15 @@ export function mediaUrl(
 
 export const mediaAlt = (m: number | Media | null | undefined) => asDoc(m)?.alt ?? ''
 
+/** Intrinsic width/height of an uploaded image (reserves the space before it loads → no jumping). */
+export function mediaDims(m: number | Media | null | undefined): {
+  width?: number
+  height?: number
+} {
+  const doc = asDoc(m)
+  return doc?.width && doc?.height ? { width: doc.width, height: doc.height } : {}
+}
+
 export function whatsappHref(shared: Shared, message?: string | null) {
   const n = shared.settings.contact?.whatsapp || ''
   const text = message ?? shared.settings.contact?.whatsappMessage ?? ''
