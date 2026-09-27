@@ -27,16 +27,16 @@
   - 4 فروع صغيرة قديمة: `claude/awesome-thompson-04a1qi`، `claude/eager-gauss-4siz2s`، `claude/pensive-pascal-da3bpm`، `claude/zealous-bardeen-euoog0`
 - اندمجوا وخلصوا: `claude/admin-v2`، `claude/site-speed`، `claude/compassionate-noether-g5lec6`.
 
-## 🔧 شغل ماشي هلأ (فروع تصليحات من الرئيسي)
+## ✅ تصليحات 2026-09-28 (اندمجت بالفرع الرئيسي)
 
 | الفرع | شو فيه |
 |---|---|
-| `claude/fix-content-rules` | قواعد المحتوى الثابتة |
-| `claude/fix-seo-legal` | SEO والأمور القانونية |
-| `claude/fix-media-forms` | الصور والاستمارات |
-| `claude/fix-deploy-docs` | مفتاح `PAYLOAD_SECRET` بـ `npm run secrets`، دليل الإطلاق، تحديث التوثيق |
+| `claude/fix-content-rules` | تنويه التشغيل بكل صفحة دورة؛ الـ seed مرة وحدة بس (علامة `almrkz:design-seeded`، `SEED_FORCE=1` لإعادة مقصودة)؛ معاينة الخريج ← `/{l}#graduates`؛ إخفاء المجالات بدون دورات منشورة |
+| `claude/fix-seo-legal` | `/sitemap.xml`، `/robots.txt`، canonical + hreflang لكل صفحة، 404 بلغة الصفحة، صفحات `/{l}/accessibility` و`/{l}/privacy` (نصوص بالكود: `src/components/site/legal.tsx`) |
+| `claude/fix-media-forms` | ريلز بدون فيديو بدون زر تشغيل؛ فيديوهات يوتيوب بالمعرض (بعد الضغط بس)؛ حماية نموذج الطلبات (5 كل 10 دقايق + وقت تعبئة أدنى) |
+| `claude/fix-deploy-docs` | `PAYLOAD_SECRET` بـ `npm run secrets`، دليل الإطلاق كامل، تحديث التوثيق |
 
-بعد ما يخلصوا: بيندمجوا بالفرع الرئيسي.
+باقي من مجد: قصص خريجين حقيقية + موافقات، لوغو، تفاصيل الدورات والمنح، مسؤول النجيشوت، فيديوهات الريلز، قرار مجال الرافعات (بلا دورات — مخفي هلأ). تفاصيل بتقرير الحالة.
 
 ## ⏭️ الخطوة القادمة
 
