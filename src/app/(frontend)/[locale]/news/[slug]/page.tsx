@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import { getBySlug, getShared, isLocale } from '@/components/site/data'
+import { getBySlug, getShared, isLocale, mediaUrl } from '@/components/site/data'
 import { NewsPage } from '@/components/site/pages'
+import { pageMetadata } from '@/components/site/seo'
+import { encodeSlug } from '@/lib/seo'
 import type { SiteLocale } from '@/lib/rules'
 
 export const revalidate = 60
@@ -15,7 +17,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params
   if (!isLocale(locale)) return {}
   const n = await load(locale, slug)
-  return n ? { title: n.seo?.title || n.title, description: n.seo?.description || n.excerpt } : {}
+  if (!n) return {}
+  return pageMetadata(locale, `/news/${encodeSlug(n.slug)}`, {
+    title: n.seo?.title || n.title,
+    description: n.seo?.description || n.excerpt,
+    image: mediaUrl(n.seo?.image, 'wide') || mediaUrl(n.coverImage, 'wide'),
+  })
 }
 
 export default async function Page({ params }: Props) {
