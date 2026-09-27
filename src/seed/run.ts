@@ -2,10 +2,20 @@
  * Fills the database with everything in the website design
  * (content.js + Option A texts + assets/).          npm run seed
  *
- * Safe to run again: anything that already exists (matched by slug / design file,
- * or a settings page that is already filled) is left untouched, so editors'
- * changes are never overwritten. `SEED_FORCE_PAGES=1 npm run seed` refills the
- * pages (homepage, fixed texts, gallery, menu, site settings) from the design.
+ * Runs on every deploy (`npm run ci`), but the design content is put in ONCE:
+ * after a complete seed a marker is saved in the database, and later runs only
+ * create the first admin (if there are no users) and stop. So anything the
+ * owner deletes (a course, a success story…) is never brought back.
+ * A database seeded before the marker existed counts as seeded when its
+ * homepage is already filled (the last step of a full seed). A first run that
+ * stopped half-way has no marker, so the next run finishes it.
+ *
+ * Deliberate reseed (creates what is missing, never overwrites existing items):
+ *   npx cross-env SEED_FORCE=1 npm run seed
+ * Also refill the pages (homepage, fixed texts, gallery, menu, site settings):
+ *   npx cross-env SEED_FORCE_PAGES=1 npm run seed        (implies SEED_FORCE)
+ * (`payload run` swallows --flags, so use the variables; `npm run seed -- -- --force`
+ * / `-- -- --force-pages` also work.)
  */
 import type { CollectionSlug, GlobalSlug, Payload } from 'payload'
 import { getPayload } from 'payload'
@@ -18,6 +28,9 @@ import type { L } from './optionA'
 
 type Locale = 'ar' | 'he'
 const FORCE_PAGES = process.argv.includes('--force-pages') || process.env.SEED_FORCE_PAGES === '1'
+const FORCE = FORCE_PAGES || process.argv.includes('--force') || process.env.SEED_FORCE === '1'
+/** Key in Payload's key-value store (table payload_kv) saved after a complete design seed. */
+const SEEDED_KEY = 'almrkz:design-seeded'
 
 const design = loadDesign()
 const D = design.dict
@@ -178,8 +191,39 @@ const galleryAlt = (i: number): L => ({
   he: `תמונה מהתרגול המעשי בסדנאות מכללת המרכז (${i + 1})`,
 })
 
+/** Why the design content is already in the database, or null when it still has to be seeded. */
+async function alreadySeeded(payload: Payload): Promise<string | null> {
+  const marker = await payload.kv.get<{ at?: string }>(SEEDED_KEY)
+  if (marker) return `design content was seeded on ${marker.at ?? 'an earlier deploy'}`
+  // Databases seeded before the marker existed: the homepage is the last step of a full seed.
+  const home = await payload.findGlobal({ slug: 'homepage', locale: 'ar', depth: 0, draft: true })
+  if (!home.sections?.length) return null
+  await payload.kv.set(SEEDED_KEY, { at: new Date().toISOString(), legacy: true })
+  return 'the homepage is already filled (seeded before the marker; marker saved now)'
+}
+
 async function run(payload: Payload) {
   await seedAdmin(payload)
+  if (FORCE) {
+    payload.logger.info(
+      `seed: forced (${FORCE_PAGES ? 'SEED_FORCE_PAGES' : 'SEED_FORCE'}) — creating what is missing from the design`,
+    )
+  } else {
+    const reason = await alreadySeeded(payload)
+    if (reason) {
+      payload.logger.info(
+        `seed: skipped all design content (courses, groups, stories, staff, partners, news, media, ` +
+          `pages) — ${reason}. Deleted items stay deleted. To reseed on purpose: npx cross-env SEED_FORCE=1 npm run seed`,
+      )
+      return
+    }
+  }
+  await seedDesign(payload)
+  await payload.kv.set(SEEDED_KEY, { at: new Date().toISOString() })
+  payload.logger.info(`seed: saved marker «${SEEDED_KEY}» — later deploys won't seed again`)
+}
+
+async function seedDesign(payload: Payload) {
   const site = design.site
 
   /* media used in several places */
@@ -213,19 +257,27 @@ async function run(payload: Payload) {
     he: 'הכשרת עובדים לחברות ולקבלנים',
   })
 
-  /* course groups */
+  /* course groups — a group with no (published) course in the design, e.g. carpentry with
+     its placeholder picture, is saved as a draft until the college adds its courses. */
+  const groupsWithCourses = new Set(design.courses.map((c) => c.group))
   const groupIds: Record<string, number> = {}
   for (const [i, g] of design.groups.entries()) {
     const image = await media(payload, g.image, g.name)
     const icon = await media(payload, g.icon, { ar: `رمز ${g.name.ar}`, he: `סמל ${g.name.he}` })
-    groupIds[g.slug] = await upsert(payload, 'course-groups', g.slug, (l) => ({
-      name: pick(g.name, l),
-      shortName: pick(g.short, l),
-      tagline: pick(g.tagline, l),
-      image,
-      icon,
-      order: i + 1,
-    }))
+    groupIds[g.slug] = await upsert(
+      payload,
+      'course-groups',
+      g.slug,
+      (l) => ({
+        name: pick(g.name, l),
+        shortName: pick(g.short, l),
+        tagline: pick(g.tagline, l),
+        image,
+        icon,
+        order: i + 1,
+      }),
+      { draft: !groupsWithCourses.has(g.slug) },
+    )
   }
 
   /* courses */
