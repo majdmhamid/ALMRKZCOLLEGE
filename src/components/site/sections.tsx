@@ -544,17 +544,21 @@ function Videos({ b, shared, n }: { b: Extract<Section, { blockType: 'videos' }>
             {(b.reels ?? []).map((r, i) => {
               const course = asDoc(r.course)
               const img = mediaUrl(r.poster, 'card')
+              // Play button and duration only when there is a video to play.
+              const video = mediaUrl(r.video)
               return (
                 <div key={r.id} data-reveal="" className="reel" style={delay(i, 80)}>
-                  <Reel video={mediaUrl(r.video)}>
+                  <Reel video={video}>
                     {img && (
                       <img src={img} alt="" className="cover" loading="lazy" decoding="async" />
                     )}
                     <div className="shade" />
-                    <span className="play ring">
-                      <PlayIcon size={26} />
-                    </span>
-                    {r.durationLabel && (
+                    {video && (
+                      <span className="play ring">
+                        <PlayIcon size={26} />
+                      </span>
+                    )}
+                    {video && r.durationLabel && (
                       <span dir="ltr" className="dur">
                         {r.durationLabel}
                       </span>
@@ -771,6 +775,14 @@ export function formLabels(shared: Shared, locale: SiteLocale): FormLabels {
       (locale === 'he'
         ? 'משהו השתבש. בדקו את מספר הטלפון ונסו שוב, או כתבו לנו בוואטסאפ.'
         : 'صار خطأ. تأكد من رقم الهاتف وحاول مرة ثانية، أو راسلنا على واتساب.'),
+    tooMany:
+      locale === 'he'
+        ? 'קיבלנו כמה פניות מהמכשיר הזה בזמן קצר. נסו שוב בעוד כמה דקות, או כתבו לנו בוואטסאפ.'
+        : 'وصلنا كذا طلب من هذا الجهاز بوقت قصير. جرّب كمان كم دقيقة، أو راسلنا على واتساب.',
+    tooFast:
+      locale === 'he'
+        ? 'רגע אחד… בדקו את הפרטים ולחצו שוב על שליחה.'
+        : 'لحظة… تأكد من التفاصيل واضغط إرسال مرة ثانية.',
   }
 }
 
@@ -854,12 +866,26 @@ function Register({
   )
 }
 
-function GallerySection({ b, home, n }: { b: Extract<Section, { blockType: 'gallery' }> } & Ctx) {
+function GallerySection({
+  b,
+  home,
+  locale,
+  n,
+}: { b: Extract<Section, { blockType: 'gallery' }> } & Ctx) {
   const imgs = (home.gallery.images ?? [])
     .map((m) => asDoc(m as Media))
     .filter(Boolean)
     .slice(0, b.count ?? 10) as Media[]
-  if (!imgs.length) return null
+  const videos = (home.gallery.videos ?? [])
+    .map((v) => {
+      const yt = youtubeId(v.youtubeUrl)
+      const file = yt ? undefined : mediaUrl(v.file)
+      const thumb =
+        mediaUrl(v.thumbnail, 'card') ?? (yt && `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`)
+      return { id: v.id ?? v.title, title: v.title, yt, file, thumb, dims: mediaDims(v.thumbnail) }
+    })
+    .filter((v) => v.yt || v.file)
+  if (!imgs.length && !videos.length) return null
   return (
     <section id={b.anchor || 'gallery'} className="sec">
       <div className="wrap">
@@ -868,20 +894,74 @@ function GallerySection({ b, home, n }: { b: Extract<Section, { blockType: 'gall
           <h2 className="h2">{b.title}</h2>
           {b.subtitle && <p className="lead">{b.subtitle}</p>}
         </div>
-        <div className="gallery-grid">
-          {imgs.map((m, i) => (
-            <img
-              key={m.id}
-              data-reveal=""
-              style={delay(i, 50)}
-              src={mediaUrl(m, 'card')}
-              alt={m.alt}
-              loading="lazy"
-              decoding="async"
-              {...mediaDims(m)}
-            />
-          ))}
-        </div>
+        {videos.length > 0 && (
+          <div
+            style={{
+              display: 'grid',
+              gap: 14,
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+              marginBottom: imgs.length ? 14 : 0,
+            }}
+          >
+            {videos.map((v, i) => (
+              <div key={v.id} data-reveal="" className="lift stage" style={delay(i, 80)}>
+                {v.yt ? (
+                  <PromoStage
+                    youtubeId={v.yt}
+                    playLabel={`${locale === 'he' ? 'נגן' : 'تشغيل'}: ${v.title}`}
+                    title={v.title}
+                  >
+                    {v.thumb && (
+                      <img
+                        src={v.thumb}
+                        alt=""
+                        className="cover"
+                        loading="lazy"
+                        decoding="async"
+                        {...v.dims}
+                      />
+                    )}
+                    <div className="stage-shade" />
+                    {/* smaller than the big promo: these cards are half-width / phone-width */}
+                    <span className="play ring" style={{ width: 60, height: 60 }}>
+                      <PlayIcon size={26} />
+                    </span>
+                    <div className="stage-cap">
+                      <p className="t" style={{ fontSize: 'clamp(15px, 1.7vw, 22px)' }}>
+                        {v.title}
+                      </p>
+                    </div>
+                  </PromoStage>
+                ) : (
+                  <video
+                    src={v.file}
+                    poster={v.thumb || undefined}
+                    controls
+                    preload="none"
+                    playsInline
+                    title={v.title}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {imgs.length > 0 && (
+          <div className="gallery-grid">
+            {imgs.map((m, i) => (
+              <img
+                key={m.id}
+                data-reveal=""
+                style={delay(i, 50)}
+                src={mediaUrl(m, 'card')}
+                alt={m.alt}
+                loading="lazy"
+                decoding="async"
+                {...mediaDims(m)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

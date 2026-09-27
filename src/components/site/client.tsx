@@ -296,29 +296,37 @@ export function StaffBio({ bio, more, less }: { bio: string; more: string; less:
   )
 }
 
+/**
+ * Poster + play button; the YouTube iframe (youtube-nocookie) or the video file is
+ * only loaded after the click — nothing from YouTube before that.
+ */
 export function PromoStage({
   video,
   youtubeId,
   children,
   playLabel,
+  title,
 }: {
   video?: string
   youtubeId?: string
   children: React.ReactNode
   playLabel?: string | null
+  /** Accessible name of the player once it is loaded (defaults to playLabel). */
+  title?: string | null
 }) {
   const [playing, setPlaying] = useState(false)
   if (playing && youtubeId) {
     return (
       <iframe
         src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0`}
-        allow="autoplay; encrypted-media; picture-in-picture"
+        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
         allowFullScreen
-        title={playLabel ?? 'video'}
+        title={title || playLabel || 'video'}
       />
     )
   }
-  if (playing && video) return <video src={video} controls autoPlay playsInline />
+  if (playing && video)
+    return <video src={video} controls autoPlay playsInline title={title ?? undefined} />
   return (
     <button className="stage-btn" aria-label={playLabel ?? 'play'} onClick={() => setPlaying(true)}>
       {children}
@@ -328,7 +336,15 @@ export function PromoStage({
 
 export function Reel({ video, children }: { video?: string; children: React.ReactNode }) {
   const [playing, setPlaying] = useState(false)
-  if (playing && video) {
+  // No video uploaded yet: a plain photo card — nothing to click, no pointer.
+  if (!video) {
+    return (
+      <div className="zoom reel-media" style={{ cursor: 'default' }}>
+        {children}
+      </div>
+    )
+  }
+  if (playing) {
     return (
       <div className="reel-media">
         <video src={video} controls autoPlay playsInline />
@@ -336,7 +352,7 @@ export function Reel({ video, children }: { video?: string; children: React.Reac
     )
   }
   return (
-    <div className="lift zoom reel-media" onClick={() => video && setPlaying(true)}>
+    <div className="lift zoom reel-media" onClick={() => setPlaying(true)}>
       {children}
     </div>
   )
@@ -391,6 +407,10 @@ export type FormLabels = {
   successTitle: string
   successText: string
   error: string
+  /** Same visitor sent too many forms in a short time. */
+  tooMany: string
+  /** «Send» pressed a moment after the form appeared (typical of bots). */
+  tooFast: string
 }
 
 export function LeadForm({
@@ -409,6 +429,13 @@ export function LeadForm({
   defaultCourse?: number
 }) {
   const [state, formAction, pending] = useActionState(action, { ok: false })
+  // How long the form was open before «send» (spam check in submitLead; never stored).
+  const shownAt = useRef(0)
+  const fillTime = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    shownAt.current = performance.now()
+  }, [])
+  const v = state.values
   if (state.ok) {
     return (
       <div className="sent">
@@ -436,10 +463,15 @@ export function LeadForm({
     <form
       data-reveal=""
       action={formAction}
+      onSubmit={() => {
+        if (fillTime.current && shownAt.current)
+          fillTime.current.value = String(Math.round(performance.now() - shownAt.current))
+      }}
       className="form"
       style={{ ['--d' as string]: '120ms' }}
     >
       <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="ft" ref={fillTime} defaultValue="" />
       <input type="hidden" name="sourcePage" value={sourcePage} />
       <label className="sr-only" aria-hidden="true">
         website
@@ -450,7 +482,14 @@ export function LeadForm({
           <span>
             {labels.name} <i>*</i>
           </span>
-          <input name="name" required maxLength={120} className="field" autoComplete="name" />
+          <input
+            name="name"
+            required
+            maxLength={120}
+            className="field"
+            autoComplete="name"
+            defaultValue={v?.name}
+          />
         </label>
         <label>
           <span>
@@ -466,6 +505,7 @@ export function LeadForm({
             className="field"
             style={{ textAlign: 'start' }}
             autoComplete="tel"
+            defaultValue={v?.phone}
           />
         </label>
       </div>
@@ -474,7 +514,7 @@ export function LeadForm({
         <select
           name="course"
           className="field"
-          defaultValue={defaultCourse ? String(defaultCourse) : ''}
+          defaultValue={v ? v.course : defaultCourse ? String(defaultCourse) : ''}
         >
           <option value="">{labels.courseAny}</option>
           {courses.map((c) => (
@@ -486,9 +526,23 @@ export function LeadForm({
       </label>
       <label>
         <span>{labels.message}</span>
-        <textarea name="message" rows={3} maxLength={2000} className="field" />
+        <textarea
+          name="message"
+          rows={3}
+          maxLength={2000}
+          className="field"
+          defaultValue={v?.message}
+        />
       </label>
-      {state.error && <p className="form-error">{labels.error}</p>}
+      {state.error && (
+        <p className="form-error" role="alert">
+          {state.reason === 'rate_limited'
+            ? labels.tooMany
+            : state.reason === 'too_fast'
+              ? labels.tooFast
+              : labels.error}
+        </p>
+      )}
       <button type="submit" className="submit" disabled={pending}>
         {labels.submit}
       </button>
