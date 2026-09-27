@@ -74,11 +74,14 @@ export function CourseCard({
   shared,
   locale,
   i = 0,
+  eager = false,
 }: {
   c: Course
   shared: Shared
   locale: SiteLocale
   i?: number
+  /** In a horizontal carousel the side cards must load right away (no pop-in while swiping). */
+  eager?: boolean
 }) {
   const ui = shared.ui
   const img = mediaUrl(c.coverImage, 'card')
@@ -91,7 +94,7 @@ export function CourseCard({
             src={img}
             alt={mediaAlt(c.coverImage)}
             className="cover"
-            loading="lazy"
+            loading={eager ? undefined : 'lazy'}
             decoding="async"
           />
         )}
@@ -207,16 +210,7 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
                     aria-hidden={i >= shared.groups.length}
                   >
                     <span className="ic">
-                      {icon && (
-                        <img
-                          src={icon}
-                          alt=""
-                          width={24}
-                          height={24}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
+                      {icon && <img src={icon} alt="" width={24} height={24} decoding="async" />}
                     </span>
                     <span className="nm">{g.name}</span>
                     {cl && <span className="ct">{cl}</span>}
@@ -291,13 +285,7 @@ function Groups({
               >
                 <div className="field-media">
                   {img && (
-                    <img
-                      src={img}
-                      alt={mediaAlt(g.image)}
-                      className="cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    <img src={img} alt={mediaAlt(g.image)} className="cover" decoding="async" />
                   )}
                   <div className="shade-bottom" />
                   <span className="pill-white">{nn(i)}</span>
@@ -305,16 +293,7 @@ function Groups({
                 </div>
                 <div className="field-body">
                   <span className="field-icon">
-                    {icon && (
-                      <img
-                        src={icon}
-                        alt=""
-                        width={36}
-                        height={36}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    )}
+                    {icon && <img src={icon} alt="" width={36} height={36} decoding="async" />}
                   </span>
                   <span style={{ flex: 1 }}>
                     <h3>{g.name}</h3>
@@ -356,7 +335,7 @@ function Featured({
         </div>
         <div className="snap">
           {courses.map((c, i) => (
-            <CourseCard key={c.id} c={c} shared={shared} locale={locale} i={i} />
+            <CourseCard key={c.id} c={c} shared={shared} locale={locale} i={i} eager />
           ))}
         </div>
         <p className="swipe-note show-mobile">← {shared.ui.common?.swipe} →</p>
@@ -489,12 +468,7 @@ function StaffSection({
             <article key={i} dir="rtl" className="staff-card" aria-hidden={i >= staff.length}>
               <div className="staff-photo">
                 {mediaUrl(s.photo, 'card') && (
-                  <img
-                    src={mediaUrl(s.photo, 'card')}
-                    alt={s.name}
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <img src={mediaUrl(s.photo, 'card')} alt={s.name} decoding="async" />
                 )}
               </div>
               <div className="staff-info">
@@ -694,7 +668,6 @@ function Partners({ b, home }: { b: Extract<Section, { blockType: 'partners' }> 
                 alt={p.name}
                 title={p.name}
                 {...mediaDims(p.logo as Media)}
-                loading="lazy"
                 decoding="async"
               />
             )
