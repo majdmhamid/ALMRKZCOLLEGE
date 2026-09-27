@@ -20,7 +20,25 @@ export async function navCounts(payload: Payload) {
     count('leads'),
     count('leads', { status: { equals: 'new' } }),
   ])
-  return { courses, groups, stories, news, staff, partners, leads, newLeads }
+  const signing = await signingCounts()
+  return { courses, groups, stories, news, staff, partners, leads, newLeads, ...signing }
+}
+
+/** التوقيع الإلكتروني: كم مستند بانتظار التوقيع، وكم توقيع جديد ما انشاف */
+async function signingCounts(): Promise<{ docsWaiting?: number; docsUnread?: number }> {
+  try {
+    const [{ getDb }, { documentStats }, { unreadCount }] = await Promise.all([
+      import('@/features/signing/server/db'),
+      import('@/features/signing/server/repo/documents'),
+      import('@/features/signing/server/repo/notifications'),
+    ])
+    const db = await getDb()
+    const [stats, unread] = await Promise.all([documentStats(db), unreadCount(db)])
+    return { docsWaiting: stats.waiting, docsUnread: unread }
+  } catch (e) {
+    console.error('[nav] signing counts', e)
+    return {}
+  }
 }
 
 export type NavCounts = Awaited<ReturnType<typeof navCounts>>

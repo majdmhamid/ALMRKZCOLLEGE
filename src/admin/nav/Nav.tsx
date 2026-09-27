@@ -1,6 +1,7 @@
 import { NavHamburger, NavWrapper } from '@payloadcms/next/client'
 import { Logout } from '@payloadcms/ui'
 import Image from 'next/image'
+import Link from 'next/link'
 import type { ServerProps } from 'payload'
 import React from 'react'
 
@@ -37,6 +38,14 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
       ],
     },
     {
+      title: 'التوقيع الإلكتروني',
+      items: [
+        { href: '/admin/documents', label: 'المستندات', icon: 'sign', count: counts.docsWaiting, alert: counts.docsUnread },
+        { href: '/admin/signed', label: 'المستندات الموقّعة', icon: 'signed' },
+        { href: '/admin/settings', label: 'إعدادات التوقيع', icon: 'settings' },
+      ],
+    },
+    {
       title: 'الطلبات',
       items: [
         { href: '/admin/collections/leads', label: 'طلبات «سجّل اهتمامك»', icon: 'inbox', count: counts.leads, alert: counts.newLeads, show: can('leads') },
@@ -56,13 +65,13 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
   return (
     <NavWrapper baseClass="nav">
       <nav className="almrkz-nav" aria-label="لوحة التحكم">
-        <a href="/admin" className="almrkz-nav__brand">
+        <Link href="/admin" className="almrkz-nav__brand">
           <Image src={logo} alt="" width={44} height={44} style={{ objectFit: 'contain' }} />
           <span>
             <strong>كلية المركز</strong>
             <small>لوحة التحكم</small>
           </span>
-        </a>
+        </Link>
         <NavLinks groups={groups} />
         <div className="almrkz-nav__footer">
           <a href="/ar" target="_blank" rel="noopener" className="almrkz-nav__link">

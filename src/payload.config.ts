@@ -93,6 +93,11 @@ export default buildConfig({
       Nav: '@/admin/nav/Nav#Nav',
       views: {
         dashboard: { Component: '@/admin/dashboard/Dashboard#Dashboard' },
+        // التوقيع الإلكتروني — نفس اللوحة ونفس الدخول (src/admin/signing, src/features/signing)
+        signingDocuments: { Component: '@/admin/signing/views#SigningDocumentsView', path: '/documents', exact: true },
+        signingDocument: { Component: '@/admin/signing/views#SigningDocumentView', path: '/documents/:id', exact: true },
+        signingSigned: { Component: '@/admin/signing/views#SigningSignedView', path: '/signed', exact: true },
+        signingSettings: { Component: '@/admin/signing/views#SigningSettingsView', path: '/settings', exact: true },
       },
     },
     importMap: { baseDir: path.resolve(dirname) },

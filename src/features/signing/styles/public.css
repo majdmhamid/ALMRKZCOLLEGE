@@ -1,0 +1,57 @@
+/* صفحة التوقيع للعميل (/sign/...) — صفحة مستقلة، فيها Tailwind كامل */
+@import 'tailwindcss' source(none);
+@import './theme.css';
+
+@source '../';
+@source '../../../app/(sign)';
+
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Almarai-400-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC;
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Almarai-400-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Almarai-700-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC;
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Almarai-700-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/Almarai-800-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+:focus-visible {
+  outline: 3px solid var(--color-brand-400);
+  outline-offset: 2px;
+}
+.ltr-nums {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

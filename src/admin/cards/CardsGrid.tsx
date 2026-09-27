@@ -3,7 +3,7 @@
 import { toast } from '@payloadcms/ui'
 import { GripVertical, ImagePlus, Loader2, Pencil, Plus, Rocket, Star, Table2, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useRef, useState, useTransition } from 'react'
+import React, { useCallback, useRef, useState, useTransition } from 'react'
 
 import { publishAll, publishDoc } from './actions'
 import { ApiError, createDoc, deleteDoc, updateDoc, uploadMedia } from './api'
@@ -57,7 +57,12 @@ export function CardsGrid(props: Props) {
   const [cards, setCards] = useState(initial)
   const [pending, start] = useTransition()
   const fileForNew = useRef<HTMLInputElement>(null)
-  useEffect(() => setCards(initial), [initial])
+  // بعد التحديث من السيرفر (إضافة، حذف، نشر) منبلّش من البيانات الجديدة
+  const [seen, setSeen] = useState(initial)
+  if (seen !== initial) {
+    setSeen(initial)
+    setCards(initial)
+  }
 
   const drafts = cards.filter((c) => c.status === 'draft').length
   const nextOrder = cards.reduce((m, c) => Math.max(m, c.order || 0), 0) + 1
@@ -66,7 +71,7 @@ export function CardsGrid(props: Props) {
 
   const addNew = async (logo?: File) => {
     if (CREATE_IN_FORM.includes(kind)) {
-      window.location.href = `/admin/collections/${collection}/create?locale=${locale}`
+      router.push(`/admin/collections/${collection}/create?locale=${locale}`)
       return
     }
     try {

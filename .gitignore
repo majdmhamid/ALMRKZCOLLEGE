@@ -70,3 +70,8 @@ node_modules/
 
 # Local try-out database (start-windows.bat / start-mac.command)
 almrkz-local.db*
+
+# التوقيع الإلكتروني — بيانات وضع التجربة، ونسخة pdf.js (بتنعمل وقت التثبيت/التشغيل)
+/.mock-data/
+/public/pdfjs/
+/screenshots/

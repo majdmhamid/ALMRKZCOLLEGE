@@ -1,4 +1,5 @@
 import type { CollectionSlug, ServerProps } from 'payload'
+import Link from 'next/link'
 import React from 'react'
 
 import type { Lead, Media } from '@/payload-types'
@@ -19,6 +20,15 @@ const VERSIONED: { slug: CollectionSlug; label: string; titleField: string }[] =
 const thumb = (m: unknown) => {
   const d = m && typeof m === 'object' ? (m as Media) : undefined
   return d?.sizes?.thumbnail?.url || d?.url || ''
+}
+
+async function signingStats() {
+  try {
+    const [{ getDb }, { documentStats }] = await Promise.all([import('@/features/signing/server/db'), import('@/features/signing/server/repo/documents')])
+    return await documentStats(await getDb())
+  } catch {
+    return null
+  }
 }
 
 export async function Dashboard(props: ServerProps) {
@@ -46,6 +56,7 @@ export async function Dashboard(props: ServerProps) {
         .catch(() => []),
     ),
   ])
+  const signing = await signingStats()
   const pending = (drafts as { slug: string; label: string; id: number; title: string }[][]).flat()
 
   const pics = (r: { docs: unknown[] }, field: string) => r.docs.map((d) => thumb((d as Record<string, unknown>)[field])).filter(Boolean)
@@ -58,6 +69,12 @@ export async function Dashboard(props: ServerProps) {
     { href: '/admin/globals/homepage', title: 'الصفحة الرئيسية للموقع', text: 'ترتيب الأقسام، العناوين، الفيديو' },
     { href: '/admin/globals/gallery', title: 'معرض الصور والفيديو', text: 'صور الورشات والفعاليات' },
     { href: '/admin/globals/site-settings', title: 'معلومات الكلية', text: 'الهاتف، الواتساب، العنوان، اللوغو' },
+    {
+      href: '/admin/documents',
+      title: 'التوقيع الإلكتروني',
+      text: signing ? `${signing.waiting} بانتظار التوقيع · ${signing.signed} موقّعة` : 'رفع مستند وإرساله للطلاب للتوقيع',
+      count: signing?.total,
+    },
   ]
 
   return (
@@ -76,9 +93,9 @@ export async function Dashboard(props: ServerProps) {
               <ul>
                 {pending.slice(0, 5).map((p) => (
                   <li key={`${p.slug}-${p.id}`}>
-                    <a href={`/admin/collections/${p.slug}/${p.id}`}>
+                    <Link href={`/admin/collections/${p.slug}/${p.id}`}>
                       {p.label}: {p.title || 'بدون اسم'}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -94,7 +111,7 @@ export async function Dashboard(props: ServerProps) {
           <h2>شو بدك تعدّل؟</h2>
           <div className="almrkz-dash__tiles">
             {tiles.map((t) => (
-              <a key={t.href} href={t.href} className="almrkz-tile">
+              <Link key={t.href} href={t.href} className="almrkz-tile">
                 <span className="almrkz-tile__head">
                   <b>{t.title}</b>
                   {t.count !== undefined && <span className="almrkz-tile__count">{t.count}</span>}
@@ -108,7 +125,7 @@ export async function Dashboard(props: ServerProps) {
                     ))}
                   </span>
                 )}
-              </a>
+              </Link>
             ))}
           </div>
         </section>
@@ -122,7 +139,7 @@ export async function Dashboard(props: ServerProps) {
             <ul>
               {(leads.docs as Lead[]).map((l) => (
                 <li key={l.id}>
-                  <a href={`/admin/collections/leads/${l.id}`}>
+                  <Link href={`/admin/collections/leads/${l.id}`}>
                     <b>{l.name}</b>
                     <span dir="ltr">{l.phone}</span>
                     <small>
@@ -130,16 +147,16 @@ export async function Dashboard(props: ServerProps) {
                       {new Date(l.createdAt).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}
                     </small>
                     {l.status === 'new' && <em>جديد</em>}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           ) : (
             <p className="almrkz-dash__empty">لسا ما وصل ولا طلب من استمارة «سجّل اهتمامك».</p>
           )}
-          <a className="almrkz-dash__all" href="/admin/collections/leads">
+          <Link className="almrkz-dash__all" href="/admin/collections/leads">
             كل الطلبات ←
-          </a>
+          </Link>
         </aside>
       </div>
     </div>
