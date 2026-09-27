@@ -29,7 +29,8 @@ const eslintConfig = [
     rules: { '@next/next/no-img-element': 'off' },
   },
   {
-    ignores: ['.next/', 'src/payload-types.ts', 'src/payload-generated-schema.ts', 'src/migrations/', 'src/app/(payload)/admin/importMap.js'],
+    // public/pdfjs/ = pdf.js copied in by `postinstall` (gitignored, minified third-party code)
+    ignores: ['.next/', 'public/pdfjs/', 'src/payload-types.ts', 'src/payload-generated-schema.ts', 'src/migrations/', 'src/app/(payload)/admin/importMap.js'],
   },
 ]
 
