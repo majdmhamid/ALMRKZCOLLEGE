@@ -38,7 +38,8 @@
 عربي (أساسي) + عبري. اتجاه RTL كامل في الاثنين.
 
 ### 5. الفرع
-التطوير على الفرع: `claude/almrkz-college-website-wzvy6c`
+الفرع الرئيسي الوحيد: `claude/clever-heisenberg-waag9g` (التصميم A + لوحة التحكم + التوقيع الإلكتروني + تحسينات السرعة، دُمجت فيه 2026-09-28).
+اعمل فرعاً جديداً منه لكل مهمة. الفروع `claude/almrkz-college-website-wzvy6c` و`claude/unified-admin` قديمة (تصميم مرفوض) — لا تبنِ عليها.
 
 ## الحالة الحالية
 هيكل المشروع موجود: **Next.js + Payload CMS 3** في مشروع واحد (لوحة التحكم على `/admin`).
@@ -55,6 +56,6 @@
 | `src/admin/nav`, `src/admin/dashboard`, `src/admin/cards`, `src/app/(payload)/custom.scss` | شكل اللوحة بهوية الموقع: القائمة، الرئيسية، وعرض البطاقات (تعديل مباشر على بطاقات الموقع) — `docs/ADMIN.md` |
 | `src/features/signing/**`, `src/admin/signing/**`, `src/app/(sign)/**`, `supabase/migrations/**`, `tests/**` | التوقيع الإلكتروني داخل نفس اللوحة (`/admin/documents`) + صفحة العميل `/sign/...` — `docs/ADMIN.md` |
 
-الموقع ولوحة التحكم بُنيا في نفس الفرع `claude/compassionate-noether-g5lec6`.
+الموقع ولوحة التحكم في نفس المشروع، على الفرع الرئيسي `claude/clever-heisenberg-waag9g`.
 
 بعد أي تغيير في الحقول: `npm run generate` (الأنواع + importMap + CONTENT-MODEL) و `npm run migrate:create`.
