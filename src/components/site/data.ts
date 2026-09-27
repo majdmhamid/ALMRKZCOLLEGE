@@ -10,12 +10,13 @@ import type {
   Course,
   CourseGroup,
   Media,
+  Navigation,
   News,
   Partner,
   Staff,
   SuccessStory,
 } from '@/payload-types'
-import { LOCALES } from '@/lib/preview'
+import { LOCALES, STORIES_ANCHOR } from '@/lib/preview'
 import type { SiteLocale } from '@/lib/rules'
 
 export const isLocale = (v: string): v is SiteLocale => (LOCALES as string[]).includes(v)
@@ -38,8 +39,39 @@ async function cached<T>(key: string[], draft: boolean, fn: () => Promise<T>): P
 /** Everything shared by all pages: settings, menu, fixed texts, groups, courses. */
 export const getShared = cache(async (locale: SiteLocale) => {
   const draft = await isDraft()
-  return cached(['shared', locale], draft, () => loadShared(locale, draft))
+  // «v2»: groups without courses are now hidden — don't reuse data cached by older builds.
+  return cached(['shared', 'v2', locale], draft, () => loadShared(locale, draft))
 })
+
+/** Id of a relationship value (populated document or bare id). */
+const relId = (v: number | { id: number } | null | undefined) =>
+  v && typeof v === 'object' ? v.id : (v ?? undefined)
+
+type MenuItem = {
+  link?: { type?: string | null; courseGroup?: number | CourseGroup | null } | null
+}
+
+/** Removes menu / footer links that point to a course group the website doesn't show. */
+function withoutHiddenGroupLinks(nav: Navigation, visible: Set<number>): Navigation {
+  const keep = (item: MenuItem) => {
+    if (item.link?.type !== 'courseGroup') return true
+    const id = relId(item.link.courseGroup)
+    return id !== undefined && visible.has(id)
+  }
+  const { header, footer } = nav
+  return {
+    ...nav,
+    header: header && {
+      ...header,
+      items: header.items?.filter(keep).map((i) => ({ ...i, children: i.children?.filter(keep) })),
+    },
+    footer: footer && {
+      ...footer,
+      columns: footer.columns?.map((col) => ({ ...col, links: col.links?.filter(keep) })),
+      bottomLinks: footer.bottomLinks?.filter(keep),
+    },
+  }
+}
 
 async function loadShared(locale: SiteLocale, draft: boolean) {
   const payload = await getPayloadClient()
@@ -52,11 +84,18 @@ async function loadShared(locale: SiteLocale, draft: boolean) {
     payload.find({ collection: 'courses', ...opts, depth: 1, sort: 'order', limit: 200 }),
   ])
   const publishedCourses = courses.docs.filter((c) => draft || c._status === 'published')
+  // A course group is shown on the website only when it is published AND has at least one
+  // published course (an empty group would lead to an empty page). In preview (draft mode)
+  // staff see every group.
+  const groupsWithCourses = new Set(publishedCourses.map((c) => relId(c.group)))
+  const visibleGroups = groups.docs.filter(
+    (g) => draft || (g._status === 'published' && groupsWithCourses.has(g.id)),
+  )
   return {
     settings,
-    navigation,
+    navigation: withoutHiddenGroupLinks(navigation, new Set(visibleGroups.map((g) => g.id))),
     ui,
-    groups: groups.docs.filter((g) => draft || g._status === 'published'),
+    groups: visibleGroups,
     courses: publishedCourses,
   }
 }
@@ -65,7 +104,18 @@ export type Shared = Awaited<ReturnType<typeof loadShared>>
 
 export const getHomeData = cache(async (locale: SiteLocale) => {
   const draft = await isDraft()
-  return cached(['home', locale], draft, () => loadHome(locale, draft))
+  const [home, shared] = await Promise.all([
+    cached(['home', locale], draft, () => loadHome(locale, draft)),
+    getShared(locale),
+  ])
+  // Groups picked by hand in the «مجالات الدورات» section: drop the ones the site hides.
+  const visible = new Set(shared.groups.map((g) => g.id))
+  const sections = home.homepage.sections?.map((s) =>
+    s.blockType === 'courseGroups' && s.groups
+      ? { ...s, groups: s.groups.filter((g) => visible.has(relId(g)!)) }
+      : s,
+  )
+  return { ...home, homepage: { ...home.homepage, sections } }
 })
 
 async function loadHome(locale: SiteLocale, draft: boolean) {
@@ -166,7 +216,7 @@ const PAGE_TARGETS: Record<string, (l: string) => string> = {
   courses: (l) => `/${l}/courses`,
   about: (l) => `/${l}#why`,
   gallery: (l) => `/${l}#video`,
-  'success-stories': (l) => `/${l}#graduates`,
+  'success-stories': (l) => `/${l}#${STORIES_ANCHOR}`,
   news: (l) => `/${l}#news`,
   companies: (l) => `/${l}#employers`,
   contact: (l) => `/${l}#contact`,
