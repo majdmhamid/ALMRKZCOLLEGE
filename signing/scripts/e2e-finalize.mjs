@@ -5,6 +5,7 @@
  * Usage: node scripts/e2e-finalize.mjs   (needs fresh mock data: delete .mock-data first)
  */
 import { existsSync, mkdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { chromium } from "playwright-core";
 import { root } from "./load-env.mjs";
@@ -81,7 +82,7 @@ try {
   if (!(await page.getByText("המסמך סופי — אי אפשר לשנות מיקומים").count())) throw new Error("editor should be read-only");
 
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("link", { name: "הורדת PDF סופי" }).click()]);
-  const file = path.join(out, "final-sample.pdf");
+  const file = path.join(tmpdir(), "final-sample.pdf");
   await download.saveAs(file);
   step(`final PDF downloaded: ${download.suggestedFilename()}`);
 

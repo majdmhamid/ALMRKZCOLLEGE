@@ -1,16 +1,17 @@
 "use client";
 
-import { ArrowRight, ClipboardCopy, Download, FileCheck2, FileText, History, LockOpen, MapPin } from "lucide-react";
+import { ArrowRight, ClipboardCopy, Download, FileCheck2, FileText, History, LockOpen, MapPin, PenLine } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { finalizeAction, unlockAction } from "@/app/admin/documents/actions";
+import { AdminSignDialog } from "@/components/documents/AdminSignDialog";
 import { ShareDialog } from "@/components/documents/ShareDialog";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
-import { allSigned, documentBadges, expectedClientSigners, signedClientCount, type DocumentListItem } from "@/lib/domain";
+import { adminPending, allSigned, documentBadges, expectedClientSigners, signedClientCount, type DocumentListItem } from "@/lib/domain";
 import type { Placement } from "@/server/repo/placements";
 import type { EditorSignature, HistoryEvent } from "@/server/services/editor";
 import { HistoryList } from "./HistoryList";
@@ -33,6 +34,7 @@ export function DocumentDetail({
   const [editor, setEditor] = useState({ saved: true, placements: 0, unplaced: 0 });
   const [confirm, setConfirm] = useState<"finalize" | "unlock" | null>(null);
   const [working, setWorking] = useState(false);
+  const [adminSigning, setAdminSigning] = useState(false);
   const router = useRouter();
   const toast = useToast();
   const onStatus = useCallback((s: typeof editor) => setEditor(s), []);
@@ -83,6 +85,17 @@ export function DocumentDetail({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {!finalized && adminPending(doc) && (
+            <button
+              type="button"
+              onClick={() => setAdminSigning(true)}
+              data-testid="admin-sign"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-admin px-4 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              <PenLine className="size-4" />
+              {t("rowActions.adminSign")}
+            </button>
+          )}
           {canShare && (
             <button
               type="button"
@@ -171,6 +184,7 @@ export function DocumentDetail({
       {tab === "history" && <HistoryList events={history} />}
 
       <ShareDialog documentId={sharing ? doc.id : null} initial={null} onClose={() => setSharing(false)} />
+      <AdminSignDialog documentId={adminSigning ? doc.id : null} onClose={() => setAdminSigning(false)} />
       <ConfirmDialog
         open={confirm === "finalize"}
         title={t("finalize.confirmTitle")}

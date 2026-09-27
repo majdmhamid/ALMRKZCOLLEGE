@@ -80,6 +80,8 @@ const shots = [
       await page.getByRole("button", { name: /התראות/ }).click();
     },
   },
+  { name: "admin-settings-he", url: "/admin/settings", viewport: DESKTOP, locale: "he", admin: true },
+  { name: "admin-signed-he", url: "/admin/signed", viewport: DESKTOP, locale: "he", admin: true },
   { name: "sign-phone-ar", url: "/sign/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ", viewport: PHONE, locale: "ar", phone: true },
   { name: "sign-phone-he", url: "/sign/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ", viewport: PHONE, locale: "he", phone: true },
 ];
@@ -97,6 +99,7 @@ try {
       hasTouch: !!shot.phone,
       locale: shot.locale === "ar" ? "ar" : "he-IL",
     });
+    context.setDefaultTimeout(120000); // dev server compiles pages on first visit
     await context.addCookies([{ name: "NEXT_LOCALE", value: shot.locale, url: base }]);
     const page = await context.newPage();
 

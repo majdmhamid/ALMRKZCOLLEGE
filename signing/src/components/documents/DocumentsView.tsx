@@ -21,6 +21,7 @@ import type { NotificationItem } from "@/server/repo/notifications";
 import { DocumentGroups } from "./DocumentGroups";
 import type { RowHandlers } from "./DocumentRow";
 import { EditDocumentDialog } from "./EditDocumentDialog";
+import { AdminSignDialog } from "./AdminSignDialog";
 import { NewDocumentDialog } from "./NewDocumentDialog";
 import { ShareDialog } from "./ShareDialog";
 import { StatCards } from "./StatCards";
@@ -72,6 +73,7 @@ export function DocumentsView(props: DocumentsViewProps) {
   const [editing, setEditing] = useState<DocumentListItem | null>(null);
   const [deleting, setDeleting] = useState<DocumentListItem[] | null>(null);
   const [sharing, setSharing] = useState<{ id: string; info: ShareInfo | null } | null>(null);
+  const [adminSigning, setAdminSigning] = useState<string | null>(null);
 
   const visible = useMemo(() => docs.filter((d) => matches(d, filter, search.trim())), [docs, filter, search]);
   const dateOf = useCallback(
@@ -113,6 +115,7 @@ export function DocumentsView(props: DocumentsViewProps) {
 
   const handlers: RowHandlers = {
     onMove: (doc) => void move([doc.id]),
+    onAdminSign: (doc) => setAdminSigning(doc.id),
     onOpen: (doc) => router.push(`/admin/documents/${doc.id}`),
     onView: (doc) => window.open(`/admin/documents/${doc.id}/file`, "_blank", "noopener"),
     onEdit: setEditing,
@@ -240,6 +243,7 @@ export function DocumentsView(props: DocumentsViewProps) {
         categories={props.categories}
         onClose={closeNew}
       />
+      <AdminSignDialog documentId={adminSigning} onClose={() => setAdminSigning(null)} />
       <ShareDialog documentId={sharing?.id ?? null} initial={sharing?.info ?? null} onClose={() => setSharing(null)} />
       <EditDocumentDialog doc={editing} categories={props.categories} onClose={() => setEditing(null)} />
       <ConfirmDialog

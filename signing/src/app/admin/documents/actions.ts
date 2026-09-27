@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { adminContext } from "@/server/context";
 import { markAllRead } from "@/server/repo/notifications";
+import { adminSign, getSavedSignature } from "@/server/services/admin";
 import { savePlacements } from "@/server/services/editor";
 import { finalizeDocument, moveDocuments, unlockDocument } from "@/server/services/finalize";
 import { getShareInfo, recordLinkCopied, regenerateLink, resetLock, revokeLink } from "@/server/services/links";
@@ -111,6 +112,21 @@ export async function unlockAction(documentId: string) {
 
 export async function moveDocumentsAction(ids: string[], toSigned: boolean) {
   const result = await moveDocuments(await adminContext(), ids, toSigned);
+  revalidatePath("/admin", "layout");
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Admin signs too (blue pen)
+// ---------------------------------------------------------------------------
+
+export async function getSavedSignatureAction() {
+  const saved = await getSavedSignature(await adminContext());
+  return saved ? { url: saved.url } : null;
+}
+
+export async function adminSignAction(input: { documentId: string; useSaved: boolean; dataUrl?: string; saveToProfile: boolean }) {
+  const result = await adminSign(await adminContext(), input);
   revalidatePath("/admin", "layout");
   return result;
 }

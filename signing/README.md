@@ -18,6 +18,12 @@ Looks like the college website (green #158942 / #88bb3c, Almarai + Heebo).
 - **Finalize check:** `node scripts/e2e-finalize.mjs` on fresh mock data (place → finalize → download →
   unlock → finalize → move to Signed and back)
 
+## Dev notes
+
+- If `/api/...` or a route handler suddenly answers with the Next 404 page in `dev`, the dev
+  build cache is stale: stop the server and delete `.next/` (production builds are unaffected).
+- Reset the fake data: stop the server and delete `.mock-data/`.
+
 ## Layout
 
 | Path | What |
