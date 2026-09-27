@@ -1,5 +1,5 @@
 export const inputClass =
-  "h-10 w-full rounded-lg border border-line bg-white px-3 text-sm outline-none transition-shadow focus:border-admin focus:ring-2 focus:ring-admin/20";
+  "h-10 w-full rounded-lg border border-line bg-white px-3 text-sm outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-400/30";
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

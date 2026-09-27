@@ -1,20 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans_Arabic, IBM_Plex_Sans_Hebrew } from "next/font/google";
+import { Almarai, Heebo } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { dirOf, type Locale } from "@/i18n/config";
 import "./globals.css";
 
-const arabic = IBM_Plex_Sans_Arabic({
+// Same fonts as the college website: Almarai for Arabic, Heebo for Hebrew.
+const arabic = Almarai({
   subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "700", "800"],
   variable: "--font-arabic",
   display: "swap",
 });
 
-const hebrew = IBM_Plex_Sans_Hebrew({
+const hebrew = Heebo({
   subsets: ["hebrew", "latin"],
-  weight: ["400", "500", "600", "700"],
   variable: "--font-hebrew",
   display: "swap",
 });
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f6f7fb",
+  themeColor: "#158942",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

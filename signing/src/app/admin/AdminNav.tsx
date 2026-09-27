@@ -24,7 +24,7 @@ export function AdminNav() {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={`flex min-h-10 items-center gap-2.5 rounded-xl px-3 text-sm font-medium transition-colors ${
-              active ? "bg-ink text-white" : "text-muted hover:bg-slate-100 hover:text-ink"
+              active ? "bg-brand-600 text-white" : "text-muted hover:bg-slate-100 hover:text-ink"
             }`}
           >
             <span aria-hidden>{item.icon}</span>

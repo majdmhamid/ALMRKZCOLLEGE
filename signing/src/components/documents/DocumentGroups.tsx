@@ -66,7 +66,7 @@ export function DocumentGroups({
       {months.map((month) => {
         const monthOpen = forceOpen || !collapsed.has(month.key);
         return (
-          <section key={month.key} data-testid="month-group" className="overflow-hidden rounded-2xl border border-line bg-card shadow-sm">
+          <section key={month.key} data-testid="month-group" className="overflow-hidden rounded-2xl border border-line bg-card shadow-card">
             <button
               type="button"
               onClick={() => toggle(month.key)}

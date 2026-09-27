@@ -126,7 +126,7 @@ export function PdfPage({
     <div
       ref={box}
       data-page={pageNumber}
-      className={`relative bg-white shadow-sm ring-1 ring-slate-200 ${className}`}
+      className={`relative bg-white shadow-card ring-1 ring-slate-200 ${className}`}
       style={{ width, height }}
     >
       {/* dir=ltr: canvas text inherits CSS direction, and pdf.js glyph placement assumes LTR. */}

@@ -2,9 +2,9 @@
  * Shapes shared by server and client, plus pure rules about document status.
  * Nothing secret ever goes in these types (no token hashes, no ID hashes).
  */
-import type { DocumentStatus, LinkMode, SignatureMethod, SignerStatus } from "./database.types";
+import type { AuditEventType, DocumentStatus, LinkMode, SignatureMethod, SignerStatus } from "./database.types";
 
-export type { DocumentStatus, LinkMode, SignatureMethod, SignerStatus };
+export type { AuditEventType, DocumentStatus, LinkMode, SignatureMethod, SignerStatus };
 
 export type SignerSummary = {
   id: string;

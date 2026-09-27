@@ -1,19 +1,40 @@
 @import "tailwindcss";
 
+/*
+  Same visual identity as the college website (root src/app/globals.css):
+  dark green #158942 · light green #88bb3c · light, white surfaces · Almarai (Arabic) + Heebo (Hebrew).
+  Kept in sync by hand until the signing admin moves into the site app.
+*/
 @theme {
-  --font-sans: var(--font-primary), var(--font-secondary), system-ui, sans-serif;
+  --font-sans: var(--font-primary), var(--font-secondary), ui-sans-serif, system-ui, sans-serif;
 
-  --color-ink: #0f172a;
-  --color-muted: #64748b;
-  --color-line: #e2e8f0;
-  --color-canvas: #f6f7fb;
+  --color-brand-50: #f1f8ec;
+  --color-brand-100: #e0f0d3;
+  --color-brand-200: #c4e2a8;
+  --color-brand-300: #a6d27d;
+  --color-brand-400: #88bb3c;
+  --color-brand-500: #5dac32;
+  --color-brand-600: #158942;
+  --color-brand-700: #0f6b33;
+  --color-brand-800: #0b5027;
+  --color-brand-900: #07371b;
+
+  --color-ink: #1f2a26;
+  --color-muted: #6b7a7f;
+  --color-line: #e3e8e0;
+  --color-canvas: #f6f8f4;
   --color-card: #ffffff;
+  --color-whatsapp: #25d366;
 
   /* Status colors (match the badges) */
   --color-admin: #2563eb;   /* לחתימתך — waiting for the admin */
   --color-waiting: #ea580c; /* ממתין לחתימה — waiting for the client */
-  --color-signed: #16a34a;  /* נחתם ✓ */
+  --color-signed: #158942;  /* נחתם ✓ — the brand green */
   --color-final: #7c3aed;   /* סופי */
+
+  --shadow-card: 0 1px 2px rgb(16 40 20 / 0.05), 0 10px 28px -14px rgb(16 40 20 / 0.2);
+  --shadow-lift: 0 2px 4px rgb(16 40 20 / 0.06), 0 24px 40px -18px rgb(16 40 20 / 0.28);
+  --shadow-brand: 0 10px 24px -10px rgb(21 137 66 / 0.55);
 }
 
 html {
@@ -23,6 +44,11 @@ html {
 body {
   background: var(--color-canvas);
   color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand-400);
+  outline-offset: 2px;
 }
 
 /* Numbers, IDs, phone numbers and links read left-to-right inside RTL text. */

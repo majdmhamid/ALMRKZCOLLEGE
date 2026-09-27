@@ -18,7 +18,7 @@ export function LoginForm() {
           required
           autoComplete="username"
           dir="ltr"
-          className="h-11 w-full rounded-xl border border-line bg-white px-3 text-start outline-none focus:border-admin focus:ring-2 focus:ring-admin/20"
+          className="h-11 w-full rounded-xl border border-line bg-white px-3 text-start outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-400/30"
         />
       </label>
       <label className="block">
@@ -29,7 +29,7 @@ export function LoginForm() {
           required
           autoComplete="current-password"
           dir="ltr"
-          className="h-11 w-full rounded-xl border border-line bg-white px-3 text-start outline-none focus:border-admin focus:ring-2 focus:ring-admin/20"
+          className="h-11 w-full rounded-xl border border-line bg-white px-3 text-start outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-400/30"
         />
       </label>
       {state.error && (
@@ -40,7 +40,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className="h-11 w-full rounded-xl bg-ink font-semibold text-white transition hover:bg-ink/90 disabled:opacity-60"
+        className="h-11 w-full rounded-xl bg-brand-600 font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
       >
         {t("submit")}
       </button>

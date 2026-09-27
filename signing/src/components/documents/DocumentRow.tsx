@@ -24,7 +24,10 @@ import {
 import { useFormatters } from "@/lib/format";
 
 export type RowHandlers = {
+  /** Row click: the document page (editor + history). */
   onOpen: (doc: DocumentListItem) => void;
+  /** Eye button: the PDF itself. */
+  onView: (doc: DocumentListItem) => void;
   onEdit: (doc: DocumentListItem) => void;
   onDelete: (doc: DocumentListItem) => void;
   onComplete?: (doc: DocumentListItem) => void;
@@ -73,7 +76,7 @@ export function DocumentRow({
           checked={selected}
           onChange={() => onToggleSelect(doc.id)}
           aria-label={t("rowActions.select", { title: doc.title })}
-          className="size-4.5 shrink-0 accent-ink"
+          className="size-4.5 shrink-0 accent-brand-600"
         />
       )}
 
@@ -128,7 +131,7 @@ export function DocumentRow({
                   onClick={() => handlers.onMove?.(doc)}
                 />
               )}
-              <IconButton icon={Eye} label={t("rowActions.view")} onClick={() => handlers.onOpen(doc)} />
+              <IconButton icon={Eye} label={t("rowActions.view")} onClick={() => handlers.onView(doc)} />
               <a
                 href={`/admin/documents/${doc.id}/file?download=1`}
                 aria-label={t("rowActions.download")}

@@ -31,7 +31,7 @@ export function StatCards({ stats }: { stats: DocumentStats }) {
     <div className="mb-6 flex items-stretch gap-3">
       <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         {cards.map((c) => (
-          <div key={c.label} className="flex items-center gap-3 rounded-2xl border border-line bg-card p-4 shadow-sm">
+          <div key={c.label} className="flex items-center gap-3 rounded-2xl border border-line bg-card p-4 shadow-card">
             <span className={`hidden size-10 shrink-0 place-items-center rounded-xl sm:grid ${c.tone}`}>
               <c.icon className="size-5" />
             </span>
@@ -50,7 +50,7 @@ export function StatCards({ stats }: { stats: DocumentStats }) {
         onClick={() => startTransition(() => router.refresh())}
         aria-label={t("documents.refresh")}
         title={t("documents.refresh")}
-        className="grid w-11 shrink-0 place-items-center rounded-2xl border border-line bg-card text-slate-600 shadow-sm hover:bg-slate-50"
+        className="grid w-11 shrink-0 place-items-center rounded-2xl border border-line bg-card text-slate-600 shadow-card hover:bg-slate-50"
       >
         <RefreshCw className={`size-[18px] ${refreshing ? "animate-spin" : ""}`} />
       </button>

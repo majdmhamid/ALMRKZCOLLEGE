@@ -261,7 +261,7 @@ export function NewDocumentDialog({
               <label
                 key={mode}
                 className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition-colors ${
-                  linkMode === mode ? "border-admin bg-blue-50/60 ring-1 ring-admin" : "border-line hover:bg-slate-50"
+                  linkMode === mode ? "border-brand-500 bg-brand-50 ring-1 ring-brand-500" : "border-line hover:bg-slate-50"
                 }`}
               >
                 <input
@@ -272,7 +272,7 @@ export function NewDocumentDialog({
                   onChange={() => setLinkMode(mode)}
                   className="sr-only"
                 />
-                <Icon className={`mt-0.5 size-5 shrink-0 ${linkMode === mode ? "text-admin" : "text-muted"}`} />
+                <Icon className={`mt-0.5 size-5 shrink-0 ${linkMode === mode ? "text-brand-600" : "text-muted"}`} />
                 <span>
                   <span className="block text-sm font-semibold">{label}</span>
                   <span className="block text-xs text-muted">{hint}</span>
@@ -339,7 +339,7 @@ export function NewDocumentDialog({
             <button
               type="button"
               onClick={() => setSigners((all) => [...all, blankSigner()])}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-admin hover:bg-blue-50"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-50"
             >
               <Plus className="size-4" />
               {t("newDoc.addSigner")}
@@ -364,7 +364,7 @@ export function NewDocumentDialog({
             type="checkbox"
             checked={adminSigns}
             onChange={(e) => setAdminSigns(e.target.checked)}
-            className="mt-0.5 size-4.5 accent-admin"
+            className="mt-0.5 size-4.5 accent-brand-600"
           />
           <span>
             <span className="block text-sm font-semibold">{t("newDoc.adminSigns")}</span>
@@ -390,7 +390,7 @@ function UploadStatus({ upload }: { upload: Upload }) {
   return (
     <div className="mt-1">
       <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
-        <div className="h-full rounded-full bg-admin transition-[width]" style={{ width: `${upload.pct}%` }} />
+        <div className="h-full rounded-full bg-brand-600 transition-[width]" style={{ width: `${upload.pct}%` }} />
       </div>
       <div className="mt-0.5 text-[11px] text-muted">{t("newDoc.uploading", { pct: upload.pct })}</div>
     </div>

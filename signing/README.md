@@ -5,6 +5,7 @@ Israeli ID and draw a signature on their phone → admin places signatures on th
 PDF → finalize (stamped with pdf-lib into a new PDF) → file under "Signed".
 
 Arabic + Hebrew, RTL. Next.js 16 (App Router) + Supabase + Tailwind v4.
+Looks like the college website (green #158942 / #88bb3c, Almarai + Heebo).
 
 - **Setup (Arabic, non-technical):** [SETUP.md](SETUP.md)
 - **Run with fake data (no Supabase):** `npm run dev:mock` → http://localhost:3100
@@ -13,6 +14,7 @@ Arabic + Hebrew, RTL. Next.js 16 (App Router) + Supabase + Tailwind v4.
 - **Screenshots:** start `dev:mock`, then `npm run screenshots` → `screenshots/`
 - **End-to-end signing check:** with `dev:mock` running on fresh data, `node scripts/e2e-sign.mjs`
   (admin copies a link → phone verifies ID → reads → draws → submits → admin updates live)
+- **Placement editor check:** `node scripts/e2e-editor.mjs` (drag, resize, reload, zoom, delete, history)
 
 ## Layout
 

@@ -88,7 +88,7 @@ export const SignaturePad = forwardRef<
           padRef.current?.clear();
           onChangeRef.current?.(true);
         }}
-        className="absolute top-2 end-2 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200 hover:text-ink"
+        className="absolute top-2 end-2 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-card ring-1 ring-slate-200 hover:text-ink"
       >
         <Eraser className="size-3.5" />
         {clearLabel}

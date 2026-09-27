@@ -2,6 +2,7 @@
 
 import { CheckSquare, Trash2, Upload, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { deleteDocumentsAction, getShareInfoAction, recordLinkCopiedAction } from "@/app/admin/documents/actions";
 import { PageHeader } from "@/components/PageHeader";
@@ -53,6 +54,7 @@ export function DocumentsView(props: DocumentsViewProps) {
   const { section, docs, stats } = props;
   const t = useTranslations();
   const toast = useToast();
+  const router = useRouter();
 
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
@@ -95,7 +97,8 @@ export function DocumentsView(props: DocumentsViewProps) {
     });
 
   const handlers: RowHandlers = {
-    onOpen: (doc) => window.open(`/admin/documents/${doc.id}/file`, "_blank", "noopener"),
+    onOpen: (doc) => router.push(`/admin/documents/${doc.id}`),
+    onView: (doc) => window.open(`/admin/documents/${doc.id}/file`, "_blank", "noopener"),
     onEdit: setEditing,
     onDelete: (doc) => setDeleting([doc]),
     onCopyLink: (doc) => {
@@ -165,7 +168,7 @@ export function DocumentsView(props: DocumentsViewProps) {
       {section === "active" && <UploadZone onFiles={openFiles} />}
 
       {selectMode && (
-        <div className="sticky top-2 z-20 mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-ink/10 bg-ink px-4 py-2.5 text-sm text-white shadow-lg">
+        <div className="sticky top-2 z-20 mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-brand-800/10 bg-brand-700 px-4 py-2.5 text-sm text-white shadow-lg">
           <span className="font-semibold">{t("documents.selectedCount", { n: selected.size })}</span>
           <button
             type="button"

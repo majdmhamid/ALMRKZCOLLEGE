@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { adminContext } from "@/server/context";
 import { markAllRead } from "@/server/repo/notifications";
+import { savePlacements } from "@/server/services/editor";
 import { getShareInfo, recordLinkCopied, regenerateLink, resetLock, revokeLink } from "@/server/services/links";
 import {
   completeDocument,
@@ -81,4 +82,12 @@ export async function resetLockAction(ref: LinkRef) {
   const result = await resetLock(await adminContext(), ref);
   revalidatePath("/admin", "layout");
   return result;
+}
+
+// ---------------------------------------------------------------------------
+// Placement editor
+// ---------------------------------------------------------------------------
+
+export async function savePlacementsAction(documentId: string, placements: unknown) {
+  return savePlacements(await adminContext(), documentId, placements);
 }

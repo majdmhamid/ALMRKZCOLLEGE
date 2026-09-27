@@ -22,14 +22,14 @@ export default async function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <span className="grid size-10 place-items-center rounded-xl bg-ink text-lg text-white" aria-hidden>
+              <span className="grid size-10 place-items-center rounded-xl bg-brand-600 text-lg text-white" aria-hidden>
                 ✍
               </span>
               <span className="font-semibold">{t("app.name")}</span>
             </div>
             <LanguageSwitch />
           </div>
-          <div className="rounded-2xl border border-line bg-card p-6 shadow-sm">
+          <div className="rounded-2xl border border-line bg-card p-6 shadow-card">
             <h1 className="mb-5 text-xl font-bold">{t("login.title")}</h1>
             <LoginForm />
           </div>

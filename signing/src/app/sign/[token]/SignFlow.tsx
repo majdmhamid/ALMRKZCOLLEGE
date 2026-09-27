@@ -20,7 +20,7 @@ export function SignFlow({ token, view }: { token: string; view: SignView }) {
       <header className="sticky top-0 z-20 border-b border-line bg-card/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-4">
           <div className="flex items-center gap-2 font-semibold">
-            <span className="grid size-8 place-items-center rounded-lg bg-ink text-white">
+            <span className="grid size-8 place-items-center rounded-lg bg-brand-600 text-white">
               <FileSignature className="size-4" />
             </span>
             {t("title")}
@@ -63,7 +63,7 @@ export function SignFlow({ token, view }: { token: string; view: SignView }) {
 function DocIntro({ title, description, signerName }: { title: string; description: string | null; signerName: string | null }) {
   const t = useTranslations("sign");
   return (
-    <section className="mb-5 rounded-2xl border border-line bg-card p-5 shadow-sm">
+    <section className="mb-5 rounded-2xl border border-line bg-card p-5 shadow-card">
       {signerName && <p className="mb-1 text-sm font-medium text-slate-600">{t("hello", { name: signerName })}</p>}
       <p className="text-sm text-muted">{t("invitedTo")}</p>
       <h1 className="mt-1 text-xl font-bold leading-snug">{title}</h1>
@@ -81,7 +81,7 @@ function Steps({ current }: { current: number }) {
         <li key={label} className="flex flex-1 items-center gap-2">
           <span
             className={`grid size-6 shrink-0 place-items-center rounded-full ${
-              i < current ? "bg-signed text-white" : i === current ? "bg-ink text-white" : "bg-slate-200 text-slate-500"
+              i < current ? "bg-signed text-white" : i === current ? "bg-brand-600 text-white" : "bg-slate-200 text-slate-500"
             }`}
           >
             {i < current ? "✓" : i + 1}
@@ -111,7 +111,7 @@ function Message({
 }) {
   const colors = { green: "bg-green-100 text-signed", red: "bg-red-100 text-red-600", slate: "bg-slate-100 text-slate-500" }[tone];
   return (
-    <section data-testid="sign-message" className="mt-6 rounded-3xl border border-line bg-card px-6 py-10 text-center shadow-sm">
+    <section data-testid="sign-message" className="mt-6 rounded-3xl border border-line bg-card px-6 py-10 text-center shadow-card">
       <span className={`mx-auto mb-4 grid size-16 place-items-center rounded-full ${colors}`}>
         <Icon className="size-8" />
       </span>
@@ -154,7 +154,7 @@ function AlreadySigned({ token, title, canSignAnother }: { token: string; title:
 // ---------------------------------------------------------------------------
 
 const inputClass =
-  "h-12 w-full rounded-xl border border-line bg-white px-4 text-base outline-none transition-shadow focus:border-admin focus:ring-2 focus:ring-admin/20";
+  "h-12 w-full rounded-xl border border-line bg-white px-4 text-base outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-400/30";
 
 function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shared" }) {
   const t = useTranslations("sign");
@@ -183,7 +183,7 @@ function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shar
   };
 
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-line bg-card p-5 shadow-sm">
+    <form onSubmit={submit} className="rounded-2xl border border-line bg-card p-5 shadow-card">
       <h2 className="text-lg font-bold">{t("verifyTitle")}</h2>
       <p className="mt-1 mb-5 text-sm text-muted">{mode === "shared" ? t("verifyShared") : t("verifyPerSigner")}</p>
       <div className="space-y-4">
@@ -225,7 +225,7 @@ function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shar
       <button
         type="submit"
         disabled={pending}
-        className="mt-5 h-12 w-full rounded-xl bg-ink text-base font-semibold text-white transition hover:bg-ink/90 disabled:opacity-60"
+        className="mt-5 h-12 w-full rounded-xl bg-brand-600 text-base font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60"
       >
         {pending ? t("checking") : t("continue")}
       </button>
@@ -330,18 +330,18 @@ function SignStep({
         <p className="mt-2 text-center text-xs text-muted">{t("scrollHint")}</p>
       </section>
 
-      <label className="mb-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-card p-4 shadow-sm">
+      <label className="mb-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-card p-4 shadow-card">
         <input
           type="checkbox"
           checked={read}
           onChange={(e) => setRead(e.target.checked)}
-          className="mt-0.5 size-5 shrink-0 accent-ink"
+          className="mt-0.5 size-5 shrink-0 accent-brand-600"
           data-testid="read-confirm"
         />
         <span className="text-sm font-medium leading-relaxed">{t("readConfirm")}</span>
       </label>
 
-      <section className={`rounded-2xl border border-line bg-card p-4 shadow-sm transition-opacity ${read ? "" : "opacity-50"}`}>
+      <section className={`rounded-2xl border border-line bg-card p-4 shadow-card transition-opacity ${read ? "" : "opacity-50"}`}>
         <h2 className="mb-3 text-lg font-bold">{t("signTitle")}</h2>
         {methods.length > 1 && (
           <div role="tablist" className="mb-3 grid gap-1 rounded-xl bg-slate-100 p-1" style={{ gridTemplateColumns: `repeat(${methods.length}, 1fr)` }}>
@@ -353,7 +353,7 @@ function SignStep({
                 aria-selected={method === m.id}
                 onClick={() => setMethod(m.id)}
                 className={`inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold ${
-                  method === m.id ? "bg-card text-ink shadow-sm" : "text-muted"
+                  method === m.id ? "bg-card text-ink shadow-card" : "text-muted"
                 }`}
               >
                 <m.icon className="size-4" />
@@ -370,7 +370,7 @@ function SignStep({
             <div className="space-y-3">
               {method === "checkbox" && (
                 <label className="flex items-center gap-3 rounded-xl border border-line p-3">
-                  <input type="checkbox" checked={checkboxOk} onChange={(e) => setCheckboxOk(e.target.checked)} className="size-5 accent-ink" />
+                  <input type="checkbox" checked={checkboxOk} onChange={(e) => setCheckboxOk(e.target.checked)} className="size-5 accent-brand-600" />
                   <span className="text-sm font-medium">{t("checkboxLabel")}</span>
                 </label>
               )}

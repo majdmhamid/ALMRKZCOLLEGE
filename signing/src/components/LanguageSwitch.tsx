@@ -33,7 +33,7 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
             })
           }
           className={`min-h-9 rounded-full px-3.5 font-medium transition-colors ${
-            current === locale ? "bg-ink text-white" : "text-muted hover:text-ink"
+            current === locale ? "bg-brand-600 text-white" : "text-muted hover:text-ink"
           }`}
         >
           {localeNames[locale]}

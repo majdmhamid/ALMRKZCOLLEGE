@@ -44,11 +44,11 @@ export function TopBar({
   }, []);
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-line bg-card p-2 shadow-sm">
+    <div className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-line bg-card p-2 shadow-card">
       <button
         type="button"
         onClick={onNewCase}
-        className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-ink px-4 text-sm font-semibold text-white hover:bg-ink/90"
+        className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-brand hover:bg-brand-700"
       >
         <Plus className="size-4" strokeWidth={2.5} />
         {t("documents.newCase")}
@@ -61,7 +61,7 @@ export function TopBar({
         <select
           value={filter}
           onChange={(e) => onFilter(e.target.value as StatusFilter)}
-          className="min-h-10 appearance-none rounded-xl border border-line bg-card ps-3 pe-8 text-sm font-medium outline-none focus:border-admin"
+          className="min-h-10 appearance-none rounded-xl border border-line bg-card ps-3 pe-8 text-sm font-medium outline-none focus:border-brand-500"
         >
           {STATUS_FILTERS.map((f) => (
             <option key={f} value={f}>
@@ -83,7 +83,7 @@ export function TopBar({
           value={search}
           onChange={(e) => onSearch(e.target.value)}
           placeholder={t("documents.search")}
-          className="min-h-10 w-full rounded-xl border border-line bg-slate-50 ps-9 pe-16 text-sm outline-none focus:border-admin focus:bg-card"
+          className="min-h-10 w-full rounded-xl border border-line bg-slate-50 ps-9 pe-16 text-sm outline-none focus:border-brand-500 focus:bg-card"
         />
         <kbd className="pointer-events-none absolute inset-y-0 end-2 my-auto hidden h-6 items-center rounded-md border border-line bg-card px-1.5 text-[11px] font-medium text-muted sm:flex">
           <span dir="ltr">Ctrl+K</span>
@@ -142,7 +142,7 @@ function NotificationBell({ unread, notifications }: { unread: number; notificat
                 type="button"
                 disabled={pending}
                 onClick={() => startTransition(() => markNotificationsReadAction())}
-                className="text-xs font-medium text-admin hover:underline disabled:opacity-50"
+                className="text-xs font-medium text-brand-700 hover:underline disabled:opacity-50"
               >
                 {t("markRead")}
               </button>

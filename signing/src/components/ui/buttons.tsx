@@ -51,7 +51,7 @@ export function Button({
   icon?: LucideIcon;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const styles = {
-    primary: "bg-ink text-white hover:bg-ink/90 border-transparent",
+    primary: "bg-brand-600 text-white hover:bg-brand-700 border-transparent",
     secondary: "bg-card text-ink hover:bg-slate-50 border-line",
     danger: "bg-red-600 text-white hover:bg-red-700 border-transparent",
     ghost: "bg-transparent text-muted hover:text-ink hover:bg-slate-100 border-transparent",

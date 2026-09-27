@@ -17,11 +17,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <MockBanner />
       <LiveUpdates mode={isMockBackend ? "mock" : "supabase"} />
       <div className="flex flex-1 flex-col lg:flex-row">
-        <aside className="border-line bg-card lg:sticky lg:top-0 lg:h-dvh lg:w-60 lg:shrink-0 lg:border-e">
-          <div className="flex h-full flex-col gap-4 p-3 lg:p-4">
+        <aside className="border-line bg-card lg:w-60 lg:shrink-0 lg:border-e">
+          <div className="flex flex-col gap-4 p-3 lg:sticky lg:top-0 lg:h-dvh lg:p-4">
             <div className="flex items-center justify-between gap-2 lg:block">
               <div className="flex items-center gap-2.5 px-1">
-                <span className="grid size-9 place-items-center rounded-xl bg-ink text-white" aria-hidden>
+                <span className="grid size-9 place-items-center rounded-xl bg-brand-600 text-white" aria-hidden>
                   ✍
                 </span>
                 <span className="font-semibold">{t("app.name")}</span>

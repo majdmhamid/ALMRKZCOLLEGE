@@ -29,10 +29,10 @@ export function UploadZone({ onFiles }: { onFiles: (files: File[]) => void }) {
       }}
       data-testid="upload-zone"
       className={`mb-6 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed px-6 py-7 text-center transition-colors ${
-        over ? "border-admin bg-blue-50" : "border-slate-300 bg-card hover:border-slate-400 hover:bg-slate-50"
+        over ? "border-brand-500 bg-brand-50" : "border-slate-300 bg-card hover:border-slate-400 hover:bg-slate-50"
       }`}
     >
-      <UploadCloud className={`size-8 ${over ? "text-admin" : "text-slate-400"}`} />
+      <UploadCloud className={`size-8 ${over ? "text-brand-600" : "text-brand-400"}`} />
       <div className="font-semibold">{over ? t("drop") : t("title")}</div>
       <div className="text-xs text-muted">{t("hint")}</div>
       <input
