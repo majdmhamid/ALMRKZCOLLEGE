@@ -47,6 +47,9 @@ const secret =
   process.env.PAYLOAD_SECRET ||
   crypto.createHash('sha256').update(`almrkz:${databaseURL || 'local'}`).digest('hex')
 
+/** الأقسام اللي بتنعرض ببطاقات الموقع نفسها بدل الجدول */
+const CARD_VIEWS = ['success-stories', 'staff', 'partners', 'courses', 'news', 'course-groups']
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -83,8 +86,19 @@ export default buildConfig({
     user: Users.slug,
     // No Gravatar (external service; the image is blocked on some networks).
     avatar: 'default',
+    // نفس ألوان الموقع (أبيض وأخضر) — الأنماط في src/app/(payload)/custom.scss
+    theme: 'light',
     components: {
       graphics: { Logo: '@/admin/Logo#Logo' },
+      Nav: '@/admin/nav/Nav#Nav',
+      views: {
+        dashboard: { Component: '@/admin/dashboard/Dashboard#Dashboard' },
+        // التوقيع الإلكتروني — نفس اللوحة ونفس الدخول (src/admin/signing, src/features/signing)
+        signingDocuments: { Component: '@/admin/signing/views#SigningDocumentsView', path: '/documents', exact: true },
+        signingDocument: { Component: '@/admin/signing/views#SigningDocumentView', path: '/documents/:id', exact: true },
+        signingSigned: { Component: '@/admin/signing/views#SigningSignedView', path: '/signed', exact: true },
+        signingSettings: { Component: '@/admin/signing/views#SigningSettingsView', path: '/settings', exact: true },
+      },
     },
     importMap: { baseDir: path.resolve(dirname) },
     meta: {
@@ -137,18 +151,34 @@ export default buildConfig({
     Media,
     Leads,
     Users,
-  ].map((c) =>
-    ['leads', 'users'].includes(c.slug)
-      ? c
-      : {
-          ...c,
-          hooks: {
-            ...c.hooks,
-            afterChange: [...(c.hooks?.afterChange ?? []), revalidateAfterChange],
-            afterDelete: [...(c.hooks?.afterDelete ?? []), revalidateAfterDelete],
+  ]
+    .map((c) =>
+      ['leads', 'users'].includes(c.slug)
+        ? c
+        : {
+            ...c,
+            hooks: {
+              ...c.hooks,
+              afterChange: [...(c.hooks?.afterChange ?? []), revalidateAfterChange],
+              afterDelete: [...(c.hooks?.afterDelete ?? []), revalidateAfterDelete],
+            },
           },
-        },
-  ),
+    )
+    // بدل الجدول: نفس بطاقات الموقع مع تعديل مباشر عليها (src/admin/cards)
+    .map((c) =>
+      CARD_VIEWS.includes(c.slug)
+        ? {
+            ...c,
+            admin: {
+              ...c.admin,
+              components: {
+                ...c.admin?.components,
+                views: { ...c.admin?.components?.views, list: { Component: '@/admin/cards/CardsListView#CardsListView' } },
+              },
+            },
+          }
+        : c,
+    ),
   globals: [Homepage, UiTexts, Gallery, SiteSettings, Navigation].map((g) => ({
     ...g,
     hooks: { ...g.hooks, afterChange: [...(g.hooks?.afterChange ?? []), revalidateGlobal] },

@@ -5,10 +5,13 @@
   "description": "موقع كلية المركز للتأهيل المهني — أم الفحم (Next.js + Payload CMS)",
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/copy-pdf-worker.mjs",
+    "predev": "node scripts/copy-pdf-worker.mjs && node scripts/scope-site-css.mjs",
+    "prebuild": "node scripts/copy-pdf-worker.mjs && node scripts/scope-site-css.mjs",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
-    "ci": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && npm run seed && npm run build",
+    "ci": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && node scripts/migrate.mjs --if-configured && npm run seed && npm run build",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "typecheck": "tsc --noEmit",
@@ -19,7 +22,11 @@
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/run.ts",
     "generate:content-model": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/generate-content-model.ts",
-    "generate": "npm run generate:types && npm run generate:importmap && npm run generate:content-model"
+    "generate": "npm run generate:types && npm run generate:importmap && npm run generate:content-model",
+    "test": "vitest run",
+    "db:migrate": "node scripts/migrate.mjs",
+    "secrets": "node scripts/generate-secrets.mjs",
+    "generate:admin-css": "node scripts/scope-site-css.mjs"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.90.2",
@@ -32,28 +39,41 @@
     "@payloadcms/storage-vercel-blob": "3.90.2",
     "@payloadcms/translations": "3.90.2",
     "@payloadcms/ui": "3.90.2",
+    "@supabase/supabase-js": "^2.117.2",
     "cross-env": "^7.0.3",
+    "dotenv": "^18.0.4",
     "graphql": "^16.14.2",
+    "lucide-react": "^1.48.0",
     "next": "16.3.3",
+    "next-intl": "^4.14.7",
     "payload": "3.90.2",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.3.289",
+    "postgres": "^3.4.9",
     "react": "19.2.6",
     "react-dom": "19.2.6",
+    "react-rnd": "^10.5.3",
     "server-only": "^0.0.1",
-    "sharp": "0.35.4"
+    "sharp": "0.35.4",
+    "signature_pad": "^5.1.4",
+    "zod": "^4.6.5"
   },
   "engines": {
     "node": ">=20.9.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.19.9",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.3",
+    "playwright-core": "^1.63.0",
     "postcss": "^8.5.28",
     "prettier": "^3.9.9",
     "tailwindcss": "^4.3.3",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^5.0.2"
   }
 }

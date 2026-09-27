@@ -22,11 +22,18 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { RulesNote as RulesNote_18aa454a3e45d8e4473f803e4d7db7f0 } from '@/admin/RulesNote'
+import { CardsListView as CardsListView_bf0a937740c9c99f0bdf4fece3c1e00f } from '@/admin/cards/CardsListView'
 import { SectionRowLabel as SectionRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
 import { LabelRowLabel as LabelRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
 import { TitleRowLabel as TitleRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
 import { QuestionRowLabel as QuestionRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
+import { Nav as Nav_469f2a9a499fd691cc96b63d9aec4764 } from '@/admin/nav/Nav'
 import { Logo as Logo_e7bd77da3186b43b37d9ef658548455c } from '@/admin/Logo'
+import { Dashboard as Dashboard_0d6625b7f13ee764fd23a0cf2428adda } from '@/admin/dashboard/Dashboard'
+import { SigningDocumentsView as SigningDocumentsView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
+import { SigningDocumentView as SigningDocumentView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
+import { SigningSignedView as SigningSignedView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
+import { SigningSettingsView as SigningSettingsView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
@@ -57,11 +64,18 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/admin/RulesNote#RulesNote": RulesNote_18aa454a3e45d8e4473f803e4d7db7f0,
+  "@/admin/cards/CardsListView#CardsListView": CardsListView_bf0a937740c9c99f0bdf4fece3c1e00f,
   "@/admin/RowLabel#SectionRowLabel": SectionRowLabel_1fef74805715afb85b23a4276c03c83c,
   "@/admin/RowLabel#LabelRowLabel": LabelRowLabel_1fef74805715afb85b23a4276c03c83c,
   "@/admin/RowLabel#TitleRowLabel": TitleRowLabel_1fef74805715afb85b23a4276c03c83c,
   "@/admin/RowLabel#QuestionRowLabel": QuestionRowLabel_1fef74805715afb85b23a4276c03c83c,
+  "@/admin/nav/Nav#Nav": Nav_469f2a9a499fd691cc96b63d9aec4764,
   "@/admin/Logo#Logo": Logo_e7bd77da3186b43b37d9ef658548455c,
+  "@/admin/dashboard/Dashboard#Dashboard": Dashboard_0d6625b7f13ee764fd23a0cf2428adda,
+  "@/admin/signing/views#SigningDocumentsView": SigningDocumentsView_8e57767051dfb3807dd5be25f895b474,
+  "@/admin/signing/views#SigningDocumentView": SigningDocumentView_8e57767051dfb3807dd5be25f895b474,
+  "@/admin/signing/views#SigningSignedView": SigningSignedView_8e57767051dfb3807dd5be25f895b474,
+  "@/admin/signing/views#SigningSettingsView": SigningSettingsView_8e57767051dfb3807dd5be25f895b474,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24

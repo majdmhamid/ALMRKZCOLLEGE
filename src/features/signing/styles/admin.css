@@ -1,0 +1,97 @@
+/*
+ * صفحات التوقيع داخل لوحة التحكم.
+ * أصناف Tailwind بس (بدون إعادة ضبط عامة) حتى ما نخرّب شكل اللوحة،
+ * وإعادة الضبط الأساسية محصورة داخل .signing-scope.
+ */
+@layer theme, signing-base, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+@import './theme.css';
+
+@source '../';
+@source '../../../admin/signing';
+
+@layer signing-base {
+  .signing-scope {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    line-height: 1.5;
+  }
+  .signing-scope *,
+  .signing-scope ::before,
+  .signing-scope ::after,
+  .signing-scope ::backdrop {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
+  .signing-scope h1,
+  .signing-scope h2,
+  .signing-scope h3,
+  .signing-scope h4,
+  .signing-scope h5,
+  .signing-scope h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  .signing-scope a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+  .signing-scope b,
+  .signing-scope strong {
+    font-weight: bolder;
+  }
+  .signing-scope ol,
+  .signing-scope ul,
+  .signing-scope menu {
+    list-style: none;
+  }
+  .signing-scope img,
+  .signing-scope svg,
+  .signing-scope video,
+  .signing-scope canvas {
+    display: block;
+    vertical-align: middle;
+  }
+  .signing-scope img,
+  .signing-scope video {
+    max-width: 100%;
+    height: auto;
+  }
+  .signing-scope button,
+  .signing-scope input,
+  .signing-scope select,
+  .signing-scope optgroup,
+  .signing-scope textarea {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    background-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .signing-scope button {
+    cursor: pointer;
+  }
+  .signing-scope textarea {
+    resize: vertical;
+  }
+  .signing-scope ::placeholder {
+    opacity: 1;
+    color: color-mix(in oklab, currentcolor 50%, transparent);
+  }
+  .signing-scope table {
+    border-collapse: collapse;
+  }
+  .signing-scope dialog {
+    padding: 0;
+  }
+  /* أرقام، هويات، هواتف وروابط تُقرأ من اليسار لليمين داخل نص RTL */
+  .signing-scope .ltr-nums,
+  .ltr-nums {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+}

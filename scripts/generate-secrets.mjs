@@ -1,0 +1,38 @@
+/**
+ * Fills ID_HMAC_SECRET, TOKEN_ENC_KEY and SESSION_SECRET in .env.local — only
+ * the ones that are empty or missing. Never overwrites an existing value.
+ * Usage: npm run secrets
+ */
+import { randomBytes } from "node:crypto";
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { root } from "./load-env.mjs";
+
+const file = path.join(root, ".env.local");
+if (!existsSync(file)) {
+  copyFileSync(path.join(root, ".env.example"), file);
+  console.log("  أنشأت .env.local من .env.example");
+}
+
+const generators = {
+  ID_HMAC_SECRET: () => randomBytes(48).toString("base64url"),
+  TOKEN_ENC_KEY: () => randomBytes(32).toString("base64"),
+  SESSION_SECRET: () => randomBytes(48).toString("base64url"),
+};
+
+let text = readFileSync(file, "utf8");
+for (const [name, make] of Object.entries(generators)) {
+  const re = new RegExp(`^${name}=(.*)$`, "m");
+  const match = text.match(re);
+  if (match && match[1].trim()) {
+    console.log(`  ✓ ${name} موجود — ما لمسته`);
+  } else if (match) {
+    text = text.replace(re, `${name}=${make()}`);
+    console.log(`  + ${name}`);
+  } else {
+    text += `\n${name}=${make()}\n`;
+    console.log(`  + ${name}`);
+  }
+}
+writeFileSync(file, text);
+console.log("\n✓ المفاتيح السرية جاهزة بملف .env.local\n");
