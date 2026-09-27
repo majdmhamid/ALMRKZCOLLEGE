@@ -1,4 +1,283 @@
-// Admin panel tweaks — كلية المركز
+// لوحة التحكم — بهوية موقع كلية المركز (أبيض وأخضر، خط Almarai، بطاقات ناعمة)
+// Payload بيحط أنماطه بطبقة (payload-default)، فكل شي هون بيغلب عليها.
+
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Almarai-400-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC;
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Almarai-400-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Almarai-700-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC;
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Almarai-700-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/Almarai-800-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC;
+}
+@font-face {
+  font-family: 'Almarai';
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/Almarai-800-latin.woff2') format('woff2');
+}
+
+:root,
+html[data-theme='light'] {
+  // ألوان الموقع
+  --brand-50: #f1f8ec;
+  --brand-100: #e0f0d3;
+  --brand-200: #c4e2a8;
+  --brand-300: #a6d27d;
+  --brand-400: #88bb3c;
+  --brand-500: #5dac32;
+  --brand-600: #158942;
+  --brand-700: #0f6b33;
+  --brand-800: #0b5027;
+  --brand-900: #07371b;
+  --ink: #1f2a26;
+  --ink-soft: #4b5c61;
+  --ink-muted: #6b7a7f;
+  --surface: #f6f8f4;
+  --surface-2: #edf3e8;
+  --line: #e3e8e0;
+  --shadow-card: 0 1px 2px rgb(16 40 20 / 0.05), 0 10px 28px -14px rgb(16 40 20 / 0.2);
+  --shadow-lift: 0 2px 4px rgb(16 40 20 / 0.06), 0 24px 40px -18px rgb(16 40 20 / 0.28);
+  --shadow-brand: 0 10px 24px -10px rgb(21 137 66 / 0.55);
+
+  // سلّم الألوان المحايدة عند Payload — رمادي مائل للأخضر بدل الرمادي البارد
+  --color-base-0: #ffffff;
+  --color-base-50: #f6f8f4;
+  --color-base-100: #edf3e8;
+  --color-base-150: #e3e8e0;
+  --color-base-200: #d3dbcf;
+  --color-base-250: #c3ccbe;
+  --color-base-300: #b1bbac;
+  --color-base-350: #9ea99a;
+  --color-base-400: #8b9788;
+  --color-base-450: #7b8779;
+  --color-base-500: #6b7a7f;
+  --color-base-550: #5d6c70;
+  --color-base-600: #4b5c61;
+  --color-base-650: #3f4f4f;
+  --color-base-700: #34423f;
+  --color-base-750: #2a3733;
+  --color-base-800: #1f2a26;
+  --color-base-850: #18221e;
+  --color-base-900: #111a16;
+  --color-base-950: #0a120e;
+  --color-base-1000: #050a07;
+
+  // «نجاح» عند Payload (منشور، تم الحفظ) = أخضر الكلية
+  --color-success-50: #f1f8ec;
+  --color-success-100: #e0f0d3;
+  --color-success-150: #d2e9c0;
+  --color-success-200: #c4e2a8;
+  --color-success-250: #b5da93;
+  --color-success-300: #a6d27d;
+  --color-success-350: #97c75d;
+  --color-success-400: #88bb3c;
+  --color-success-450: #72b337;
+  --color-success-500: #5dac32;
+  --color-success-550: #399a3a;
+  --color-success-600: #158942;
+  --color-success-650: #127a3b;
+  --color-success-700: #0f6b33;
+  --color-success-750: #0d5d2d;
+  --color-success-800: #0b5027;
+  --color-success-850: #094421;
+  --color-success-900: #07371b;
+  --color-success-950: #052914;
+
+  --font-body: 'Almarai', 'Heebo', system-ui, sans-serif;
+  --style-radius-s: 8px;
+  --style-radius-m: 12px;
+  --style-radius-l: 18px;
+  --theme-bg: var(--surface);
+  --theme-input-bg: #ffffff;
+  --theme-text: var(--ink);
+  --accessibility-outline: 3px solid var(--brand-400);
+}
+
+// اللوحة دايماً فاتحة (حتى لو المتصفح أو الإعدادات القديمة طالبة الوضع الغامق)
+html[data-theme='dark'],
+html[data-theme='light'] {
+  color-scheme: light;
+  --theme-elevation-0: var(--color-base-0);
+  --theme-elevation-50: var(--color-base-50);
+  --theme-elevation-100: var(--color-base-100);
+  --theme-elevation-150: var(--color-base-150);
+  --theme-elevation-200: var(--color-base-200);
+  --theme-elevation-250: var(--color-base-250);
+  --theme-elevation-300: var(--color-base-300);
+  --theme-elevation-350: var(--color-base-350);
+  --theme-elevation-400: var(--color-base-400);
+  --theme-elevation-450: var(--color-base-450);
+  --theme-elevation-500: var(--color-base-500);
+  --theme-elevation-550: var(--color-base-550);
+  --theme-elevation-600: var(--color-base-600);
+  --theme-elevation-650: var(--color-base-650);
+  --theme-elevation-700: var(--color-base-700);
+  --theme-elevation-750: var(--color-base-750);
+  --theme-elevation-800: var(--color-base-800);
+  --theme-elevation-850: var(--color-base-850);
+  --theme-elevation-900: var(--color-base-900);
+  --theme-elevation-950: var(--color-base-950);
+  --theme-elevation-1000: var(--color-base-1000);
+  --theme-bg: var(--surface);
+  --theme-input-bg: #ffffff;
+  --theme-text: var(--ink);
+  --theme-overlay: rgba(15, 31, 23, 0.45);
+}
+
+html[data-theme] body {
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+// الأزرار الأساسية (حفظ، نشر، إنشاء) بالأخضر مثل الموقع
+.btn--style-primary {
+  --bg-color: var(--brand-600);
+  --hover-bg: var(--brand-700);
+  --color: #fff;
+  --hover-color: #fff;
+  background-color: var(--brand-600) !important;
+  color: #fff !important;
+  box-shadow: var(--shadow-brand);
+  font-weight: 700;
+  &:hover,
+  &:focus-visible {
+    background-color: var(--brand-700) !important;
+  }
+  &:disabled,
+  &.btn--disabled {
+    opacity: 0.55;
+    box-shadow: none;
+  }
+}
+.btn--style-secondary {
+  --color: var(--brand-700);
+  box-shadow: inset 0 0 0 1.5px var(--brand-600) !important;
+  color: var(--brand-700) !important;
+  font-weight: 700;
+  &:hover {
+    background: var(--brand-50) !important;
+  }
+}
+.btn {
+  border-radius: 12px !important;
+}
+
+// الخانات
+.field-type input,
+.field-type textarea,
+.react-select .rs__control,
+.field-type.text input {
+  border-radius: 12px !important;
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+  &:focus,
+  &:focus-within {
+    border-color: var(--brand-500) !important;
+    box-shadow: 0 0 0 3px var(--brand-100) !important;
+  }
+}
+.field-type .field-label {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+// البطاقات والجداول
+.card,
+.table table,
+.collapsible,
+.array-field__row,
+.blocks-field__row {
+  border-radius: 16px !important;
+}
+.table {
+  table {
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  thead th {
+    background: var(--surface-2);
+  }
+  tbody tr:nth-child(odd) td {
+    background: #fff;
+  }
+  tbody tr:hover td {
+    background: var(--brand-50);
+  }
+  a {
+    color: var(--brand-700);
+    font-weight: 700;
+    text-decoration: none;
+  }
+}
+
+// الروابط
+.doc-header__title,
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+// شارات الحالة: منشور / مسودة / معدّل
+.pill--style-success,
+.pill.pill--style-success {
+  background: var(--brand-100) !important;
+  color: var(--brand-800) !important;
+}
+
+// الشريط العلوي للوثيقة
+.doc-controls {
+  background: rgb(255 255 255 / 0.9) !important;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.app-header {
+  background: rgb(255 255 255 / 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+
+// شاشة الدخول
+.template-minimal {
+  background:
+    radial-gradient(60% 50% at 80% 0%, var(--brand-100), transparent 70%),
+    radial-gradient(50% 40% at 0% 100%, var(--brand-50), transparent 70%),
+    var(--surface);
+  .template-minimal__wrap {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--shadow-lift);
+    padding: 40px 36px !important;
+  }
+}
 
 // The rich-text editor parks its hidden popups at translate(-10000px). In a
 // right-to-left page that makes the whole screen ~10,000px wide and pushes the
@@ -11,4 +290,133 @@
 .field-description {
   font-size: 0.8125rem;
   line-height: 1.6;
+  color: var(--ink-muted);
+}
+
+// ───────── القائمة الجانبية ─────────
+.nav {
+  background: #fff;
+  border-inline-end: 1px solid var(--line);
+  --nav-width: 272px;
+}
+.almrkz-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 100%;
+  padding: 18px 14px 20px;
+}
+.almrkz-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px 6px;
+  text-decoration: none;
+  color: var(--ink);
+  img {
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--line);
+    padding: 2px;
+  }
+  strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  small {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--brand-600);
+  }
+}
+.almrkz-nav__groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.almrkz-nav__title {
+  margin: 0 10px 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+}
+.almrkz-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+  &:hover {
+    background: var(--brand-50);
+    color: var(--brand-800);
+  }
+  &[aria-current='page'] {
+    background: var(--brand-600);
+    color: #fff;
+    box-shadow: var(--shadow-brand);
+    .almrkz-nav__count {
+      background: rgb(255 255 255 / 0.2);
+      color: #fff;
+    }
+  }
+}
+.almrkz-nav__icon {
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+}
+.almrkz-nav__label {
+  flex: 1;
+  min-width: 0;
+}
+.almrkz-nav__count {
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+}
+.almrkz-nav__alert {
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 4px 6px;
+}
+.almrkz-nav__footer {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.almrkz-nav__user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--ink-muted);
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
