@@ -231,7 +231,7 @@ export function Stories({
         <p className="story-quote">“{s.quote}”</p>
         {s.body && <p className="story-body">{s.body}</p>}
         <div className="story-who">
-          {s.image && <img src={s.image} alt="" loading="lazy" decoding="async" />}
+          {s.image && <img src={s.image} alt="" decoding="async" />}
           <div>
             <b>{s.name}</b>
             {s.now && <small>{s.now}</small>}
@@ -255,9 +255,7 @@ export function Stories({
           />
         ) : (
           <>
-            {s.image && (
-              <img src={s.image} alt={s.name} className="cover" loading="lazy" decoding="async" />
-            )}
+            {s.image && <img src={s.image} alt={s.name} className="cover" decoding="async" />}
             <div
               className="shade-bottom"
               style={{ background: 'linear-gradient(to top,rgba(5,38,19,.8),rgba(5,38,19,0) 55%)' }}
