@@ -6,7 +6,7 @@
 
 ## أصحاب المشروع
 - **حسين** — إدارة المشروع
-- **ماجد** — صاحب الكلية
+- **مجد** — صاحب الكلية
 
 **مهم جداً: كلاهما لا يعرفان البرمجة.**
 - تحدّث معهما **بالعربية** (لهجة فلسطينية مفهومة).
@@ -43,7 +43,7 @@
 ## الحالة الحالية
 هيكل المشروع موجود: **Next.js + Payload CMS 3** في مشروع واحد (لوحة التحكم على `/admin`).
 - `docs/CONTENT-MODEL.md` — كل البيانات الموجودة (مولَّد تلقائياً: `npm run generate:content-model`)
-- `docs/دليل-لوحة-التحكم.md` — دليل لوحة التحكم لحسين وماجد
+- `docs/دليل-لوحة-التحكم.md` — دليل لوحة التحكم لحسين ومجد
 
 ### أين كل شيء
 | المجلد | ما فيه |
@@ -52,6 +52,8 @@
 | `src/app/(frontend)/[locale]/**`, `src/components/site/**` | الموقع العام — تصميم **Option A - Video Scroll** (`/ar`, `/he`) |
 | `src/seed/**` | تعبئة قاعدة البيانات من التصميم (`npm run seed`) — `src/seed/design/` فيه `content.js` وصور التصميم |
 | `src/lib/rules.ts` | النصوص الثابتة الإلزامية (المنحة، تنويه التشغيل) وفحص الأسعار/وعود العمل |
+| `src/admin/nav`, `src/admin/dashboard`, `src/admin/cards`, `src/app/(payload)/custom.scss` | شكل اللوحة بهوية الموقع: القائمة، الرئيسية، وعرض البطاقات (تعديل مباشر على بطاقات الموقع) — `docs/ADMIN.md` |
+| `src/features/signing/**`, `src/admin/signing/**`, `src/app/(sign)/**`, `supabase/migrations/**`, `tests/**` | التوقيع الإلكتروني داخل نفس اللوحة (`/admin/documents`) + صفحة العميل `/sign/...` — `docs/ADMIN.md` |
 
 الموقع ولوحة التحكم بُنيا في نفس الفرع `claude/compassionate-noether-g5lec6`.
 

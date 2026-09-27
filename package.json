@@ -11,7 +11,7 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
-    "ci": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && npm run seed && npm run build",
+    "ci": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && node scripts/migrate.mjs --if-configured && npm run seed && npm run build",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "typecheck": "tsc --noEmit",

@@ -9,6 +9,11 @@ import postgres from "postgres";
 import { need, root } from "./load-env.mjs";
 
 const dir = path.join(root, "supabase", "migrations");
+// --if-configured (used by `npm run ci` on Vercel): skip quietly when the e-signature database isn't set up yet.
+if (process.argv.includes("--if-configured") && !process.env.SUPABASE_DB_URL) {
+  console.log("  – e-signature database not configured (SUPABASE_DB_URL) — skipping its migrations");
+  process.exit(0);
+}
 const sql = postgres(need("SUPABASE_DB_URL"), { ssl: "require", max: 1, onnotice: () => {} });
 
 try {
