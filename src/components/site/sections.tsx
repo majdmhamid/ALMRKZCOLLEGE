@@ -28,6 +28,7 @@ import {
   whatsappHref,
 } from './data'
 import { HeroVideo } from './hero-video'
+import { LEGAL_LABELS, legalHref } from './legal-links'
 import type { getHomeData } from './data'
 import { ArrowIcon, CheckIcon, ChevronDown, PlayIcon, WhatsAppIcon } from './icons'
 
@@ -768,6 +769,7 @@ export function formLabels(shared: Shared, locale: SiteLocale): FormLabels {
     message: f?.message ?? '',
     submit: f?.submit ?? '',
     privacy: f?.privacy ?? '',
+    privacyLink: { href: legalHref(locale, 'privacy'), label: LEGAL_LABELS[locale].privacy },
     successTitle: f?.successTitle ?? '',
     successText: f?.successText ?? '',
     error:

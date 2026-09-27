@@ -42,7 +42,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: og ? [og] : undefined,
       locale: locale === 'he' ? 'he_IL' : 'ar',
     },
-    alternates: { languages: { ar: '/ar', he: '/he' } },
   }
 }
 

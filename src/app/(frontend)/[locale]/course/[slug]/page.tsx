@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 
 import { getBySlug, getShared, isLocale, mediaUrl } from '@/components/site/data'
 import { CoursePage } from '@/components/site/pages'
+import { pageMetadata } from '@/components/site/seo'
+import { encodeSlug } from '@/lib/seo'
 import type { SiteLocale } from '@/lib/rules'
 
 export const revalidate = 60
@@ -17,12 +19,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const c = await load(locale, slug)
   if (!c) return {}
   const img = mediaUrl(c.seo?.image, 'wide') || mediaUrl(c.coverImage, 'wide')
-  return {
+  return pageMetadata(locale, `/course/${encodeSlug(c.slug)}`, {
     title: c.seo?.title || c.name,
     description: c.seo?.description || c.shortDescription,
-    openGraph: img ? { images: [img] } : undefined,
-    alternates: { languages: { ar: `/ar/course/${c.slug}`, he: `/he/course/${c.slug}` } },
-  }
+    image: img,
+  })
 }
 
 export default async function Page({ params }: Props) {

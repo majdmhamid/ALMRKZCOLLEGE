@@ -223,7 +223,8 @@ const PAGE_TARGETS: Record<string, (l: string) => string> = {
   register: (l) => `/${l}#register`,
   staff: (l) => `/${l}#staff`,
   faq: (l) => `/${l}#faq`,
-  accessibility: (l) => `/${l}#contact`,
+  // The legal page (legal.tsx) — also fixes links already stored in the database.
+  accessibility: (l) => `/${l}/accessibility`,
 }
 
 export function linkHref(

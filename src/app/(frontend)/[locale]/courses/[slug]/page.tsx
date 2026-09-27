@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import { getShared, isLocale } from '@/components/site/data'
+import { getShared, isLocale, mediaUrl } from '@/components/site/data'
 import { GroupPage } from '@/components/site/pages'
+import { pageMetadata } from '@/components/site/seo'
+import { encodeSlug } from '@/lib/seo'
 
 export const revalidate = 60
 
@@ -12,7 +14,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params
   if (!isLocale(locale)) return {}
   const g = (await getShared(locale)).groups.find((x) => x.slug === decodeURIComponent(slug))
-  return g ? { title: g.seo?.title || g.name, description: g.seo?.description || g.tagline } : {}
+  if (!g) return {}
+  return pageMetadata(locale, `/courses/${encodeSlug(g.slug)}`, {
+    title: g.seo?.title || g.name,
+    description: g.seo?.description || g.tagline || g.description,
+    image: mediaUrl(g.seo?.image, 'wide') || mediaUrl(g.image, 'wide'),
+  })
 }
 
 export default async function Page({ params }: Props) {
