@@ -10,6 +10,8 @@ import React, {
   useSyncExternalStore,
 } from 'react'
 
+import { trackLead } from '@/lib/analytics'
+
 import type { LeadState } from './actions'
 import {
   ChevronDown,
@@ -592,6 +594,16 @@ export function LeadForm({
     io.observe(el)
     return () => io.disconnect()
   }, [])
+  // Conversion for statistics / ads (only if the visitor accepted cookies): once, on success,
+  // with the course name only — never the name or phone.
+  const courseName = useRef('')
+  const tracked = useRef(false)
+  useEffect(() => {
+    if (state.ok && !tracked.current) {
+      tracked.current = true
+      trackLead(courseName.current)
+    }
+  }, [state.ok])
   const v = state.values
   const errId = `${formId}-err`
   // A generic refusal is almost always a phone number the server did not accept.
@@ -623,7 +635,12 @@ export function LeadForm({
     <form
       data-reveal=""
       action={formAction}
-      onSubmit={() => {
+      onSubmit={(e) => {
+        const course = e.currentTarget.elements.namedItem('course')
+        courseName.current =
+          course instanceof HTMLSelectElement && course.value
+            ? (course.selectedOptions[0]?.text ?? '')
+            : ''
         if (fillTime.current && shownAt.current)
           fillTime.current.value = String(Math.round(performance.now() - shownAt.current))
       }}

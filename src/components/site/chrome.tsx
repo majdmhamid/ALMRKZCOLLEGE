@@ -1,9 +1,11 @@
 import React from 'react'
 
+import { ANALYTICS_ENABLED } from '@/lib/analytics'
 import type { SiteLocale } from '@/lib/rules'
 
 import { A11Y, SOCIAL_NAMES } from './a11y-text'
 import { HeaderMenu, LangSwitch } from './client'
+import { CookieSettingsButton } from './consent'
 import {
   type Shared,
   isExternal,
@@ -216,6 +218,7 @@ export function Footer({ shared, locale }: Props) {
                 {l.label}
               </a>
             ))}
+            {ANALYTICS_ENABLED && <CookieSettingsButton locale={locale} />}
           </span>
         </div>
       </div>
