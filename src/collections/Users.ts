@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOrSelf, isAdmin, isAdminField, isAdminUser } from '@/access'
+import { serverURL } from '@/lib/preview'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -15,6 +16,19 @@ export const Users: CollectionConfig = {
   auth: {
     maxLoginAttempts: 10,
     lockTime: 10 * 60 * 1000,
+    // «نسيت كلمة السر»: Payload's own email has no right-to-left direction (Gmail shows the
+    // Arabic aligned left). Same content, RTL, with the site's address.
+    forgotPassword: {
+      generateEmailSubject: () => 'تغيير كلمة السر — لوحة تحكم كلية المركز',
+      generateEmailHTML: (args) => {
+        const url = `${serverURL()}/admin/reset/${args?.token ?? ''}`
+        return `<div dir="rtl" lang="ar" style="font-family:Arial,sans-serif;font-size:15px;text-align:right">
+<p>وصلنا طلب لتغيير كلمة السر لحسابك بلوحة تحكم موقع كلية المركز.</p>
+<p><a href="${url}">اضغط هون لاختيار كلمة سر جديدة</a> (الرابط صالح لساعة وحدة).</p>
+<p dir="ltr" style="text-align:left;font-size:12px;color:#555">${url}</p>
+<p>إذا ما طلبت هاد الإشي، تجاهل الإيميل — كلمة السر ما بتتغيّر.</p></div>`
+      },
+    },
   },
   access: {
     admin: ({ req }) => Boolean(req.user),

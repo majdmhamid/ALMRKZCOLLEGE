@@ -2,6 +2,7 @@ import type { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 
 import { anyone, isAdmin, isAdminField } from '@/access'
+import { serverURL } from '@/lib/preview'
 import type { Lead } from '@/payload-types'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -48,7 +49,8 @@ const notifyCollege: CollectionAfterChangeHook<Lead> = async ({ doc, operation, 
       if (course?.name) courseName = course.name
     }
 
-    const adminURL = `${(process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/$/, '')}/admin/collections/leads/${doc.id}`
+    // serverURL(): NEXT_PUBLIC_SERVER_URL, or the Vercel address when it isn't set.
+    const adminURL = `${serverURL()}/admin/collections/leads/${doc.id}`
     const rows: [string, string][] = [
       ['الاسم', doc.name],
       ['الهاتف', doc.phone],
@@ -57,15 +59,30 @@ const notifyCollege: CollectionAfterChangeHook<Lead> = async ({ doc, operation, 
       ['لغة الصفحة', doc.locale === 'he' ? 'عبري' : 'عربي'],
       ['من صفحة', doc.sourcePage || '—'],
     ]
+    const cell = (k: string, v: string) =>
+      k === 'الهاتف'
+        ? `<a href="tel:${escapeHtml(v.replace(/[^\d+]/g, ''))}" dir="ltr">${escapeHtml(v)}</a>`
+        : escapeHtml(v)
     await req.payload.sendEmail({
       to,
       subject: `طلب جديد من الموقع: ${doc.name}${courseName ? ` — ${courseName}` : ''}`,
-      html: `<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px">
+      html: `<div dir="rtl" lang="ar" style="font-family:Arial,sans-serif;font-size:15px;text-align:right">
 <h2>طلب اهتمام جديد من الموقع</h2>
-<table cellpadding="6" style="border-collapse:collapse">${rows
-        .map(([k, v]) => `<tr><td><b>${k}</b></td><td>${escapeHtml(String(v))}</td></tr>`)
+<table dir="rtl" cellpadding="6" style="border-collapse:collapse">${rows
+        .map(
+          ([k, v]) =>
+            `<tr><td style="vertical-align:top"><b>${k}</b></td><td>${cell(k, String(v))}</td></tr>`,
+        )
         .join('')}</table>
 <p><a href="${adminURL}">فتح الطلب في لوحة التحكم</a></p></div>`,
+      // Plain-text copy: phone notifications and some mail apps show only this part.
+      text: [
+        'طلب اهتمام جديد من الموقع',
+        '',
+        ...rows.map(([k, v]) => `${k}: ${v}`),
+        '',
+        `فتح الطلب في لوحة التحكم: ${adminURL}`,
+      ].join('\n'),
     })
   } catch (err) {
     // Never lose a lead because the email failed — it is saved in the list anyway.
