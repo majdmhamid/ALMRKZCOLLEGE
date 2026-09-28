@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
   agentRules: false,
   // PGlite: قاعدة بيانات التوقيع بوضع التجربة على الجهاز
   serverExternalPackages: ['@electric-sql/pglite'],
+  // …and only there (never on Vercel: no MOCK_BACKEND, and Supabase is set). Keep its ~20 MB out of
+  // every server function that Vercel packages. Local `next dev` / `next start` don't use traces.
+  outputFileTracingExcludes: { '*': ['node_modules/@electric-sql/pglite/**'] },
   experimental: {
     serverActions: {
       // صور التواقيع (PNG صغيرة). ملفات PDF بتنرفع مباشرة من المتصفح للتخزين.

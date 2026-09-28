@@ -14,7 +14,9 @@ if (process.argv.includes("--if-configured") && !process.env.SUPABASE_DB_URL) {
   console.log("  – e-signature database not configured (SUPABASE_DB_URL) — skipping its migrations");
   process.exit(0);
 }
-const sql = postgres(need("SUPABASE_DB_URL"), { ssl: "require", max: 1, onnotice: () => {} });
+const url = need("SUPABASE_DB_URL");
+// Supabase needs SSL; a Postgres on this computer (tests, rehearsal) has none — same rule as the app (server/db/index.ts).
+const sql = postgres(url, { ssl: /localhost|127.0.0.1/.test(url) ? false : "require", max: 1, onnotice: () => {} });
 
 try {
   await sql`create schema if not exists app_meta`;
