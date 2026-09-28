@@ -7,7 +7,9 @@
  *   /{locale}/courses                 all courses
  *   /{locale}/courses/{groupSlug}     a course group
  *   /{locale}/course/{slug}           one course
+ *   /{locale}/news                    all news
  *   /{locale}/news/{slug}             news item
+ *   /{locale}/about, /{locale}/contact  about the college / contact (built from existing settings)
  *   /{locale}#graduates               graduate stories (a homepage section; no page of their own)
  */
 import type { SiteLocale } from './rules'

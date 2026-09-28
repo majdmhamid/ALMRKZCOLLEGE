@@ -455,7 +455,7 @@ async function seedDesign(payload: Payload) {
       header: {
         items: A.headerLinks.map((h) => ({
           label: D[l].nav[h.nav],
-          link: { type: 'anchor', anchor: h.anchor },
+          link: A.navLink(h),
         })),
         cta: {
           show: true,
@@ -477,7 +477,7 @@ async function seedDesign(payload: Payload) {
             title: D[l].footer.quickLinks,
             links: A.quickLinks.map((h) => ({
               label: D[l].nav[h.nav],
-              link: { type: 'anchor', anchor: h.anchor },
+              link: A.navLink(h),
             })),
           },
         ],

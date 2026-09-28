@@ -145,6 +145,24 @@ async function loadHome(locale: SiteLocale, draft: boolean) {
   }
 }
 
+/** All published news items, pinned first then newest (the /news page). */
+export const getAllNews = cache(async (locale: SiteLocale) => {
+  const draft = await isDraft()
+  return cached(['news-list', locale], draft, async () => {
+    const payload = await getPayloadClient()
+    const { docs } = await payload.find({
+      collection: 'news',
+      locale,
+      draft,
+      overrideAccess: draft,
+      depth: 1,
+      sort: ['-pinned', '-publishedAt'],
+      limit: 200,
+    })
+    return docs as News[]
+  })
+})
+
 /** One document by slug (course / news page). */
 export async function getBySlug<C extends 'courses' | 'news'>(
   collection: C,
@@ -260,12 +278,12 @@ type LinkData = {
 const PAGE_TARGETS: Record<string, (l: string) => string> = {
   home: (l) => `/${l}`,
   courses: (l) => `/${l}/courses`,
-  about: (l) => `/${l}#why`,
+  about: (l) => `/${l}/about`,
   gallery: (l) => `/${l}#video`,
   'success-stories': (l) => `/${l}#${STORIES_ANCHOR}`,
-  news: (l) => `/${l}#news`,
+  news: (l) => `/${l}/news`,
   companies: (l) => `/${l}#employers`,
-  contact: (l) => `/${l}#contact`,
+  contact: (l) => `/${l}/contact`,
   register: (l) => `/${l}#register`,
   staff: (l) => `/${l}#staff`,
   faq: (l) => `/${l}#faq`,
