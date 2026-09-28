@@ -15,8 +15,9 @@ import {
   whatsappHref,
 } from './data'
 import { A11Y } from './a11y-text'
-import { CheckIcon, WhatsAppIcon } from './icons'
-import { CourseCard, RegisterForm } from './sections'
+import { PromoStage } from './client'
+import { CheckIcon, PlayIcon, WhatsAppIcon } from './icons'
+import { CourseCard, RegisterForm, youtubeId } from './sections'
 
 export function PageHero({
   image,
@@ -141,6 +142,10 @@ export function CoursePage({
   ].filter(([, v]) => v)
   const gallery = (c.gallery ?? []).map((m) => asDoc(m)).filter(Boolean)
   const video = mediaUrl(c.video)
+  // YouTube: only a picture + play button until the visitor clicks (youtube-nocookie after that).
+  const yt = youtubeId(c.youtubeUrl)
+  const ytThumb =
+    mediaUrl(c.videoPoster, 'wide') ?? (yt && `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`)
   return (
     <>
       <PageHero
@@ -234,9 +239,26 @@ export function CoursePage({
               {EMPLOYMENT_NOTICE[locale]}
             </p>
           </section>
-          {(gallery.length > 0 || video || c.youtubeUrl) && (
+          {(gallery.length > 0 || video || yt) && (
             <section className="card glass">
               <h2>{t.gallery}</h2>
+              {yt && (
+                <div className="lift stage" style={{ marginBottom: 12 }}>
+                  <PromoStage
+                    youtubeId={yt}
+                    playLabel={`${A11Y[locale].play}: ${c.name}`}
+                    title={c.name}
+                  >
+                    {ytThumb && (
+                      <img src={ytThumb} alt="" className="cover" loading="lazy" decoding="async" />
+                    )}
+                    <div className="stage-shade" />
+                    <span className="play ring" style={{ width: 60, height: 60 }}>
+                      <PlayIcon size={26} />
+                    </span>
+                  </PromoStage>
+                </div>
+              )}
               {video && (
                 <video
                   src={video}

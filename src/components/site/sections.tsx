@@ -507,7 +507,7 @@ function StaffSection({
   )
 }
 
-const youtubeId = (url?: string | null) =>
+export const youtubeId = (url?: string | null) =>
   url?.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)?.[1] ?? undefined
 
 function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'videos' }> } & Ctx) {
