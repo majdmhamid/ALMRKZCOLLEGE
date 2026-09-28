@@ -4,7 +4,7 @@ import React from 'react'
 
 import { Footer, Header, MobileBar } from '@/components/site/chrome'
 import { RevealObserver } from '@/components/site/client'
-import { getShared, isDraft, isLocale, mediaUrl } from '@/components/site/data'
+import { getShared, isDraft, isLocale, localeParams, mediaUrl } from '@/components/site/data'
 import { serverURL } from '@/lib/preview'
 import type { SiteLocale } from '@/lib/rules'
 import { RefreshRouteOnSave } from '../refresh-on-save'
@@ -14,10 +14,23 @@ import '../perf.css'
 
 export const revalidate = 60
 
-/** Fonts the first screen needs in each language (all fonts are self-hosted in /public/fonts). */
+/** Both languages are built ahead of time and served from the cache (see data.ts). */
+export const generateStaticParams = localeParams
+
+/**
+ * Fonts the first screen needs in each language (all fonts are self-hosted in /public/fonts).
+ * The «latin» Almarai files are needed on Arabic pages too: they hold the spaces and digits.
+ * Fetching them together with the others means the page is laid out once with the right fonts,
+ * instead of being laid out again (all its text re-shaped) each time a late font arrives.
+ */
 const PRELOAD_FONTS: Record<SiteLocale, string[]> = {
-  ar: ['Almarai-400-arabic.woff2', 'Almarai-800-arabic.woff2'],
-  he: ['Heebo-var-hebrew.woff2', 'Almarai-400-latin.woff2'],
+  ar: [
+    'Almarai-400-arabic.woff2',
+    'Almarai-800-arabic.woff2',
+    'Almarai-400-latin.woff2',
+    'Almarai-800-latin.woff2',
+  ],
+  he: ['Heebo-var-hebrew.woff2', 'Almarai-400-latin.woff2', 'Almarai-800-latin.woff2'],
 }
 
 type Props = { children: React.ReactNode; params: Promise<{ locale: string }> }

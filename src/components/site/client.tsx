@@ -437,6 +437,18 @@ export function LeadForm({
   useEffect(() => {
     shownAt.current = performance.now()
   }, [])
+  // Speed: the «send» button's shimmer is repainted by the phone on every frame, even when the
+  // form is far off-screen. Mark it while it's on screen; perf.css pauses it otherwise.
+  const submitRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    const el = submitRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(([e]) =>
+      el.toggleAttribute('data-onscreen', e.isIntersecting),
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
   const v = state.values
   if (state.ok) {
     return (
@@ -545,7 +557,7 @@ export function LeadForm({
               : labels.error}
         </p>
       )}
-      <button type="submit" className="submit" disabled={pending}>
+      <button ref={submitRef} type="submit" className="submit" disabled={pending}>
         {labels.submit}
       </button>
       <p className="privacy">

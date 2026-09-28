@@ -168,6 +168,52 @@ export async function getBySlug<C extends 'courses' | 'news'>(
   })
 }
 
+/* ───────── pages built ahead of time (static + ISR) ───────── */
+
+/*
+ * Speed: every public page is built once and then served from the cache/CDN (see `revalidate` in
+ * the pages). Visitors never wait for the server or the database. When an editor saves in /admin,
+ * hooks/revalidate.ts clears the cache and the next visit gets the new version.
+ * Staff in preview (draft mode) skip the cache automatically — Next.js renders their request
+ * fresh, with drafts — so `draftMode()` is only read inside the data loaders above.
+ *
+ * The lists below only say which addresses to build during `next build`; any page added later is
+ * built on its first visit. If the database can't be reached they return nothing (pages are then
+ * built on demand), so a hiccup never breaks the deployment.
+ */
+
+/** { locale } for every language — used by the [locale] layout. */
+export const localeParams = () => LOCALES.map((locale) => ({ locale }))
+
+/** Slugs of the published courses / news items (built at deploy time). */
+export async function publishedSlugs(collection: 'courses' | 'news'): Promise<{ slug: string }[]> {
+  try {
+    const payload = await getPayloadClient()
+    const { docs } = await payload.find({
+      collection,
+      where: { _status: { equals: 'published' } },
+      draft: false,
+      overrideAccess: false,
+      depth: 0,
+      pagination: false,
+      select: { slug: true },
+    })
+    return docs.flatMap((d) => (d.slug ? [{ slug: d.slug }] : []))
+  } catch {
+    return []
+  }
+}
+
+/** Slugs of the course groups the website shows in this language. */
+export async function visibleGroupSlugs(locale: SiteLocale): Promise<{ slug: string }[]> {
+  try {
+    const { groups } = await loadShared(locale, false)
+    return groups.flatMap((g) => (g.slug ? [{ slug: g.slug }] : []))
+  } catch {
+    return []
+  }
+}
+
 /* ───────── small helpers used by the components ───────── */
 
 export const asDoc = <T extends { id: number }>(v: number | T | null | undefined): T | undefined =>

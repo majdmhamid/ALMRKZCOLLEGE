@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import { getBySlug, getShared, isLocale, mediaUrl } from '@/components/site/data'
+import { getBySlug, getShared, isLocale, mediaUrl, publishedSlugs } from '@/components/site/data'
 import { NewsPage } from '@/components/site/pages'
 import { pageMetadata } from '@/components/site/seo'
 import { encodeSlug } from '@/lib/seo'
 import type { SiteLocale } from '@/lib/rules'
 
 export const revalidate = 60
+
+/** Published news items are built ahead of time; new ones on their first visit (see data.ts). */
+export const generateStaticParams = () => publishedSlugs('news')
 
 type Props = { params: Promise<{ locale: string; slug: string }> }
 

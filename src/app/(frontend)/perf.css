@@ -13,3 +13,14 @@ main > section:nth-child(n + 3),
   content-visibility: auto;
   contain-intrinsic-size: auto 640px;
 }
+
+/*
+ * The «send» button of the lead form has an endless shimmer (a moving background). The phone has
+ * to repaint it on every frame — even while the form is far off-screen — which kept the main
+ * thread busy for the whole visit. Once the page is interactive (no `.no-js`), the button runs
+ * the shimmer only while it is on screen (`data-onscreen`, set by LeadForm in client.tsx), so
+ * nobody can see the difference. Without JavaScript nothing changes.
+ */
+html:not(.no-js) .submit:not([data-onscreen]) {
+  animation-play-state: paused;
+}
