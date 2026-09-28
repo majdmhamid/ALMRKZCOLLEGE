@@ -78,10 +78,17 @@ export const Leads: CollectionConfig = {
   slug: 'leads',
   labels: { singular: 'طلب تسجيل', plural: 'طلبات «سجّل اهتمامك»' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'phone', 'course', 'status', 'createdAt'],
     group: 'الطلبات',
     listSearchableFields: ['name', 'phone', 'message'],
+    components: {
+      // «تنزيل كملف Excel» فوق الجدول، و«اتصل / واتساب» جنب زر الحفظ
+      beforeListTable: ['@/admin/leads/ExportLeads#ExportLeads'],
+      edit: { beforeDocumentControls: ['@/admin/leads/LeadContact#LeadContact'] },
+    },
     description:
       'كل من عبّأ استمارة «سجّل اهتمامك» في الموقع. بعد التواصل مع الشخص غيّر الحالة إلى «تمّ التواصل». يصل إيميل للكلية مع كل طلب جديد.',
   },
@@ -128,7 +135,11 @@ export const Leads: CollectionConfig = {
       index: true,
       options: Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label })),
       access: { create: isAdminField, update: isAdminField },
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        description:
+          'بعد ما تحكي مع الشخص غيّرها لـ«تمّ التواصل» واضغط «حفظ». الرقم الأحمر بالقائمة بيعدّ الطلبات «الجديدة» بس.',
+      },
     },
     {
       name: 'internalNotes',
