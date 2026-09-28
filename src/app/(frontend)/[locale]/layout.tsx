@@ -4,7 +4,7 @@ import React from 'react'
 
 import { Footer, Header, MobileBar } from '@/components/site/chrome'
 import { RevealObserver } from '@/components/site/client'
-import { getShared, isDraft, isLocale, mediaUrl } from '@/components/site/data'
+import { getShared, isDraft, isLocale, localeParams, mediaUrl } from '@/components/site/data'
 import { serverURL } from '@/lib/preview'
 import type { SiteLocale } from '@/lib/rules'
 import { RefreshRouteOnSave } from '../refresh-on-save'
@@ -13,6 +13,9 @@ import '../fonts.css'
 import '../perf.css'
 
 export const revalidate = 60
+
+/** Both languages are built ahead of time and served from the cache (see data.ts). */
+export const generateStaticParams = localeParams
 
 /** Fonts the first screen needs in each language (all fonts are self-hosted in /public/fonts). */
 const PRELOAD_FONTS: Record<SiteLocale, string[]> = {
