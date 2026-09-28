@@ -57,7 +57,12 @@ export async function Dashboard(props: ServerProps) {
     ),
   ])
   const signing = await signingStats()
-  const pending = (drafts as { slug: string; label: string; id: number; title: string }[][]).flat()
+  const pending: { slug: string; label: string; id: number | string; title: string; href?: string }[] = (
+    drafts as { slug: string; label: string; id: number; title: string }[][]
+  ).flat()
+  // الصفحة الرئيسية كمان إلها مسودة (تعديل ما انتشر)
+  const home = (await payload.findGlobal({ slug: 'homepage', draft: true, depth: 0, overrideAccess: true }).catch(() => null)) as { _status?: string } | null
+  if (home?._status === 'draft') pending.unshift({ slug: 'homepage', label: 'صفحة', id: 'homepage', title: 'الصفحة الرئيسية للموقع', href: '/admin/globals/homepage' })
 
   const pics = (r: { docs: unknown[] }, field: string) => r.docs.map((d) => thumb((d as Record<string, unknown>)[field])).filter(Boolean)
   const tiles: Tile[] = [
@@ -83,7 +88,10 @@ export async function Dashboard(props: ServerProps) {
         <div>
           <p className="almrkz-dash__eyebrow">كلية المركز للتأهيل المهني</p>
           <h1>أهلاً {name}</h1>
-          <p>كل تعديل بالخريجين والدورات والأخبار بينحفظ كمسودة، والزوار ما بشوفوه إلا لما تضغط «انشر». الطاقم والشركاء بيتحدّثوا فوراً.</p>
+          <p>
+            كل تعديل بالخريجين والدورات والأخبار والمجالات والصفحة الرئيسية بينحفظ كمسودة، والزوار ما بشوفوه إلا لما تضغط «انشر».
+            الطاقم والشركاء والإعدادات بيتحدّثوا فوراً.
+          </p>
         </div>
         <div className="almrkz-dash__status">
           {pending.length ? (
@@ -93,7 +101,7 @@ export async function Dashboard(props: ServerProps) {
               <ul>
                 {pending.slice(0, 5).map((p) => (
                   <li key={`${p.slug}-${p.id}`}>
-                    <Link href={`/admin/collections/${p.slug}/${p.id}`}>
+                    <Link href={p.href ?? `/admin/collections/${p.slug}/${p.id}`}>
                       {p.label}: {p.title || 'بدون اسم'}
                     </Link>
                   </li>
