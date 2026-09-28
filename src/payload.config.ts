@@ -12,6 +12,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { arTranslationFixes } from './admin/translations'
 import { CourseGroups } from './collections/CourseGroups'
 import { Courses } from './collections/Courses'
 import { Leads } from './collections/Leads'
@@ -99,7 +100,7 @@ export default buildConfig({
     // نفس ألوان الموقع (أبيض وأخضر) — الأنماط في src/app/(payload)/custom.scss
     theme: 'light',
     components: {
-      graphics: { Logo: '@/admin/Logo#Logo' },
+      graphics: { Logo: '@/admin/Logo#Logo', Icon: '@/admin/Logo#Icon' },
       Nav: '@/admin/nav/Nav#Nav',
       views: {
         dashboard: { Component: '@/admin/dashboard/Dashboard#Dashboard' },
@@ -139,6 +140,8 @@ export default buildConfig({
   i18n: {
     supportedLanguages: { ar, he },
     fallbackLanguage: 'ar',
+    // أخطاء بالترجمة العربية الجاهزة تبعت Payload (src/admin/translations.ts)
+    translations: { ar: arTranslationFixes },
   },
 
   // Website content: every text field marked `localized` has an Arabic and a Hebrew version.

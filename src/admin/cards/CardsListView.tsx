@@ -90,6 +90,22 @@ export async function CardsListView(props: ListViewServerProps) {
     courseOptions = all.docs.map((c) => ({ value: c.id, label: c.name, group: asDoc<CourseGroup>(c.group)?.name }))
   }
 
+  // النجمة ☆ بتقرّر مين بيظهر بالرئيسية — إلا إذا قسم الرئيسية فيه اختيار يدوي
+  let flagNote = ''
+  if (kind === 'stories' || kind === 'courses') {
+    const home = (await payload.findGlobal({ slug: 'homepage', depth: 0 }).catch(() => null)) as {
+      sections?: { blockType?: string; hidden?: boolean | null; stories?: unknown[] | null; courses?: unknown[] | null }[] | null
+    } | null
+    const block = home?.sections?.find((b) => b.blockType === (kind === 'stories' ? 'successStories' : 'featuredCourses'))
+    const chosen = kind === 'stories' ? block?.stories : block?.courses
+    if (block && !block.hidden && chosen?.length) {
+      flagNote =
+        kind === 'stories'
+          ? `انتبه: قسم «قصص نجاح» بالصفحة الرئيسية معمول فيه اختيار يدوي (${chosen.length} خريجين)، فالنجمة ☆ هون ما بتغيّر شي. لتغيير مين بيظهر: «الصفحة الرئيسية للموقع» ← قسم «قصص نجاح» ← «القصص المعروضة» (أو فضّيها لترجع النجمة تشتغل).`
+          : `انتبه: قسم «أبرز الدورات» بالصفحة الرئيسية معمول فيه اختيار يدوي (${chosen.length} دورات)، فالنجمة ☆ هون ما بتغيّر شي. لتغيير الدورات: «الصفحة الرئيسية للموقع» ← قسم «أبرز الدورات» ← «الدورات المعروضة» (أو فضّيها لترجع النجمة تشتغل).`
+    }
+  }
+
   const cards: Card[] = cur.docs.map((raw) => {
     const d = raw as unknown as Record<string, unknown>
     const o = otherById.get(raw.id) ?? {}
@@ -171,6 +187,7 @@ export async function CardsListView(props: ListViewServerProps) {
       versioned={versioned}
       labels={labels}
       courseOptions={courseOptions}
+      flagNote={flagNote}
       canCreate={Boolean(props.hasCreatePermission)}
       canDelete={props.hasDeletePermission !== false}
     />

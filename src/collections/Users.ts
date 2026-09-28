@@ -7,11 +7,14 @@ export const Users: CollectionConfig = {
   slug: 'users',
   labels: { singular: 'مستخدم', plural: 'المستخدمون' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'roles'],
     group: 'الإدارة',
     description:
-      'من يستطيع الدخول للوحة التحكم. «مدير» يتحكم بكل شيء، «محرّر» يعدّل محتوى الموقع فقط (لا يرى الطلبات ولا المستخدمين).',
+      'من يستطيع الدخول للوحة التحكم. «مدير» يتحكم بكل شيء، «محرّر» يعدّل محتوى الموقع فقط (لا يرى الطلبات ولا المستخدمين). ' +
+      'لتغيير كلمة السر تبعتك: اضغط على اسمك تحت بالقائمة الجانبية ← «تغيير كلمة المرور».',
   },
   auth: {
     maxLoginAttempts: 10,
@@ -53,6 +56,10 @@ export const Users: CollectionConfig = {
       required: true,
       defaultValue: ['editor'],
       saveToJWT: true,
+      admin: {
+        description:
+          'اختار وحدة بس: «مدير» (كل إشي، مع الطلبات والحسابات) أو «محرّر» (نصوص وصور الموقع بس). إذا بدك تغيّرها، امسح القديمة بالـ ✕.',
+      },
       options: [
         { label: 'مدير (كل شيء)', value: 'admin' },
         { label: 'محرّر (المحتوى فقط)', value: 'editor' },

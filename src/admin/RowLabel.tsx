@@ -3,20 +3,27 @@
 import { useRowLabel } from '@payloadcms/ui'
 import React from 'react'
 
+/** Empty (new) rows start closed: tell the editor to open them. */
+const empty = (noun: string, rowNumber?: number) => (
+  <span>
+    {noun} {String((rowNumber ?? 0) + 1)} <span style={{ opacity: 0.6 }}>— جديد، اضغط هون لتعبّيه ▾</span>
+  </span>
+)
+
 /** Shows the item's own text on collapsed rows instead of «عنصر 01». */
 export const LabelRowLabel: React.FC = () => {
   const { data, rowNumber } = useRowLabel<{ label?: string }>()
-  return <span>{data?.label || `عنصر ${String((rowNumber ?? 0) + 1)}`}</span>
+  return data?.label ? <span>{data.label}</span> : empty('عنصر', rowNumber)
 }
 
 export const TitleRowLabel: React.FC = () => {
   const { data, rowNumber } = useRowLabel<{ title?: string }>()
-  return <span>{data?.title || `عمود ${String((rowNumber ?? 0) + 1)}`}</span>
+  return data?.title ? <span>{data.title}</span> : empty('عنصر', rowNumber)
 }
 
 export const QuestionRowLabel: React.FC = () => {
   const { data, rowNumber } = useRowLabel<{ question?: string }>()
-  return <span>{data?.question || `سؤال ${String((rowNumber ?? 0) + 1)}`}</span>
+  return data?.question ? <span>{data.question}</span> : empty('سؤال', rowNumber)
 }
 
 const SECTION_NAMES: Record<string, string> = {

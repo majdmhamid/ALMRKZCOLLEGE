@@ -7,6 +7,8 @@ export const Partners: CollectionConfig = {
   slug: 'partners',
   labels: { singular: 'شريك', plural: 'الشركاء والجهات المعتمِدة' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'order'],
     group: 'عن الكلية',

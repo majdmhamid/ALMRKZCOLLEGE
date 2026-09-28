@@ -307,7 +307,7 @@ export interface Course {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * تصنيف الدورات (مثل: الحديد، السلامة، التكييف). كل دورة تتبع مجموعة واحدة.
+ * مجالات الدورات (مثل: الحديد واللحام، البناء والسلامة، التكييف). كل دورة تابعة لمجال واحد. المجال بيظهر على الموقع بس إذا فيه دورة منشورة وحدة على الأقل.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "course-groups".
@@ -330,7 +330,7 @@ export interface CourseGroup {
    */
   icon?: (number | null) | Media;
   /**
-   * تُضاف الدورة للمجموعة من صفحة الدورة نفسها.
+   * الدورة بتنضاف للمجال من صفحة الدورة نفسها (خانة «المجال»).
    */
   courses?: {
     docs?: (number | Course)[];
@@ -584,6 +584,9 @@ export interface Lead {
   course?: (number | null) | Course;
   courseOther?: string | null;
   message?: string | null;
+  /**
+   * بعد ما تحكي مع الشخص غيّرها لـ«تمّ التواصل» واضغط «حفظ». الرقم الأحمر بالقائمة بيعدّ الطلبات «الجديدة» بس.
+   */
   status: 'new' | 'contacted' | 'closed';
   /**
    * لا يراها أحد خارج الكلية.
@@ -596,7 +599,7 @@ export interface Lead {
   createdAt: string;
 }
 /**
- * من يستطيع الدخول للوحة التحكم. «مدير» يتحكم بكل شيء، «محرّر» يعدّل محتوى الموقع فقط (لا يرى الطلبات ولا المستخدمين).
+ * من يستطيع الدخول للوحة التحكم. «مدير» يتحكم بكل شيء، «محرّر» يعدّل محتوى الموقع فقط (لا يرى الطلبات ولا المستخدمين). لتغيير كلمة السر تبعتك: اضغط على اسمك تحت بالقائمة الجانبية ← «تغيير كلمة المرور».
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
@@ -604,6 +607,9 @@ export interface Lead {
 export interface User {
   id: number;
   name: string;
+  /**
+   * اختار وحدة بس: «مدير» (كل إشي، مع الطلبات والحسابات) أو «محرّر» (نصوص وصور الموقع بس). إذا بدك تغيّرها، امسح القديمة بالـ ✕.
+   */
   roles: ('admin' | 'editor')[];
   updatedAt: string;
   createdAt: string;

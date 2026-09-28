@@ -28,8 +28,10 @@ const group = (name: string, label: string, specs: Spec[], description?: string)
  */
 export const UiTexts: GlobalConfig = {
   slug: 'ui-texts',
-  label: 'النصوص الثابتة',
+  label: 'نصوص الموقع الثابتة',
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     group: 'الصفحات',
     description:
       'كلمات وأزرار تتكرر في كل الموقع: القائمة، الأزرار، الاستمارة… غيّر النص هنا فيتغيّر في كل مكان. ' +

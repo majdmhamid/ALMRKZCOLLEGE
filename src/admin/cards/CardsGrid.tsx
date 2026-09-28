@@ -49,6 +49,8 @@ type Props = {
   courseOptions: { value: number; label: string; group?: string }[]
   canCreate: boolean
   canDelete: boolean
+  /** تنبيه إذا النجمة ☆ ما إلها تأثير (اختيار يدوي بالرئيسية) */
+  flagNote?: string
 }
 
 export function CardsGrid(props: Props) {
@@ -114,6 +116,8 @@ export function CardsGrid(props: Props) {
     try {
       await Promise.all(changed.map((c) => updateDoc(collection, c.id, { order: c.order }, { locale, draft: versioned })))
       toast.success(versioned ? 'انحفظ الترتيب كمسودة — اضغط «انشر» ليظهر على الموقع.' : 'انحفظ الترتيب.')
+      // منجيب الترتيب من السيرفر كمان مرة (لو وصل تحديث قديم بالنص وخربط الترتيب على الشاشة)
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : 'ما انحفظ الترتيب.')
       router.refresh()
@@ -139,7 +143,14 @@ export function CardsGrid(props: Props) {
             )}{' '}
             بتعدّل هلأ <b>{locale === 'ar' ? 'بالعربي' : 'بالعبري'}</b> — السطر الصغير تحت كل بطاقة للغة الثانية.
             {!versioned && <> التعديل بيظهر على الموقع فوراً.</>}
+            {kind === 'stories' && (
+              <>
+                {' '}
+                بالصفحة الرئيسية بيظهر بس الخريج اللي إله <b>اقتباس</b>.
+              </>
+            )}
           </p>
+          {props.flagNote && <p className="cards-view__note">{props.flagNote}</p>}
         </div>
         <div className="cards-view__actions">
           {versioned && drafts > 0 && (

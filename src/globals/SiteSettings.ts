@@ -7,8 +7,10 @@ const imageOnly = { mimeType: { contains: 'image' } }
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
-  label: 'إعدادات الموقع',
+  label: 'معلومات الكلية',
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     group: 'إعدادات',
     description: 'اللوغو، معلومات الاتصال، السوشال ميديا، وإعدادات جوجل — تظهر في كل صفحات الموقع.',
   },
@@ -150,7 +152,7 @@ export const SiteSettings: GlobalConfig = {
                       validate: (v: string | null | undefined) =>
                         !v || /^\d{9,15}$/.test(v)
                           ? true
-                          : 'اكتب الرقم أرقاماً فقط، مثل 972501234567',
+                          : 'اكتب رقم الواتساب أرقام بس، بالصيغة الدولية بدون + وبدون الصفر بالأول. مثلاً 054-6174339 بيصير 972546174339',
                     },
                     {
                       name: 'whatsappMessage',

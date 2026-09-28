@@ -9,6 +9,8 @@ export const Homepage: GlobalConfig = {
   slug: 'homepage',
   label: 'الصفحة الرئيسية',
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     group: 'الصفحات',
     preview: (_doc, { locale }) => previewPath({ global: 'homepage', locale }),
     description:

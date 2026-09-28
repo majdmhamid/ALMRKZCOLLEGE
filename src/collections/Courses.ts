@@ -16,6 +16,8 @@ export const Courses: CollectionConfig = {
   slug: 'courses',
   labels: { singular: 'دورة', plural: 'الدورات' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'group', 'voucherEligible', 'order', '_status'],
     group: 'الدورات',
@@ -48,7 +50,7 @@ export const Courses: CollectionConfig = {
             },
             {
               name: 'group',
-              label: 'المجموعة',
+              label: 'المجال',
               type: 'relationship',
               relationTo: 'course-groups',
               required: true,

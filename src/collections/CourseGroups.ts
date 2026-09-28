@@ -9,12 +9,16 @@ import { previewPath } from '@/lib/preview'
 
 export const CourseGroups: CollectionConfig = {
   slug: 'course-groups',
-  labels: { singular: 'مجموعة دورات', plural: 'مجموعات الدورات' },
+  labels: { singular: 'مجال', plural: 'مجالات الدورات' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'order', '_status', 'updatedAt'],
     group: 'الدورات',
-    description: 'تصنيف الدورات (مثل: الحديد، السلامة، التكييف). كل دورة تتبع مجموعة واحدة.',
+    description:
+      'مجالات الدورات (مثل: الحديد واللحام، البناء والسلامة، التكييف). كل دورة تابعة لمجال واحد. ' +
+      'المجال بيظهر على الموقع بس إذا فيه دورة منشورة وحدة على الأقل.',
     preview: (doc, { locale }) =>
       previewPath({ collection: 'course-groups', slug: doc?.slug as string, locale }),
   },
@@ -29,7 +33,7 @@ export const CourseGroups: CollectionConfig = {
   fields: [
     {
       name: 'name',
-      label: 'اسم المجموعة',
+      label: 'اسم المجال',
       type: 'text',
       localized: true,
       required: true,
@@ -50,13 +54,13 @@ export const CourseGroups: CollectionConfig = {
     },
     {
       name: 'description',
-      label: 'وصف أطول (لصفحة المجموعة)',
+      label: 'وصف أطول (لصفحة المجال)',
       type: 'textarea',
       localized: true,
     },
     {
       name: 'image',
-      label: 'صورة المجموعة',
+      label: 'صورة المجال',
       type: 'upload',
       relationTo: 'media',
       filterOptions: { mimeType: { contains: 'image' } },
@@ -71,12 +75,12 @@ export const CourseGroups: CollectionConfig = {
     },
     {
       name: 'courses',
-      label: 'الدورات في هذه المجموعة',
+      label: 'الدورات في هذا المجال',
       type: 'join',
       collection: 'courses',
       on: 'group',
       defaultSort: 'order',
-      admin: { description: 'تُضاف الدورة للمجموعة من صفحة الدورة نفسها.' },
+      admin: { description: 'الدورة بتنضاف للمجال من صفحة الدورة نفسها (خانة «المجال»).' },
     },
     seoField,
     slugField('name'),

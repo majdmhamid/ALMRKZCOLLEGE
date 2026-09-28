@@ -26,6 +26,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
 
+import { useArabicToasts } from '../englishToasts'
+
 const ICONS: Record<string, LucideIcon> = {
   home: Home,
   layout: LayoutTemplate,
@@ -63,6 +65,8 @@ export function NavLinks({ groups }: { groups: NavGroup[] }) {
   const pathname = usePathname()
   const { setNavOpen } = useNav()
   const { breakpoints } = useWindowInfo()
+  // رسائل Payload اللي لسا بالإنجليزي ← عربي
+  useArabicToasts()
 
   // Payload بيسكّر القائمة على أي شاشة أصغر من 1440px — على الكمبيوتر بدنا ياها مفتوحة دايماً
   useEffect(() => {
