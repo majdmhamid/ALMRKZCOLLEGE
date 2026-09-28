@@ -59,10 +59,10 @@ export function findForbiddenWording(text: string): ForbiddenRule | undefined {
 
 export function forbiddenWordingMessage(rule: ForbiddenRule, match: string): string {
   if (rule.reason === 'سعر') {
-    return `لا يُسمح بكتابة أسعار على الموقع («${match}»). الطالب يتواصل مع الكلية لمعرفة السعر.`
+    return `ممنوع كتابة سعر على الموقع: «${match}». امسحه من النص — الطالب بيتواصل مع الكلية وبياخد السعر منها.`
   }
   return (
-    `هذه الصياغة ممنوعة لأنها توحي بضمان عمل: «${match}». ` +
-    'استعمل «مرافقة وتوجيه مهني بعد التخرّج» بدلاً منها.'
+    `ممنوع أي جملة بتوعد بشغل: «${match}». ` +
+    'امسحها واكتب بدالها «مرافقة وتوجيه مهني بعد التخرّج».'
   )
 }

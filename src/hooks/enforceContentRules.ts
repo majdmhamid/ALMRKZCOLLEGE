@@ -1,4 +1,9 @@
-import type { CollectionBeforeValidateHook, GlobalBeforeValidateHook } from 'payload'
+import type {
+  CollectionBeforeValidateHook,
+  Field,
+  GlobalBeforeValidateHook,
+  PayloadRequest,
+} from 'payload'
 import { ValidationError } from 'payload'
 
 import { findForbiddenWording, forbiddenWordingMessage } from '@/lib/rules'
@@ -25,7 +30,7 @@ const SKIPPED_KEYS = new Set([
   'style',
 ])
 
-type Problem = { path: string; message: string }
+type Problem = { path: string; message: string; label?: string }
 
 function scan(value: unknown, path: string[], problems: Problem[]) {
   if (typeof value === 'string') {
@@ -52,23 +57,71 @@ function scan(value: unknown, path: string[], problems: Problem[]) {
   }
 }
 
-function check(data: unknown, target: { collection?: string; global?: string }) {
+/** Fields at this level, looking through unnamed tabs / rows / collapsibles. */
+function flatten(fields: Field[]): Field[] {
+  return fields.flatMap((f) => {
+    if (f.type === 'tabs') {
+      return f.tabs.flatMap((tab) =>
+        'name' in tab && tab.name
+          ? [{ ...tab, type: 'group' } as unknown as Field]
+          : flatten(tab.fields),
+      )
+    }
+    if ((f.type === 'row' || f.type === 'collapsible') && 'fields' in f) return flatten(f.fields)
+    return [f]
+  })
+}
+
+/**
+ * The Arabic label of the field at `path` (e.g. «وصف مختصر (للبطاقة)»), so the
+ * editor sees which box to fix — not «shortDescription».
+ */
+function labelFor(fields: Field[] | undefined, path: string): string | undefined {
+  let current: Field[] | undefined = fields
+  let label: string | undefined
+  for (const segment of path.split('.')) {
+    if (!current) return label
+    if (/^\d+$/.test(segment)) continue // row number in a list
+    const field = flatten(current).find((f) => 'name' in f && f.name === segment)
+    if (!field) return label
+    if ('label' in field && typeof field.label === 'string') label = field.label
+    if (field.type === 'blocks') {
+      // the next segment is the row number; look the field up in every section type
+      current = field.blocks.flatMap((b) => b.fields)
+      continue
+    }
+    current = 'fields' in field ? (field.fields as Field[]) : undefined
+  }
+  return label
+}
+
+function check(
+  data: unknown,
+  target: { collection?: string; global?: string },
+  fields: Field[] | undefined,
+  req: PayloadRequest,
+) {
   const problems: Problem[] = []
   scan(data, [], problems)
   if (problems.length) {
-    throw new ValidationError({ ...target, errors: problems })
+    for (const p of problems) {
+      const field = labelFor(fields, p.path)
+      // The toast shows «label» only — put the reason there too, so it says what to change.
+      p.label = field ? `«${field}» — ${p.message}` : p.message
+    }
+    throw new ValidationError({ ...target, errors: problems, req }, req.t)
   }
 }
 
 /**
  * Blocks prices and job-guarantee wording anywhere in a document (CLAUDE.md rules 1+2).
  */
-export const enforceContentRules: CollectionBeforeValidateHook = ({ data, collection }) => {
-  check(data, { collection: collection.slug })
+export const enforceContentRules: CollectionBeforeValidateHook = ({ data, collection, req }) => {
+  check(data, { collection: collection.slug }, collection.fields, req)
   return data
 }
 
-export const enforceContentRulesGlobal: GlobalBeforeValidateHook = ({ data, global }) => {
-  check(data, { global: global.slug })
+export const enforceContentRulesGlobal: GlobalBeforeValidateHook = ({ data, global, req }) => {
+  check(data, { global: global.slug }, global.fields, req)
   return data
 }
