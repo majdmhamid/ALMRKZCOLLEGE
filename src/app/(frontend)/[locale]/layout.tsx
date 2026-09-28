@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import React from 'react'
 
+import { Analytics } from '@/components/site/analytics'
 import { Footer, Header, MobileBar } from '@/components/site/chrome'
 import { RevealObserver } from '@/components/site/client'
 import { getShared, isDraft, isLocale, mediaUrl } from '@/components/site/data'
@@ -75,6 +76,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <MobileBar shared={shared} locale={locale} />
         </div>
         <RevealObserver />
+        <Analytics locale={locale} />
         {draft && <RefreshRouteOnSave serverURL={serverURL()} />}
       </body>
     </html>

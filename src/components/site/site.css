@@ -2188,6 +2188,97 @@ textarea.field {
   color: inherit;
 }
 
+/* cookie banner — only when statistics IDs are set (consent.tsx). Sits above the mobile tab bar,
+   and on desktop in the right corner (the WhatsApp button is on the left). Never covers the page. */
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.link-btn:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.consent {
+  position: fixed;
+  z-index: 60;
+  left: 12px;
+  right: 12px;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  max-width: 460px;
+  margin-inline: auto;
+  padding: 16px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid rgba(21, 137, 66, 0.18);
+  box-shadow: 0 24px 48px -18px rgba(11, 80, 39, 0.4);
+  animation: consent-in 0.35s ease both;
+}
+.consent p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #1f3a2c;
+}
+.consent p a {
+  color: #0f6b33;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.consent-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.consent-btn {
+  flex: 1 1 0;
+  height: 44px;
+  border-radius: 14px;
+  border: 0;
+  background: #158942;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.consent-btn:hover {
+  background: #0f6b33;
+}
+.consent-btn:focus-visible,
+.consent p a:focus-visible,
+.link-btn:focus-visible {
+  outline: 3px solid #88bb3c;
+  outline-offset: 2px;
+}
+@keyframes consent-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@media (min-width: 1024px) {
+  .consent {
+    left: auto;
+    right: 24px;
+    bottom: 24px;
+    width: 400px;
+    margin: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .consent {
+    animation: none;
+  }
+}
+.card[id] {
+  scroll-margin-top: 90px;
+}
+
 /* mobile bar + floating whatsapp */
 .tabbar-space {
   height: 84px;
