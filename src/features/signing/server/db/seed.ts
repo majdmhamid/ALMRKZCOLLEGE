@@ -302,7 +302,7 @@ export async function seedMockData(db: Db): Promise<void> {
       [id],
     );
     await db.query(
-      `insert into public.audit_events (document_id, event, actor_user_id, details, created_at) values ($1, 'created', $2, $3::jsonb, $4)`,
+      `insert into public.audit_events (document_id, event, actor_user_id, details, created_at) values ($1, 'created', $2, $3::text::jsonb, $4)`,
       [id, MOCK_ADMIN_ID, JSON.stringify({ sha256: sha256Hex(pdf), seeded: true }), created],
     );
   }
