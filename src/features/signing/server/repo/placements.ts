@@ -32,7 +32,7 @@ export async function replacePlacements(db: Db, documentId: string, items: Place
   const removed = [...beforeIds].filter((id) => !afterIds.has(id));
   if (removed.length) {
     await db.query(
-      `delete from public.placements where document_id = $1 and id in (select jsonb_array_elements_text($2::jsonb)::uuid)`,
+      `delete from public.placements where document_id = $1 and id in (select jsonb_array_elements_text($2::text::jsonb)::uuid)`,
       [documentId, JSON.stringify(removed)],
     );
   }

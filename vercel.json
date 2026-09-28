@@ -1,5 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "npm run ci"
+  "buildCommand": "npm run ci",
+  "regions": ["fra1"],
+  "ignoreCommand": "node -e \"process.exit(process.env.VERCEL_ENV === 'production' ? 1 : 0)\"",
+  "crons": [{ "path": "/api/payload-jobs/run", "schedule": "0 3 * * *" }]
 }

@@ -115,7 +115,7 @@ export async function updateDocumentDetails(
 export async function softDeleteDocuments(db: Db, ids: string[]): Promise<string[]> {
   const rows = await db.query<{ id: string }>(
     `update public.documents set deleted_at = now()
-      where id in (select jsonb_array_elements_text($1::jsonb)::uuid) and deleted_at is null
+      where id in (select jsonb_array_elements_text($1::text::jsonb)::uuid) and deleted_at is null
       returning id`,
     [jsonList(ids)],
   );
@@ -163,7 +163,7 @@ export async function logEvent(
 ): Promise<void> {
   await db.query(
     `insert into public.audit_events (document_id, signer_id, event, actor_user_id, details, ip, user_agent)
-     values ($1, $2, $3, $4, $5::jsonb, $6::inet, $7)`,
+     values ($1, $2, $3, $4, $5::text::jsonb, $6::inet, $7)`,
     [
       e.documentId,
       e.signerId ?? null,

@@ -112,11 +112,11 @@ export async function moveDocuments(
     const rows = await db.query<{ id: string }>(
       toSigned
         ? `update public.documents set in_signed_section = true, moved_to_signed_at = now()
-             where id in (select jsonb_array_elements_text($1::jsonb)::uuid)
+             where id in (select jsonb_array_elements_text($1::text::jsonb)::uuid)
                and deleted_at is null and not in_signed_section and status in ('signed', 'finalized')
            returning id`
         : `update public.documents set in_signed_section = false, moved_to_signed_at = null
-             where id in (select jsonb_array_elements_text($1::jsonb)::uuid)
+             where id in (select jsonb_array_elements_text($1::text::jsonb)::uuid)
                and deleted_at is null and in_signed_section
            returning id`,
       [JSON.stringify(parsed.data)],

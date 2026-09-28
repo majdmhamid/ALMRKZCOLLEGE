@@ -36,7 +36,16 @@
 ## قاعدة بيانات وتخزين — مشروع Supabase واحد
 - `DATABASE_URL` (Payload) و`SUPABASE_DB_URL` (التوقيع) = نفس Postgres تبع Supabase. أسماء الجداول ما بتتضارب (فحصتها).
 - صور الموقع: Supabase Storage عبر S3 (`S3_*`، bucket عام `media`). ملفات التوقيع: buckets خاصة (`originals`، `finals`، `signatures`) عبر المفتاح السري.
-- `npm run ci` (بناء Vercel): `payload migrate` ← `scripts/migrate.mjs --if-configured` (ملفات `supabase/migrations`) ← seed ← build. الـ seed بيعبّي محتوى التصميم **مرة وحدة بس** (أول نشر / قاعدة فاضية) وبيحفظ علامة `almrkz:design-seeded` بجدول `payload_kv`؛ بعدها بيعمل بس أول مدير (إذا ما في مستخدمين) — اللي بينحذف ما بيرجع. إعادة تعبئة مقصودة: `npx cross-env SEED_FORCE=1 npm run seed` (أو `SEED_FORCE_PAGES=1` لتعبئة الصفحات كمان).
+- `npm run ci` (بناء Vercel): `scripts/check-env.mjs --if-vercel` (فحص المفاتيح + الاتصال بالقاعدة + دخول SMTP؛ بيوقّف البناء برسالة عربية) ← `payload migrate` ← `scripts/migrate.mjs --if-configured` (ملفات `supabase/migrations`) ← seed ← build. الـ seed بيعبّي محتوى التصميم **مرة وحدة بس** (أول نشر / قاعدة فاضية) وبيحفظ علامة `almrkz:design-seeded` بجدول `payload_kv`؛ بعدها بيعمل بس أول مدير (إذا ما في مستخدمين) — اللي بينحذف ما بيرجع. إعادة تعبئة مقصودة: `npx cross-env SEED_FORCE=1 npm run seed` (أو `SEED_FORCE_PAGES=1` لتعبئة الصفحات كمان).
+
+## بروفة الإطلاق على Postgres حقيقي (2026-09-28) — قواعد لازم تضل
+- **ممنوع push على Postgres.** `push` بيشتغل بس مع `PAYLOAD_DB_PUSH=true` (قاعدة تجربة بدون جداول التوقيع). السبب: drizzle push بيقارن كل القاعدة مع جداول Payload — على قاعدة فيها جداول التوقيع بيوقع (`there is no parameter $1`) أو بيعرض يمسح enums/جداول التوقيع، وبيترك سطر `dev` (batch -1) بـ `payload_migrations` اللي بيخلّي `payload migrate` يسأل سؤال وما حدا بيجاوب على Vercel (بيطلع 0 بدون ما يعمل migrate). `check:env` بيوقّف البناء إذا لقى هاد السطر.
+- **أي تغيير بالحقول:** `npm run migrate:create <اسم>` وبعدين commit للملف بـ `src/migrations`. الفحص بالبروفة: `migrate:create` ← «No schema changes detected» (الـ migration الموجودة مطابقة للكود).
+- **JSON كـ parameter بالتوقيع:** دايماً `$1::text::jsonb` مش `$1::jsonb` — postgres.js (الإنتاج) بيعمل JSON مرتين للنص، وPGlite (الاختبارات) لأ. كان خربان: حذف مستندات، حذف مواقع تواقيع، نقل لـ«נחתמו»، وكل `audit_events.details` كانت تنحفظ كنص. `tests/db-params.test.ts` بيحرس.
+- **rate limit** (سجّل اهتمامك + صفحة التوقيع) عبر اتصال القاعدة المباشر (`select public.rate_limit_hit(...)`)، مش REST تبع Supabase — فـ Data API ممكن تنطفى.
+- **الإيميل:** `skipVerify` (بدون اتصال SMTP بكل cold start)، `requireTLS` على 587 (Gmail/Resend)، بدون auth إذا ما في `SMTP_USER`. إيميل الطلب فيه نسخة نص + `tel:`؛ «نسيت كلمة السر» RTL (`Users.ts`).
+- **Vercel:** `vercel.json` — منطقة `fra1` (جنب Supabase Frankfurt)، `ignoreCommand` بيبني بس Production (فروع كلود ما بتعمل migrate على القاعدة الحقيقية)، Cron يومي لـ `/api/payload-jobs/run` (النشر المجدول للأخبار؛ `CRON_SECRET`). على Pro: غيّر الـ schedule لـ `*/10 * * * *`. PGlite مستثنى من ملفات الـ functions (أكبر function ≈ 33MB من 250).
+- **تجربة محلية:** Postgres حقيقي (embedded-postgres على 5433) + stubs لـ Supabase (`auth`، `storage.buckets`، أدوار `anon/authenticated/service_role`، `supabase_realtime`) — نفس اللي بـ `tests/migrations.test.ts`. التوقيع الحقيقي (مش mock) مع تخزين Supabase وهمي: `e2e-{sign,editor,finalize,admin}` ✓.
 
 ## الفحوصات (2026-09-27)
 - `npm test`: 91 اختبار ✓ · `node scripts/e2e-{sign,editor,finalize,admin}.mjs http://localhost:<port>` ✓ (بدها `.mock-data` جديد)

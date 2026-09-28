@@ -67,15 +67,25 @@ const useS3 = !useBlob && Boolean(process.env.S3_BUCKET)
  * Gmail/Google Workspace, Resend (smtp.resend.com), Brevo, etc.
  * Without SMTP_HOST, emails are only printed to the server log.
  */
+const smtpPort = Number(process.env.SMTP_PORT || 587)
+const smtpOnThisComputer = /^(localhost|127.0.0.1)$/.test(process.env.SMTP_HOST || '')
 const email = process.env.SMTP_HOST
   ? nodemailerAdapter({
       defaultFromAddress: process.env.EMAIL_FROM_ADDRESS || 'no-reply@almrkz.net',
       defaultFromName: process.env.EMAIL_FROM_NAME || 'كلية المركز — الموقع',
+      // Don't open an SMTP connection on every server start (each Vercel cold start would wait
+      // for Gmail). `npm run check:env` tests the login once, before the build.
+      skipVerify: true,
       transportOptions: {
         host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT || 587),
-        secure: Number(process.env.SMTP_PORT) === 465,
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        port: smtpPort,
+        // 465 = TLS from the first byte. 587 (Gmail, Resend) = STARTTLS, and it is required, so
+        // the password is never sent unencrypted. A catcher on this computer (tests) has no TLS.
+        secure: smtpPort === 465,
+        requireTLS: smtpPort !== 465 && !smtpOnThisComputer,
+        auth: process.env.SMTP_USER
+          ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+          : undefined,
       },
     })
   : undefined
@@ -193,15 +203,37 @@ export default buildConfig({
         push: true,
       })
     : postgresAdapter({
-        pool: { connectionString: databaseURL },
+        // Each Vercel instance keeps its own small pool. Supabase's pooler has a fixed number of
+        // connections for the whole project (shared with the e-signature part), so stay small.
+        pool: { connectionString: databaseURL, max: 5, idleTimeoutMillis: 10_000 },
         migrationDir: path.resolve(dirname, 'migrations'),
-        // Schema changes are applied by migrations in production (`npm run ci`).
-        push: process.env.NODE_ENV !== 'production' && process.env.PAYLOAD_DB_PUSH !== 'false',
+        // Schema changes are applied ONLY by migrations (`npm run migrate`, and `npm run ci` on
+        // Vercel). Never "push": this database also holds the e-signature tables (Supabase), and a
+        // push compares the whole database with Payload's tables — it crashes on them, or would
+        // offer to drop them. It would also leave a "dev" mark that stops later `payload migrate`
+        // runs with a question nobody can answer on Vercel. PAYLOAD_DB_PUSH=true only on a
+        // throw-away Postgres that has no e-signature tables.
+        push: process.env.PAYLOAD_DB_PUSH === 'true',
       }),
   email,
   sharp,
   upload: {
     limits: { fileSize: 50 * 1024 * 1024 },
+  },
+  /*
+   * Background jobs = «نشر مجدول» (schedule publish) on news. Vercel has no always-on server, so
+   * a Vercel Cron (vercel.json → /api/payload-jobs/run) runs the due jobs. Vercel sends
+   * "Authorization: Bearer <CRON_SECRET>" (the CRON_SECRET environment variable); a logged-in
+   * admin may also run them.
+   */
+  jobs: {
+    access: {
+      run: ({ req }) => {
+        if (req.user) return true
+        const cronSecret = process.env.CRON_SECRET
+        return Boolean(cronSecret) && req.headers.get('authorization') === `Bearer ${cronSecret}`
+      },
+    },
   },
   plugins: [
     vercelBlobStorage({

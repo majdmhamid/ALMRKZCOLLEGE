@@ -24,7 +24,13 @@ function normalizeValue(value: unknown): unknown {
   return value;
 }
 
-/** Pass a list of ids as ONE parameter: `where id in (select jsonb_array_elements_text($1::jsonb)::uuid)`. */
+/**
+ * Pass a list of ids as ONE parameter: `where id in (select jsonb_array_elements_text($1::text::jsonb)::uuid)`.
+ * Always `$n::text::jsonb`, never `$n::jsonb`, for a JSON string: with `::jsonb` the real driver
+ * (postgres.js) sees a jsonb parameter and JSON-encodes the string a second time — the database then
+ * gets a JSON *string* ("[\"…\"]"), not a list/object. PGlite (tests, mock mode) doesn't do that,
+ * so only production broke. tests/db-params.test.ts guards this.
+ */
 export function jsonList(values: readonly string[]): string {
   return JSON.stringify(values);
 }
