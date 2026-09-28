@@ -5,7 +5,7 @@ import Link from 'next/link'
 import type { ServerProps } from 'payload'
 import React from 'react'
 
-import logo from '../logo.png'
+import mark from '../logo-mark.png'
 import { NavLinks, type NavGroup } from './NavLinks'
 import { navCounts } from './counts'
 
@@ -34,7 +34,7 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
         { href: '/admin/collections/staff', label: 'الطاقم', icon: 'user', count: counts.staff, show: can('staff') },
         { href: '/admin/collections/partners', label: 'الشركاء', icon: 'handshake', count: counts.partners, show: can('partners') },
         { href: '/admin/globals/gallery', label: 'معرض الصور والفيديو', icon: 'images', show: can('gallery') },
-        { href: '/admin/collections/media', label: 'مكتبة الصور والملفات', icon: 'folder', show: can('media') },
+        { href: '/admin/collections/media', label: 'مكتبة الصور والفيديو', icon: 'folder', show: can('media') },
       ],
     },
     {
@@ -66,7 +66,7 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
     <NavWrapper baseClass="nav">
       <nav className="almrkz-nav" aria-label="لوحة التحكم">
         <Link href="/admin" className="almrkz-nav__brand">
-          <Image src={logo} alt="" width={44} height={44} style={{ objectFit: 'contain' }} />
+          <Image src={mark} alt="" width={44} height={44} style={{ objectFit: 'contain', padding: 6 }} />
           <span>
             <strong>كلية المركز</strong>
             <small>لوحة التحكم</small>
@@ -79,7 +79,9 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
             <span className="almrkz-nav__label">فتح الموقع</span>
           </a>
           <div className="almrkz-nav__user">
-            <span title={user?.email ?? ''}>{(user as { name?: string } | null)?.name || user?.email}</span>
+            <Link href="/admin/account" className="almrkz-nav__account" title={`حسابي وكلمة السر (${user?.email ?? ''})`} prefetch={false}>
+              {(user as { name?: string } | null)?.name || user?.email}
+            </Link>
             <Logout />
           </div>
         </div>
