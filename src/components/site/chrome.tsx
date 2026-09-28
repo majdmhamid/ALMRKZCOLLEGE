@@ -2,6 +2,7 @@ import React from 'react'
 
 import type { SiteLocale } from '@/lib/rules'
 
+import { A11Y, SOCIAL_NAMES } from './a11y-text'
 import { HeaderMenu, LangSwitch } from './client'
 import {
   type Shared,
@@ -25,6 +26,15 @@ import { legalLinks } from './legal-links'
 
 type Props = { shared: Shared; locale: SiteLocale }
 
+/** «facebook.com» for a social link whose platform is «other». */
+const hostName = (url?: string | null) => {
+  try {
+    return new URL(url ?? '').hostname.replace(/^www\./, '')
+  } catch {
+    return url ?? ''
+  }
+}
+
 export function Header({ shared, locale }: Props) {
   const { navigation, ui, settings } = shared
   const items = navigation.header?.items ?? []
@@ -32,41 +42,49 @@ export function Header({ shared, locale }: Props) {
   const cta = navigation.header?.cta
   const ctaHref = cta ? linkHref(cta.link, locale, shared) : `/${locale}#register`
   const logo = mediaUrl(settings.logoLight)
+  const a11y = A11Y[locale]
   return (
-    <header className="header">
-      <div className="glass header-bar">
-        <a href={`/${locale}`} className="header-logo">
-          {logo ? (
-            <img src={logo} alt={settings.siteName ?? ''} {...mediaDims(settings.logoLight)} />
-          ) : (
-            <b>{settings.siteName}</b>
-          )}
-        </a>
-        <nav className="header-nav show-desktop">
-          {links.map((l, i) => (
-            <a key={i} href={l.href}>
-              {l.label}
-            </a>
-          ))}
-        </nav>
-        <div className="header-actions">
-          <LangSwitch locale={locale} label={ui.otherLang} />
-          {cta?.show !== false && (
-            <a href={ctaHref} className="btn btn-green header-cta show-desktop">
-              {cta?.label ?? ui.common?.registerInterest}
-            </a>
-          )}
-          <HeaderMenu
-            links={links}
-            registerHref={ctaHref}
-            registerLabel={cta?.label ?? ui.common?.registerInterest ?? ''}
-            whatsappHref={whatsappHref(shared)}
-            whatsappLabel={ui.common?.whatsapp ?? ''}
-            menuLabel={ui.nav?.menu ?? ''}
-          />
+    <>
+      {/* First thing a keyboard user reaches; appears only when it gets focus. */}
+      <a href="#top" className="skip-link">
+        {a11y.skip}
+      </a>
+      <header className="header">
+        <div className="glass header-bar">
+          <a href={`/${locale}`} className="header-logo">
+            {logo ? (
+              <img src={logo} alt={settings.siteName ?? ''} {...mediaDims(settings.logoLight)} />
+            ) : (
+              <b>{settings.siteName}</b>
+            )}
+          </a>
+          <nav className="header-nav show-desktop" aria-label={a11y.mainNav}>
+            {links.map((l, i) => (
+              <a key={i} href={l.href}>
+                {l.label}
+              </a>
+            ))}
+          </nav>
+          <div className="header-actions">
+            <LangSwitch locale={locale} label={ui.otherLang} />
+            {cta?.show !== false && (
+              <a href={ctaHref} className="btn btn-green header-cta show-desktop">
+                {cta?.label ?? ui.common?.registerInterest}
+              </a>
+            )}
+            <HeaderMenu
+              links={links}
+              registerHref={ctaHref}
+              registerLabel={cta?.label ?? ui.common?.registerInterest ?? ''}
+              whatsappHref={whatsappHref(shared)}
+              whatsappLabel={ui.common?.whatsapp ?? ''}
+              menuLabel={ui.nav?.menu ?? ''}
+              navLabel={a11y.mainNav}
+            />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   )
 }
 
@@ -110,13 +128,18 @@ export function Footer({ shared, locale }: Props) {
                 href={s.url}
                 target="_blank"
                 rel="noopener"
-                aria-label={s.platform}
+                aria-label={`${SOCIAL_NAMES[s.platform] ?? hostName(s.url)} (${A11Y[locale].newTab})`}
               >
                 <SocialIcon platform={s.platform} />
               </a>
             ))}
             {contact?.whatsapp && (
-              <a href={whatsappHref(shared)} target="_blank" rel="noopener" aria-label="WhatsApp">
+              <a
+                href={whatsappHref(shared)}
+                target="_blank"
+                rel="noopener"
+                aria-label={`WhatsApp (${A11Y[locale].newTab})`}
+              >
                 <SocialIcon platform="whatsapp" />
               </a>
             )}
@@ -124,7 +147,7 @@ export function Footer({ shared, locale }: Props) {
         </div>
         {(footer?.columns ?? []).map((col) => (
           <div key={col.id ?? col.title}>
-            <h3>{col.title}</h3>
+            <h2>{col.title}</h2>
             <ul>
               {(col.links ?? []).map((l) => {
                 const href = linkHref(l.link, locale, shared)
@@ -143,7 +166,7 @@ export function Footer({ shared, locale }: Props) {
           </div>
         ))}
         <div>
-          {footer?.contactTitle && <h3>{footer.contactTitle}</h3>}
+          {footer?.contactTitle && <h2>{footer.contactTitle}</h2>}
           <ul className="contact">
             {contact?.address && (
               <li>
@@ -206,7 +229,7 @@ export function MobileBar({ shared, locale }: Props) {
   return (
     <>
       <div className="tabbar-space" aria-hidden="true" />
-      <nav className="glass tabbar">
+      <nav className="glass tabbar" aria-label={A11Y[locale].quickNav}>
         <a href={`/${locale}#top`}>
           <HomeIcon />
           {ui.nav?.home}
@@ -227,15 +250,17 @@ export function MobileBar({ shared, locale }: Props) {
           {ui.common?.call}
         </a>
       </nav>
-      <a
-        href={whatsappHref(shared)}
-        target="_blank"
-        rel="noopener"
-        aria-label="WhatsApp"
-        className="wa-float ring show-desktop"
-      >
-        <WhatsAppIcon size={30} />
-      </a>
+      <aside aria-label={A11Y[locale].contact}>
+        <a
+          href={whatsappHref(shared)}
+          target="_blank"
+          rel="noopener"
+          aria-label={`WhatsApp (${A11Y[locale].newTab})`}
+          className="wa-float ring show-desktop"
+        >
+          <WhatsAppIcon size={30} />
+        </a>
+      </aside>
     </>
   )
 }

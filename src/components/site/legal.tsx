@@ -404,6 +404,7 @@ export function LegalPage({
   return (
     <>
       <PageHero
+        locale={locale}
         crumbs={[{ href: `/${locale}`, label: shared.ui.nav?.home }]}
         title={LEGAL_LABELS[locale][slug]}
         sub={doc.sub}
