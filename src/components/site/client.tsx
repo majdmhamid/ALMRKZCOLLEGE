@@ -1,7 +1,14 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import React, { useActionState, useEffect, useRef, useState } from 'react'
+import React, {
+  useActionState,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 
 import type { LeadState } from './actions'
 import {
@@ -10,10 +17,23 @@ import {
   ChevronRight,
   CloseIcon,
   MenuIcon,
+  PauseIcon,
+  ResumeIcon,
   PlayIcon,
   PlusIcon,
   WhatsAppIcon,
 } from './icons'
+
+/** Visitor asked the device for less motion (no auto-rotation, no smooth scrolling). */
+const noSubscribe = () => () => {}
+const reducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+/**
+ * Ref callback: move the keyboard focus to an element that just replaced the button the visitor
+ * pressed (video player, YouTube frame, «thank you» message) — otherwise focus falls to the page top.
+ */
+const focusOnMount = (el: HTMLElement | null) => el?.focus({ preventScroll: true })
 
 /** Adds `.is-in` to [data-reveal] elements when they scroll into view. */
 export function RevealObserver() {
@@ -51,6 +71,7 @@ export function HeaderMenu({
   whatsappHref,
   whatsappLabel,
   menuLabel,
+  navLabel,
 }: {
   links: MenuLink[]
   registerHref: string
@@ -58,26 +79,42 @@ export function HeaderMenu({
   whatsappHref: string
   whatsappLabel: string
   menuLabel: string
+  /** Name of the menu's <nav> for screen readers. */
+  navLabel?: string
 }) {
   const [open, setOpen] = useState(false)
+  const toggle = useRef<HTMLButtonElement>(null)
   const close = () => setOpen(false)
+  // Esc closes the menu and puts the keyboard focus back on the menu button.
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setOpen(false)
+      toggle.current?.focus()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
   return (
     <>
       <button
+        ref={toggle}
         className="icon-btn square"
         aria-label={menuLabel}
         aria-expanded={open}
+        aria-controls="site-menu"
         onClick={() => setOpen(!open)}
       >
         {open ? <CloseIcon /> : <MenuIcon />}
       </button>
       {open && (
-        <div className="glass menu-panel">
-          <nav>
+        <div className="glass menu-panel" id="site-menu">
+          <nav aria-label={navLabel || menuLabel}>
             {links.map((m, i) => (
               <a key={m.href + i} href={m.href} onClick={close}>
                 <span>{m.label}</span>
-                <small>{String(i + 1).padStart(2, '0')}</small>
+                <small aria-hidden="true">{String(i + 1).padStart(2, '0')}</small>
               </a>
             ))}
           </nav>
@@ -101,15 +138,24 @@ export function Carousel({
   children,
   hint,
   header,
+  prevLabel,
+  nextLabel,
 }: {
   children: React.ReactNode
   hint?: string | null
   header: React.ReactNode
+  /** Names of the prev/next buttons for screen readers («السابق» / «التالي»). */
+  prevLabel: string
+  nextLabel: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const move = (dir: 1 | -1) => {
     const el = ref.current
-    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.6, behavior: 'smooth' })
+    if (el)
+      el.scrollBy({
+        left: dir * el.clientWidth * 0.6,
+        behavior: reducedMotion() ? 'auto' : 'smooth',
+      })
   }
   return (
     <>
@@ -134,10 +180,10 @@ export function Carousel({
               {hint}
             </span>
           )}
-          <button className="round-btn" aria-label="prev" onClick={() => move(1)}>
+          <button className="round-btn" aria-label={prevLabel} onClick={() => move(1)}>
             <ChevronRight />
           </button>
-          <button className="round-btn solid" aria-label="next" onClick={() => move(-1)}>
+          <button className="round-btn solid" aria-label={nextLabel} onClick={() => move(-1)}>
             <ChevronLeft />
           </button>
         </div>
@@ -178,7 +224,14 @@ export function CountUp({ value }: { value: number }) {
     io.observe(el)
     return () => io.disconnect()
   }, [value])
-  return <span ref={ref}>{shown}</span>
+  return (
+    <>
+      <span ref={ref} aria-hidden="true">
+        {shown}
+      </span>
+      <span className="sr-only">{value}</span>
+    </>
+  )
 }
 
 export type StoryView = {
@@ -197,17 +250,26 @@ export function Stories({
   stories,
   videoLabel,
   rotateSeconds,
+  labels,
 }: {
   stories: StoryView[]
   videoLabel?: string | null
   rotateSeconds: number
+  /** Screen-reader names: play button prefix + the pause/resume button of the auto-rotation. */
+  labels: { play: string; pause: string; resume: string }
 }) {
   const [i, setI] = useState(0)
   const [playing, setPlaying] = useState(false)
+  // Auto-rotation stops when the visitor presses pause, while the mouse or keyboard focus is
+  // inside, and never starts for visitors who asked their device for less motion.
+  const reduced = useSyncExternalStore(noSubscribe, reducedMotion, () => false)
+  const [pausedByVisitor, setPaused] = useState<boolean | null>(null)
+  const paused = pausedByVisitor ?? reduced
+  const [hold, setHold] = useState(false)
   const ticks = useRef(0)
   useEffect(() => {
     ticks.current = 0
-    if (stories.length < 2) return
+    if (stories.length < 2 || paused || hold) return
     const iv = setInterval(() => {
       if (playing) return
       ticks.current += 1
@@ -216,7 +278,7 @@ export function Stories({
       setI((x) => (x + 1) % stories.length)
     }, 500)
     return () => clearInterval(iv)
-  }, [stories.length, rotateSeconds, playing])
+  }, [stories.length, rotateSeconds, playing, paused, hold])
   const s = stories[i]
   if (!s) return null
   const pick = (n: number) => {
@@ -225,7 +287,16 @@ export function Stories({
     setI(n)
   }
   return (
-    <div data-reveal="" className="stories">
+    <div
+      data-reveal=""
+      className="stories"
+      onMouseEnter={() => setHold(true)}
+      onMouseLeave={() => setHold(false)}
+      onFocus={() => setHold(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHold(false)
+      }}
+    >
       <div className="story-text" key={`t${s.id}`}>
         {s.courseName && <span className="soft-pill">{s.courseName}</span>}
         <p className="story-quote">“{s.quote}”</p>
@@ -241,17 +312,29 @@ export function Stories({
           {stories.map((x, n) => (
             <button key={x.id} aria-label={x.name} aria-current={n === i} onClick={() => pick(n)} />
           ))}
+          {stories.length > 1 && (
+            <button
+              className="story-pause"
+              aria-label={paused ? labels.resume : labels.pause}
+              aria-pressed={paused}
+              onClick={() => setPaused(!paused)}
+            >
+              {paused ? <ResumeIcon /> : <PauseIcon />}
+            </button>
+          )}
         </div>
       </div>
       <div className="zoom story-photo" key={`p${s.id}`}>
         {playing && s.video ? (
           <video
+            ref={focusOnMount}
             src={s.video}
             controls
             autoPlay
             playsInline
             className="cover"
             style={{ background: '#000' }}
+            title={s.name}
           />
         ) : (
           <>
@@ -261,7 +344,11 @@ export function Stories({
               style={{ background: 'linear-gradient(to top,rgba(5,38,19,.8),rgba(5,38,19,0) 55%)' }}
             />
             {s.video && (
-              <button className="play ring" aria-label={s.name} onClick={() => setPlaying(true)}>
+              <button
+                className="play ring"
+                aria-label={`${labels.play}: ${s.name}`}
+                onClick={() => setPlaying(true)}
+              >
                 <PlayIcon />
               </button>
             )}
@@ -283,12 +370,28 @@ export function Stories({
   )
 }
 
-export function StaffBio({ bio, more, less }: { bio: string; more: string; less: string }) {
+export function StaffBio({
+  bio,
+  more,
+  less,
+  tabIndex,
+}: {
+  bio: string
+  more: string
+  less: string
+  /** -1 on the hidden copies of the moving strip (keyboard skips them). */
+  tabIndex?: number
+}) {
   const [open, setOpen] = useState(false)
   return (
     <>
       <p className={`staff-bio${open ? ' open' : ''}`}>{bio}</p>
-      <button className="small-btn" onClick={() => setOpen(!open)}>
+      <button
+        className="small-btn"
+        aria-expanded={open}
+        tabIndex={tabIndex}
+        onClick={() => setOpen(!open)}
+      >
         {open ? less : more}
         <ChevronDown size={13} style={{ transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
@@ -318,6 +421,7 @@ export function PromoStage({
   if (playing && youtubeId) {
     return (
       <iframe
+        ref={focusOnMount}
         src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0`}
         allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
         allowFullScreen
@@ -326,7 +430,16 @@ export function PromoStage({
     )
   }
   if (playing && video)
-    return <video src={video} controls autoPlay playsInline title={title ?? undefined} />
+    return (
+      <video
+        ref={focusOnMount}
+        src={video}
+        controls
+        autoPlay
+        playsInline
+        title={title ?? playLabel ?? undefined}
+      />
+    )
   return (
     <button className="stage-btn" aria-label={playLabel ?? 'play'} onClick={() => setPlaying(true)}>
       {children}
@@ -334,7 +447,16 @@ export function PromoStage({
   )
 }
 
-export function Reel({ video, children }: { video?: string; children: React.ReactNode }) {
+export function Reel({
+  video,
+  label,
+  children,
+}: {
+  video?: string
+  /** Screen-reader name of the card when it plays a video («تشغيل الفيديو: …»). */
+  label?: string
+  children: React.ReactNode
+}) {
   const [playing, setPlaying] = useState(false)
   // No video uploaded yet: a plain photo card — nothing to click, no pointer.
   if (!video) {
@@ -347,12 +469,23 @@ export function Reel({ video, children }: { video?: string; children: React.Reac
   if (playing) {
     return (
       <div className="reel-media">
-        <video src={video} controls autoPlay playsInline />
+        <video ref={focusOnMount} src={video} controls autoPlay playsInline title={label} />
       </div>
     )
   }
   return (
-    <div className="lift zoom reel-media" onClick={() => setPlaying(true)}>
+    <div
+      className="lift zoom reel-media"
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      onClick={() => setPlaying(true)}
+      onKeyDown={(e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return
+        e.preventDefault()
+        setPlaying(true)
+      }}
+    >
       {children}
     </div>
   )
@@ -360,6 +493,7 @@ export function Reel({ video, children }: { video?: string; children: React.Reac
 
 export function Faq({ items }: { items: { question: string; answer: string }[] }) {
   const [open, setOpen] = useState(0)
+  const uid = useId()
   return (
     <div style={{ display: 'grid', gap: 10 }}>
       {items.map((f, i) => {
@@ -374,17 +508,25 @@ export function Faq({ items }: { items: { question: string; answer: string }[] }
             <button
               className="faq-q"
               aria-expanded={isOpen}
+              aria-controls={`${uid}-a${i}`}
               onClick={() => setOpen(isOpen ? -1 : i)}
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="n">{String(i + 1).padStart(2, '0')}</span>
+                <span className="n" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
                 {f.question}
               </span>
-              <span className="faq-ic">
+              <span className="faq-ic" aria-hidden="true">
                 <PlusIcon />
               </span>
             </button>
-            <div className="faq-body" style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}>
+            <div
+              id={`${uid}-a${i}`}
+              className="faq-body"
+              style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
+              inert={!isOpen}
+            >
               <div>
                 <p className="faq-a">{f.answer}</p>
               </div>
@@ -431,6 +573,7 @@ export function LeadForm({
   defaultCourse?: number
 }) {
   const [state, formAction, pending] = useActionState(action, { ok: false })
+  const formId = useId()
   // How long the form was open before «send» (spam check in submitLead; never stored).
   const shownAt = useRef(0)
   const fillTime = useRef<HTMLInputElement>(null)
@@ -450,9 +593,12 @@ export function LeadForm({
     return () => io.disconnect()
   }, [])
   const v = state.values
+  const errId = `${formId}-err`
+  // A generic refusal is almost always a phone number the server did not accept.
+  const phoneInvalid = Boolean(state.error && !state.reason)
   if (state.ok) {
     return (
-      <div className="sent">
+      <div className="sent" role="status" ref={focusOnMount} tabIndex={-1}>
         <span className="check">
           <svg
             viewBox="0 0 24 24"
@@ -494,7 +640,7 @@ export function LeadForm({
       <div className="form-row">
         <label>
           <span>
-            {labels.name} <i>*</i>
+            {labels.name} <i aria-hidden="true">*</i>
           </span>
           <input
             name="name"
@@ -503,11 +649,12 @@ export function LeadForm({
             className="field"
             autoComplete="name"
             defaultValue={v?.name}
+            aria-describedby={state.error ? errId : undefined}
           />
         </label>
         <label>
           <span>
-            {labels.phone} <i>*</i>
+            {labels.phone} <i aria-hidden="true">*</i>
           </span>
           <input
             name="phone"
@@ -520,6 +667,8 @@ export function LeadForm({
             style={{ textAlign: 'start' }}
             autoComplete="tel"
             defaultValue={v?.phone}
+            aria-invalid={phoneInvalid || undefined}
+            aria-describedby={state.error ? errId : undefined}
           />
         </label>
       </div>
@@ -549,7 +698,7 @@ export function LeadForm({
         />
       </label>
       {state.error && (
-        <p className="form-error" role="alert">
+        <p className="form-error" role="alert" id={errId}>
           {state.reason === 'rate_limited'
             ? labels.tooMany
             : state.reason === 'too_fast'
@@ -557,7 +706,14 @@ export function LeadForm({
               : labels.error}
         </p>
       )}
-      <button ref={submitRef} type="submit" className="submit" disabled={pending}>
+      <button
+        ref={submitRef}
+        type="submit"
+        className="submit"
+        disabled={pending}
+        aria-busy={pending || undefined}
+      >
+
         {labels.submit}
       </button>
       <p className="privacy">
@@ -581,7 +737,12 @@ export function LangSwitch({ locale, label }: { locale: string; label?: string |
   const other = locale === 'ar' ? 'he' : 'ar'
   const target = path.replace(/^\/(ar|he)(?=\/|$)/, `/${other}`)
   return (
-    <a className="icon-btn" href={target === path ? `/${other}` : target} hrefLang={other}>
+    <a
+      className="icon-btn"
+      href={target === path ? `/${other}` : target}
+      hrefLang={other}
+      lang={other}
+    >
       {label}
     </a>
   )

@@ -27,6 +27,7 @@ import {
   mediaUrl,
   whatsappHref,
 } from './data'
+import { A11Y } from './a11y-text'
 import { HeroVideo } from './hero-video'
 import { LEGAL_LABELS, legalHref } from './legal-links'
 import type { getHomeData } from './data'
@@ -52,11 +53,11 @@ export function Kicker({
   if (!label) return null
   return (
     <div className={`kicker${center ? ' center' : ''}`}>
-      {center && <span className="line" />}
-      {n && <span>{n}</span>}
-      {!center && <span className="line" />}
+      {center && <span className="line" aria-hidden="true" />}
+      {n && <span aria-hidden="true">{n}</span>}
+      {!center && <span className="line" aria-hidden="true" />}
       <span className="label">{label}</span>
-      {center && <span className="line" />}
+      {center && <span className="line" aria-hidden="true" />}
     </div>
   )
 }
@@ -208,7 +209,8 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
                     href={groupHref(locale, g)}
                     dir="rtl"
                     className="chip"
-                    aria-hidden={i >= shared.groups.length}
+                    aria-hidden={i >= shared.groups.length || undefined}
+                    tabIndex={i >= shared.groups.length ? -1 : undefined}
                   >
                     <span className="ic">
                       {icon && <img src={icon} alt="" width={24} height={24} decoding="async" />}
@@ -263,6 +265,8 @@ function Groups({
     <section id={b.anchor || 'fields'} className="sec" style={{ padding: '72px 20px 24px' }}>
       <div className="wrap">
         <Carousel
+          prevLabel={A11Y[locale].prev}
+          nextLabel={A11Y[locale].next}
           hint={b.swipeHint}
           header={
             <div>
@@ -404,6 +408,7 @@ function Why({ b, n }: { b: Extract<Section, { blockType: 'why' }> } & Ctx) {
 function StoriesSection({
   b,
   home,
+  locale,
   n,
 }: { b: Extract<Section, { blockType: 'successStories' }> } & Ctx) {
   const chosen = (b.stories ?? []).map((s) => asDoc(s)).filter(Boolean) as SuccessStory[]
@@ -438,6 +443,11 @@ function StoriesSection({
           stories={stories}
           videoLabel={b.videoLabel}
           rotateSeconds={b.rotateSeconds ?? 6.5}
+          labels={{
+            play: A11Y[locale].play,
+            pause: A11Y[locale].pauseRotation,
+            resume: A11Y[locale].resumeRotation,
+          }}
         />
       </div>
     </section>
@@ -466,10 +476,15 @@ function StaffSection({
       <div className="mqwrap marquee" dir="ltr">
         <div className="mqtrack staff-track">
           {loop.map((s, i) => (
-            <article key={i} dir="rtl" className="staff-card" aria-hidden={i >= staff.length}>
+            <article
+              key={i}
+              dir="rtl"
+              className="staff-card"
+              aria-hidden={i >= staff.length || undefined}
+            >
               <div className="staff-photo">
                 {mediaUrl(s.photo, 'card') && (
-                  <img src={mediaUrl(s.photo, 'card')} alt={s.name} decoding="async" />
+                  <img src={mediaUrl(s.photo, 'card')} alt="" decoding="async" />
                 )}
               </div>
               <div className="staff-info">
@@ -480,6 +495,7 @@ function StaffSection({
                     bio={s.bio}
                     more={shared.ui.common?.readMore ?? ''}
                     less={shared.ui.nav?.close ?? ''}
+                    tabIndex={i >= staff.length ? -1 : undefined}
                   />
                 )}
               </div>
@@ -491,10 +507,10 @@ function StaffSection({
   )
 }
 
-const youtubeId = (url?: string | null) =>
+export const youtubeId = (url?: string | null) =>
   url?.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)?.[1] ?? undefined
 
-function Videos({ b, shared, n }: { b: Extract<Section, { blockType: 'videos' }> } & Ctx) {
+function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'videos' }> } & Ctx) {
   const promo = b.promo
   const poster = mediaUrl(promo?.poster, 'wide')
   return (
@@ -517,7 +533,8 @@ function Videos({ b, shared, n }: { b: Extract<Section, { blockType: 'videos' }>
               <PromoStage
                 video={mediaUrl(promo?.video)}
                 youtubeId={youtubeId(promo?.youtubeUrl)}
-                playLabel={promo?.playLabel}
+                playLabel={promo?.playLabel || A11Y[locale].play}
+                title={promo?.title}
               >
                 {poster && (
                   <img src={poster} alt="" className="cover" loading="lazy" decoding="async" />
@@ -549,7 +566,7 @@ function Videos({ b, shared, n }: { b: Extract<Section, { blockType: 'videos' }>
               const video = mediaUrl(r.video)
               return (
                 <div key={r.id} data-reveal="" className="reel" style={delay(i, 80)}>
-                  <Reel video={video}>
+                  <Reel video={video} label={`${A11Y[locale].play}: ${r.title}`}>
                     {img && (
                       <img src={img} alt="" className="cover" loading="lazy" decoding="async" />
                     )}
@@ -677,12 +694,13 @@ function Partners({ b, home }: { b: Extract<Section, { blockType: 'partners' }> 
               />
             )
             return (
-              <div key={i} className="partner" aria-hidden={i >= partners.length}>
+              <div key={i} className="partner" aria-hidden={i >= partners.length || undefined}>
                 {p.url ? (
                   <a
                     href={p.url}
                     target="_blank"
                     rel="noopener"
+                    tabIndex={i >= partners.length ? -1 : undefined}
                     style={{ height: '100%', display: 'flex' }}
                   >
                     {img}

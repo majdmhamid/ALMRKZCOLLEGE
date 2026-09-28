@@ -14,19 +14,24 @@ import {
   mediaUrl,
   whatsappHref,
 } from './data'
-import { CheckIcon, WhatsAppIcon } from './icons'
-import { CourseCard, RegisterForm } from './sections'
+import { A11Y } from './a11y-text'
+import { PromoStage } from './client'
+import { CheckIcon, PlayIcon, WhatsAppIcon } from './icons'
+import { CourseCard, RegisterForm, youtubeId } from './sections'
 
 export function PageHero({
   image,
   crumbs,
   title,
   sub,
+  locale,
 }: {
   image?: string
   crumbs: { href: string; label?: string | null }[]
   title: string
   sub?: string | null
+  /** Language of the page (names the breadcrumb navigation for screen readers). */
+  locale: SiteLocale
 }) {
   return (
     <section className="page-hero">
@@ -36,10 +41,10 @@ export function PageHero({
         )}
       </div>
       <div className="in">
-        <nav className="crumbs">
+        <nav className="crumbs" aria-label={A11Y[locale].crumbs}>
           {crumbs.map((c, i) => (
             <React.Fragment key={i}>
-              {i > 0 && <span>/</span>}
+              {i > 0 && <span aria-hidden="true">/</span>}
               <a href={c.href}>{c.label}</a>
             </React.Fragment>
           ))}
@@ -137,9 +142,14 @@ export function CoursePage({
   ].filter(([, v]) => v)
   const gallery = (c.gallery ?? []).map((m) => asDoc(m)).filter(Boolean)
   const video = mediaUrl(c.video)
+  // YouTube: only a picture + play button until the visitor clicks (youtube-nocookie after that).
+  const yt = youtubeId(c.youtubeUrl)
+  const ytThumb =
+    mediaUrl(c.videoPoster, 'wide') ?? (yt && `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`)
   return (
     <>
       <PageHero
+        locale={locale}
         image={mediaUrl(c.coverImage, 'hero')}
         crumbs={[
           { href: `/${locale}`, label: ui.nav?.home },
@@ -229,15 +239,33 @@ export function CoursePage({
               {EMPLOYMENT_NOTICE[locale]}
             </p>
           </section>
-          {(gallery.length > 0 || video || c.youtubeUrl) && (
+          {(gallery.length > 0 || video || yt) && (
             <section className="card glass">
               <h2>{t.gallery}</h2>
+              {yt && (
+                <div className="lift stage" style={{ marginBottom: 12 }}>
+                  <PromoStage
+                    youtubeId={yt}
+                    playLabel={`${A11Y[locale].play}: ${c.name}`}
+                    title={c.name}
+                  >
+                    {ytThumb && (
+                      <img src={ytThumb} alt="" className="cover" loading="lazy" decoding="async" />
+                    )}
+                    <div className="stage-shade" />
+                    <span className="play ring" style={{ width: 60, height: 60 }}>
+                      <PlayIcon size={26} />
+                    </span>
+                  </PromoStage>
+                </div>
+              )}
               {video && (
                 <video
                   src={video}
                   poster={mediaUrl(c.videoPoster, 'wide')}
                   controls
                   playsInline
+                  title={c.name}
                   style={{ width: '100%', borderRadius: 16, marginBottom: 12 }}
                 />
               )}
@@ -311,6 +339,7 @@ export function GroupPage({
   return (
     <>
       <PageHero
+        locale={locale}
         image={mediaUrl(g.image, 'hero')}
         crumbs={[
           { href: `/${locale}`, label: shared.ui.nav?.home },
@@ -320,6 +349,8 @@ export function GroupPage({
         sub={g.description || g.tagline}
       />
       <div className="wrap" style={{ padding: '40px 20px 56px' }}>
+        {/* Heading for screen readers: the course cards below are h3. */}
+        <h2 className="sr-only">{A11Y[locale].courses}</h2>
         {courses.length ? (
           <div className="course-grid">
             {courses.map((c, i) => (
@@ -353,6 +384,7 @@ export function AllCoursesPage({ shared, locale }: { shared: Shared; locale: Sit
   return (
     <>
       <PageHero
+        locale={locale}
         image={mediaUrl(shared.groups[0]?.image, 'hero')}
         crumbs={[{ href: `/${locale}`, label: shared.ui.nav?.home }]}
         title={shared.ui.nav?.allCourses ?? shared.ui.nav?.courses ?? ''}
@@ -389,6 +421,7 @@ export function NewsPage({ n, shared, locale }: { n: News; shared: Shared; local
   return (
     <>
       <PageHero
+        locale={locale}
         image={mediaUrl(n.coverImage, 'hero')}
         crumbs={[
           { href: `/${locale}`, label: shared.ui.nav?.home },

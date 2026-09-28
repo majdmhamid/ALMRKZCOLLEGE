@@ -89,6 +89,17 @@ export const PlayIcon = ({ size = 32 }: P) => (
     <path d="M8 5v14l11-7z" />
   </svg>
 )
+/** Small pause / resume marks for the stories' auto-rotation button (take the text colour). */
+export const PauseIcon = ({ size = 12 }: P) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+    <path d="M6 4h4v16H6zM14 4h4v16h-4z" />
+  </svg>
+)
+export const ResumeIcon = ({ size = 12 }: P) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+    <path d="M7 4v16l13-8z" />
+  </svg>
+)
 
 const FILLED: Record<string, string> = {
   facebook:
