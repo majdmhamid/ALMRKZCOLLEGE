@@ -8,6 +8,8 @@ export const Staff: CollectionConfig = {
   slug: 'staff',
   labels: { singular: 'عضو طاقم', plural: 'طاقم الكلية' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'role', 'order'],
     group: 'عن الكلية',

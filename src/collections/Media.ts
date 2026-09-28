@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
+import { text } from 'payload/shared'
 
 import { anyone, isStaff } from '@/access'
 import { enforceContentRules } from '@/hooks/enforceContentRules'
@@ -12,10 +13,15 @@ const webp = { format: 'webp' as const, options: { quality: 80 } }
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  labels: { singular: 'صورة / فيديو', plural: 'الصور والفيديو' },
+  labels: { singular: 'صورة / فيديو', plural: 'مكتبة الصور والفيديو' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     group: 'الصور والفيديو',
-    defaultColumns: ['filename', 'alt', 'mimeType', 'filesize', 'updatedAt'],
+    // بدون «MIME Type» والحجم بالبايت — مش مفهومين
+    useAsTitle: 'alt',
+    defaultColumns: ['filename', 'alt', 'updatedAt'],
+    listSearchableFields: ['filename', 'alt'],
     description:
       `🎬 الفيديو: يجب أن يكون قصيراً (يُفضّل أقل من دقيقة) ومضغوطاً — بصيغة MP4، وحجمه أقل من ${MAX_VIDEO_MB} ميغابايت. ` +
       'الفيديو الكبير يجعل الموقع بطيئاً جداً على الموبايل. للضغط استعمل برنامجاً مجانياً مثل HandBrake (اختيار «Fast 1080p30») أو موقع freeconvert.com. ' +
@@ -48,6 +54,13 @@ export const Media: CollectionConfig = {
       type: 'text',
       localized: true,
       required: true,
+      // رسالة واضحة بدل «هذا الحقل مطلوب»
+      validate: (value: string | null | undefined, args: Parameters<typeof text>[1]) => {
+        const result = text(value, args)
+        return result !== true && !String(value ?? '').trim()
+          ? 'اكتب جملة قصيرة شو بالصورة (مثلاً: «طالب بيتدرّب على اللحام بالورشة») — بدونها الصورة ما بتنحفظ.'
+          : result
+      },
       admin: {
         description:
           'جملة قصيرة تصف ما يظهر (مثال: «طالب يتدرّب على اللحام في ورشة الكلية»). مهم لجوجل وللمكفوفين. اكتبها بالعربي وبالعبري.',

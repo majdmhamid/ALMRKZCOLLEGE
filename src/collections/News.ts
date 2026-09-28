@@ -10,6 +10,8 @@ export const News: CollectionConfig = {
   slug: 'news',
   labels: { singular: 'خبر / إعلان', plural: 'أخبار وإعلانات' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     useAsTitle: 'title',
     defaultColumns: ['title', 'kind', 'publishedAt', '_status'],
     group: 'أخبار وقصص',

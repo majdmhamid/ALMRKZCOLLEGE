@@ -7,6 +7,8 @@ export const Gallery: GlobalConfig = {
   slug: 'gallery',
   label: 'معرض الصور والفيديو',
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     group: 'الصفحات',
     description: 'صور حقيقية من الورشات والتدريبات، وفيديوهات يوتيوب. اسحب لتغيير الترتيب.',
   },

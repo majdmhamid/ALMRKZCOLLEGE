@@ -11,6 +11,8 @@ export const SuccessStories: CollectionConfig = {
   slug: 'success-stories',
   labels: { singular: 'قصة نجاح', plural: 'قصص نجاح الخريجين' },
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     useAsTitle: 'graduateName',
     defaultColumns: ['graduateName', 'course', 'graduationYear', '_status'],
     group: 'أخبار وقصص',

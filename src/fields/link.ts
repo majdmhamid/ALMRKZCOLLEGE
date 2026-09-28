@@ -25,7 +25,7 @@ export const linkField = ({
         { label: 'قسم في الصفحة الرئيسية', value: 'anchor' },
         { label: 'صفحة من الموقع', value: 'page' },
         { label: 'دورة', value: 'course' },
-        { label: 'مجموعة دورات', value: 'courseGroup' },
+        { label: 'مجال دورات', value: 'courseGroup' },
         { label: 'واتساب الكلية', value: 'whatsapp' },
         { label: 'اتصال بالهاتف', value: 'phone' },
         { label: 'رابط خارجي', value: 'external' },
@@ -70,7 +70,7 @@ export const linkField = ({
     },
     {
       name: 'courseGroup',
-      label: 'المجموعة',
+      label: 'المجال',
       type: 'relationship',
       relationTo: 'course-groups',
       admin: { condition: (_, sibling) => sibling?.type === 'courseGroup' },

@@ -13,6 +13,8 @@ export const Navigation: GlobalConfig = {
   slug: 'navigation',
   label: 'القائمة والتذييل',
   admin: {
+    // تبويب «API» تقني — مش لمجد وحسين
+    hideAPIURL: true,
     group: 'إعدادات',
     description: 'قائمة أعلى الموقع، وأسفل الموقع (التذييل). اسحب العناصر لتغيير ترتيبها.',
   },
@@ -118,7 +120,10 @@ export const Navigation: GlobalConfig = {
               label: 'روابط صغيرة أسفل الصفحة (اختياري)',
               type: 'array',
               labels: { singular: 'رابط', plural: 'روابط' },
-              admin: { description: 'مثل: سياسة الخصوصية، إمكانية الوصول (נגישות).' },
+              admin: {
+                description: 'مثل: سياسة الخصوصية، إمكانية الوصول (נגישות).',
+                components: { RowLabel: '@/admin/RowLabel#LabelRowLabel' },
+              },
               fields: menuItemFields,
             },
           ],
