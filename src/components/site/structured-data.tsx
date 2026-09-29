@@ -1,6 +1,7 @@
 import React from 'react'
 
 import type { Course } from '@/payload-types'
+import { internationalPhone, openingHoursSpecification } from '@/lib/schema-format'
 import { absoluteUrl, encodeSlug } from '@/lib/seo'
 import type { SiteLocale } from '@/lib/rules'
 
@@ -52,7 +53,7 @@ const orgId = () => absoluteUrl('/#organization')
 export function organizationData(shared: Shared, locale: SiteLocale): Json {
   const s = shared.settings
   const c = s.contact
-  const phones = (c?.phones ?? []).map((p) => p.number)
+  const phones = (c?.phones ?? []).map((p) => internationalPhone(p.number))
   return {
     '@context': 'https://schema.org',
     '@type': ['EducationalOrganization', 'LocalBusiness'],
@@ -75,8 +76,9 @@ export function organizationData(shared: Shared, locale: SiteLocale): Json {
         }
       : undefined,
     hasMap: c?.mapUrl,
-    // Free text («الأحد – الخميس · 08:00 – 16:00») — Google reads it as a description of the hours.
-    openingHours: (c?.openingHours ?? []).map((h) => `${h.days} ${h.hours}`),
+    // Only lines with clear days + times («الأحد – الخميس» + «08:00 – 16:00»); Google rejects
+    // free text like «تواصل معنا» here, so such lines are left out (they still show on the site).
+    openingHoursSpecification: openingHoursSpecification(c?.openingHours ?? []),
     contactPoint: phones.map((telephone) => ({
       '@type': 'ContactPoint',
       telephone,
@@ -84,7 +86,6 @@ export function organizationData(shared: Shared, locale: SiteLocale): Json {
       availableLanguage: ['ar', 'he'],
     })),
     sameAs: (s.social ?? []).map((x) => x.url),
-    inLanguage: locale,
   }
 }
 
