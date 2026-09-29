@@ -163,6 +163,8 @@ export async function CardsListView(props: ListViewServerProps) {
           sessions: c.sessions ?? null,
           flag: Boolean((c as unknown as { featured?: boolean }).featured),
           voucher: Boolean(c.voucherEligible),
+          // نفس بطاقة الموقع (components/site/sections.tsx → CourseCard)
+          scheduleText: c.scheduleDetails && !c.schedule?.includes('evening') ? c.scheduleDetails : undefined,
         }
       }
       case 'news': {

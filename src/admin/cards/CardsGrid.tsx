@@ -493,7 +493,7 @@ function EditableCard({
                 <b dir="ltr">{card.sessions ?? '—'}</b>
                 {labels.sessions}
               </div>
-              <div>{labels.evening}</div>
+              <div>{card.scheduleText || labels.evening}</div>
             </div>
             <div className="course-foot">
               <span>{card.voucher && <span className="voucher-dot">{labels.voucher}</span>}</span>
