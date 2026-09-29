@@ -6,9 +6,17 @@
  * must be divisible by 10. Shorter numbers are left-padded with zeros.
  */
 
+/**
+ * Arabic-Indic (٠-٩) and Persian (۰-۹) digits → 0-9. Arabic phone keyboards often type
+ * these in number fields; without this the ID looked empty/invalid to the signer.
+ */
+export function toAsciiDigits(input: string): string {
+  return input.replace(/[٠-٩۰-۹]/g, (d) => String((d.charCodeAt(0) & 0xf) % 10));
+}
+
 /** Strips spaces/dashes and left-pads to 9 digits. Returns null if not 1–9 digits. */
 export function normalizeIsraeliId(input: string): string | null {
-  const digits = input.replace(/[\s\-‐-―]/g, "");
+  const digits = toAsciiDigits(input).replace(/[\s\-‐-―]/g, "");
   if (!/^\d{1,9}$/.test(digits)) return null;
   return digits.padStart(9, "0");
 }

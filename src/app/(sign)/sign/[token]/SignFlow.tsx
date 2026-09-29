@@ -8,6 +8,7 @@ import { LanguageSwitch } from "@/features/signing/components/LanguageSwitch";
 import { PdfPage, useElementWidth, usePdfDocument } from "@/features/signing/components/pdf/PdfView";
 import { SignaturePad, textSignatureDataUrl, type SignaturePadHandle } from "@/features/signing/components/signature/SignaturePad";
 import type { SignatureMethod } from "@/features/signing/lib/domain";
+import { toAsciiDigits } from "@/features/signing/lib/security/israeli-id";
 import type { SignView } from "@/features/signing/server/services/signing";
 import { signAnotherAction, submitSignatureAction, verifyIdAction } from "./actions";
 
@@ -211,7 +212,7 @@ function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shar
             autoComplete="off"
             dir="ltr"
             value={idNumber}
-            onChange={(e) => setIdNumber(e.target.value.replace(/[^\d\- ]/g, ""))}
+            onChange={(e) => setIdNumber(toAsciiDigits(e.target.value).replace(/[^\d\- ]/g, ""))}
             className={`${inputClass} text-end text-lg tracking-widest`}
           />
           <span className="mt-1 block text-xs text-muted">{t("idHint")}</span>

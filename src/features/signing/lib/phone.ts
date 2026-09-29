@@ -1,10 +1,12 @@
+import { toAsciiDigits } from "./security/israeli-id";
+
 /**
  * Phone numbers for WhatsApp links. Stored as international digits without "+"
  * (e.g. 972501234567), which is exactly what wa.me expects.
  * Local Israeli numbers (05X…, 0X…) get the 972 prefix.
  */
 export function normalizePhone(input: string): string | null {
-  const trimmed = input.trim();
+  const trimmed = toAsciiDigits(input).trim();
   if (!trimmed) return null;
   let digits = trimmed.replace(/[\s\-().]/g, "");
   if (digits.startsWith("+")) digits = digits.slice(1);
