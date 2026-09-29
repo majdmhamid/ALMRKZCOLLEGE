@@ -2738,7 +2738,9 @@
   .site-scope iframe,
   .site-scope video,
   .site-scope .stage,
-  .site-scope .crumbs {
+  .site-scope .crumbs,
+  .site-scope .consent,
+  .site-scope .skip-link {
     display: none !important;
   }
   .site-scope .print-only {

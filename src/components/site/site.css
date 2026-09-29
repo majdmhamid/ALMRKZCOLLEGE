@@ -2776,7 +2776,9 @@ textarea.field {
   iframe,
   video,
   .stage,
-  .crumbs {
+  .crumbs,
+  .consent,
+  .skip-link {
     display: none !important;
   }
   .print-only {
