@@ -314,7 +314,11 @@ function SignStep({
         <div
           ref={boxRef}
           data-testid="pdf-viewer"
-          className="max-h-[70dvh] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-slate-200/60 p-2"
+          // Same height while loading as once shown: otherwise the PDF arriving pushes the signature
+          // box down under the finger of someone who scrolled on and started signing.
+          className={`max-h-[70dvh] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-slate-200/60 p-2 ${
+            urlError || pdf.status === "error" || (pdf.status === "ready" && width > 0) ? "" : "h-[70dvh]"
+          }`}
         >
           {urlError || pdf.status === "error" ? (
             <p className="p-8 text-center text-sm text-red-600">{t("loadError")}</p>
@@ -335,7 +339,10 @@ function SignStep({
         <input
           type="checkbox"
           checked={read}
-          onChange={(e) => setRead(e.target.checked)}
+          onChange={(e) => {
+            setRead(e.target.checked);
+            setError(null);
+          }}
           className="mt-0.5 size-5 shrink-0 accent-brand-600"
           data-testid="read-confirm"
         />
@@ -366,7 +373,15 @@ function SignStep({
 
         <fieldset disabled={!read} className="contents">
           {method === "draw" ? (
-            <SignaturePad ref={pad} onChange={setPadEmpty} hint={t("drawHint")} clearLabel={t("clear")} />
+            <SignaturePad
+              ref={pad}
+              onChange={(empty) => {
+                setPadEmpty(empty);
+                if (!empty) setError(null);
+              }}
+              hint={t("drawHint")}
+              clearLabel={t("clear")}
+            />
           ) : (
             <div className="space-y-3">
               {method === "checkbox" && (
