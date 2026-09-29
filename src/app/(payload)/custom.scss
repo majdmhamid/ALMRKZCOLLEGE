@@ -215,6 +215,10 @@ html[data-theme] body {
   border-radius: 16px !important;
 }
 .table {
+  // The e-signature pages bring Tailwind, whose `.table` utility (display: table) also hit
+  // Payload's list wrapper: the wrapper stopped scrolling and every list (users, media, leads…)
+  // pushed the whole page sideways on a phone.
+  display: block;
   table {
     background: #fff;
     box-shadow: var(--shadow-card);
@@ -229,11 +233,29 @@ html[data-theme] body {
   tbody tr:hover td {
     background: var(--brand-50);
   }
+  // Tablets/phones: Payload makes the list table run edge to edge with left/padding-left (built
+  // for left-to-right). Mirrored for our right-to-left admin, or the page scrolls sideways.
+  @media (max-width: 1024px) {
+    .collection-list & {
+      display: flex;
+      left: auto;
+      right: calc(var(--gutter-h) * -1);
+    }
+  }
   a {
     color: var(--brand-700);
     font-weight: 700;
     text-decoration: none;
   }
+}
+
+// أرقام الهاتف وعناوين الصفحات بالطلبات: من اليسار لليمين، وإلا «‎+972 54…» بتطلع «…54 972+»
+.collection-list--leads td.cell-phone,
+.collection-list--leads td.cell-sourcePage,
+#field-phone,
+#field-sourcePage {
+  direction: ltr;
+  text-align: right;
 }
 
 // الروابط
@@ -262,6 +284,13 @@ h3 {
   background: rgb(255 255 255 / 0.85);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
+}
+// Phones: Payload's "content language" chip gets both left (RTL) and right (mobile) and
+// stretches over the page title. Keep it on the left, next to the account icon.
+@media (max-width: 768px) {
+  [dir='rtl'] .app-header__localizer.localizer {
+    right: auto;
+  }
 }
 
 // شاشة الدخول
@@ -428,4 +457,44 @@ h3 {
       text-decoration: underline;
     }
   }
+}
+
+// ───────── الموبايل: القائمة درج فوق الصفحة ─────────
+// Payload بيحط القائمة كعمود جنب الصفحة. على شاشة الجوال (RTL) كانت تطلع برّا الشاشة والصفحة
+// تنضغط لعرض صفر. هون بتصير درج من اليمين فوق الصفحة، مع خلفية معتمة بتسكّرها (NavLinks).
+@media (max-width: 768px) {
+  // the nav is out of the grid (fixed), so the page is the only column
+  .template-default--nav-hydrated.template-default--nav-open {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .template-default--nav-open .nav {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: auto;
+    inset-inline-start: 0;
+    width: min(86vw, 300px);
+    height: 100dvh;
+    z-index: 100;
+    box-shadow: 0 10px 40px rgb(0 0 0 / 0.25);
+  }
+  .nav .nav__header {
+    top: 10px;
+    inset-inline-end: 10px;
+    width: auto;
+    height: auto;
+    z-index: 2;
+  }
+  .nav .nav__mobile-close {
+    padding: 6px;
+  }
+}
+.almrkz-nav__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  border: 0;
+  padding: 0;
+  background: rgb(15 23 42 / 0.45);
+  cursor: pointer;
 }

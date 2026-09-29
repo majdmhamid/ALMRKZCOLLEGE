@@ -115,6 +115,8 @@ export default buildConfig({
     meta: {
       titleSuffix: ' — لوحة تحكم كلية المركز',
       description: 'لوحة تحكم موقع كلية المركز للتأهيل المهني',
+      // College mark in the browser tab (instead of Payload's black «P»)
+      icons: [{ rel: 'icon', type: 'image/png', url: '/admin-icon.png' }],
     },
     dateFormat: 'dd/MM/yyyy HH:mm',
     livePreview: {
