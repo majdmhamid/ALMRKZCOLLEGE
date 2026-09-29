@@ -1,7 +1,7 @@
 import type { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 
-import { anyone, isAdmin, isAdminField } from '@/access'
+import { isAdmin, isAdminField } from '@/access'
 import { serverURL } from '@/lib/preview'
 import type { Lead } from '@/payload-types'
 
@@ -111,8 +111,11 @@ export const Leads: CollectionConfig = {
   },
   defaultSort: '-createdAt',
   access: {
-    // The public form on the website can create; only admins can see or change leads.
-    create: anyone,
+    // Only admins can see, add or change leads. The website form («سجّل اهتمامك») saves through
+    // its server action (src/components/site/actions.ts), which runs the spam checks (too fast,
+    // rate limit, hidden trap field) first. A public REST create here would skip all of them and
+    // let a bot fill the list (and the college's inbox) by posting straight to /api/leads.
+    create: isAdmin,
     read: isAdmin,
     update: isAdmin,
     delete: isAdmin,

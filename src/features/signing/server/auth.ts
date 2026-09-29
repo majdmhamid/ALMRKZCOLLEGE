@@ -28,12 +28,16 @@ async function ensureProfile(userId: string, displayName: string) {
   ensured.add(userId);
 }
 
-/** المدير الحالي (أي مستخدم داخل على لوحة التحكم)، أو null */
+/**
+ * المدير الحالي، أو null. بس صلاحية «مدير» — «محرّر» (محتوى الموقع بس) ما بيشوف المستندات:
+ * فيها أرقام هويات وتواقيع الطلاب.
+ */
 export const getAdmin = cache(async (): Promise<AdminUser | null> => {
   const payload = await getPayload({ config });
   const { user } = await payload.auth({ headers: await headers() });
   if (!user) return null;
-  const u = user as { id: number | string; email?: string; name?: string };
+  const u = user as { id: number | string; email?: string; name?: string; roles?: string[] | null };
+  if (!u.roles?.includes("admin")) return null;
   const admin = { userId: payloadUserUuid(u.id), email: u.email ?? "", displayName: u.name || u.email || "" };
   await ensureProfile(admin.userId, admin.displayName);
   return admin;
@@ -41,6 +45,7 @@ export const getAdmin = cache(async (): Promise<AdminUser | null> => {
 
 export async function requireAdmin(): Promise<AdminUser> {
   const admin = await getAdmin();
+  // Not logged in → the login page; logged in as an editor → Payload sends them on to /admin.
   if (!admin) redirect("/admin/login");
   return admin;
 }

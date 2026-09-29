@@ -33,7 +33,9 @@ export async function submitLead(_prev: LeadState, form: FormData): Promise<Lead
     const payload = await getPayloadClient()
     await payload.create({
       collection: 'leads',
-      overrideAccess: false,
+      // The REST API does not accept leads from visitors (only admins) — this form, after the
+      // spam checks above, is the only public way in. Every field below is set here.
+      overrideAccess: true,
       data: {
         name: get('name'),
         phone: get('phone'),
