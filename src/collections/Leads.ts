@@ -138,6 +138,8 @@ export const Leads: CollectionConfig = {
       label: 'الدورة المطلوبة',
       type: 'relationship',
       relationTo: 'courses',
+      // No «+ new course» / edit buttons inside a lead
+      admin: { allowCreate: false, allowEdit: false },
     },
     {
       name: 'courseOther',
