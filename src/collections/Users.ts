@@ -128,6 +128,9 @@ export const Users: CollectionConfig = {
       defaultValue: ['editor'],
       saveToJWT: true,
       admin: {
+        // Not on the «create first user» screen: the first account is always an admin (hook
+        // below), and the default «محرّر» shown there made it look like an editor.
+        condition: (_data, _siblingData, { user }) => Boolean(user),
         description:
           'اختار وحدة بس: «مدير» (كل إشي، مع الطلبات والحسابات) أو «محرّر» (نصوص وصور الموقع بس). إذا بدك تغيّرها، امسح القديمة بالـ ✕.',
       },
