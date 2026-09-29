@@ -14,7 +14,7 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Rnd } from "react-rnd";
 import { savePlacementsAction } from "@/features/signing/actions/documents";
 import { PdfPage, useElementWidth, usePdfDocument } from "@/features/signing/components/pdf/PdfView";
@@ -56,10 +56,16 @@ export function PlacementEditor({
   const [zoomIndex, setZoomIndex] = useState(ZOOMS.indexOf(1));
   const [lockRatio, setLockRatio] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [save, setSave] = useState<SaveState>("idle");
+  const [saveFailed, setSaveFailed] = useState(false);
   const [drag, setDrag] = useState<Drag | null>(null);
   const [aspects, setAspects] = useState<Record<string, number>>({});
-  const lastSaved = useRef(JSON.stringify(initialPlacements));
+  // What the server has. State, not a ref: two overlapping saves used to leave "✓ saved" on
+  // screen while Finalize stayed disabled (the second save changed nothing React could see).
+  const [initialJson] = useState(() => JSON.stringify(initialPlacements));
+  const [savedJson, setSavedJson] = useState(initialJson);
+  const json = useMemo(() => JSON.stringify(placements), [placements]);
+  const dirty = json !== savedJson;
+  const save: SaveState = dirty ? (saveFailed ? "error" : "saving") : savedJson !== initialJson ? "saved" : "idle";
 
   const zoom = ZOOMS[zoomIndex];
   const pageWidth = Math.max(200, Math.floor((containerWidth - 48) * zoom));
@@ -69,35 +75,34 @@ export function PlacementEditor({
   const notPlaced = signed.filter((s) => countFor(s.signerId) === 0);
 
   useEffect(() => {
-    onStatus?.({
-      saved: JSON.stringify(placements) === lastSaved.current && save !== "saving",
-      placements: placements.length,
-      unplaced: notPlaced.length,
-    });
-  }, [placements, save, notPlaced.length, onStatus]);
+    onStatus?.({ saved: !dirty, placements: placements.length, unplaced: notPlaced.length });
+  }, [dirty, placements.length, notPlaced.length, onStatus]);
 
   // ---------------------------------------------------------------- autosave
   // Save only real changes (also avoids a save on mount when effects run twice in dev).
-  const retry = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A save that finishes late (older placements) makes `dirty` true again → the newest set is re-sent.
   useEffect(() => {
-    const json = JSON.stringify(placements);
-    if (readOnly || json === lastSaved.current) return;
-    setSave("saving");
+    if (readOnly || !dirty) return;
+    let retry: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
     const handle = setTimeout(async function run() {
       const result = await savePlacementsAction(documentId, placements).catch(() => null);
       if (result?.ok) {
-        lastSaved.current = json;
-        setSave("saved");
-      } else {
-        setSave("error");
-        retry.current = setTimeout(run, 3000);
+        setSaveFailed(false);
+        setSavedJson(json);
+      } else if (!cancelled) {
+        setSaveFailed(true);
+        retry = setTimeout(run, 3000);
       }
     }, 600);
     return () => {
+      cancelled = true;
       clearTimeout(handle);
-      if (retry.current) clearTimeout(retry.current);
+      if (retry) clearTimeout(retry);
     };
-  }, [placements, documentId, readOnly]);
+    // `json` stands for `placements`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [json, dirty, documentId, readOnly]);
 
   // ------------------------------------------------------------ page tracking
   const onScroll = useCallback(() => {
@@ -410,7 +415,7 @@ export function PlacementEditor({
                 <div className="mt-2 flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">
-                      {s.name}
+                      <bdi>{s.name}</bdi>
                       {s.isAdmin && <span className="ms-1.5 rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-admin">{t("admin")}</span>}
                     </div>
                     {s.signedAt && <div className="text-[11px] text-muted">{t("signedAt", { date: fmt.dateTime(s.signedAt) })}</div>}

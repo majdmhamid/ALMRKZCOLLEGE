@@ -1,24 +1,102 @@
-import type { CollectionConfig } from 'payload'
+import type {
+  CollectionBeforeChangeHook,
+  CollectionBeforeDeleteHook,
+  CollectionBeforeOperationHook,
+  CollectionConfig,
+} from 'payload'
+import { APIError } from 'payload'
 
 import { adminOrSelf, isAdmin, isAdminField, isAdminUser } from '@/access'
+import { bi } from '@/admin/i18n'
+import { emailIsSetUp, NO_EMAIL_MESSAGE } from '@/lib/email'
 import { serverURL } from '@/lib/preview'
+
+/**
+ * «نسيت كلمة السر» بدون إيميل مركّب (SMTP_HOST فاضي) على الموقع الحقيقي: Payload كان بيقول
+ * «تفقّد بريدك» وما بيبعت إشي. هون بنوقّف الطلب برسالة واضحة (والصفحة نفسها بتحكيها:
+ * src/admin/forgot). محلياً (npm run dev) الرابط بينطبع بسجل السيرفر، فبنخليه يشتغل.
+ */
+const blockResetWithoutEmail: CollectionBeforeOperationHook = ({ args, operation, req }) => {
+  if (operation === 'forgotPassword' && !emailIsSetUp()) {
+    throw new APIError(req.i18n?.language === 'he' ? NO_EMAIL_MESSAGE.he : NO_EMAIL_MESSAGE.ar, 503, undefined, true)
+  }
+  return args
+}
+
+const lang = (req: { i18n?: { language?: string } }) => (req.i18n?.language === 'he' ? 'he' : 'ar')
+
+const otherAdmins = async (req: Parameters<CollectionBeforeOperationHook>[0]['req'], id: number | string) => {
+  const { totalDocs } = await req.payload.count({
+    collection: 'users',
+    where: { and: [{ roles: { in: ['admin'] } }, { id: { not_equals: id } }] },
+    req,
+    overrideAccess: true,
+  })
+  return totalDocs
+}
+
+/** بدون حساب «مدير» واحد على الأقل ما حدا بيقدر يزيد مستخدمين أو يشوف الطلبات. */
+const keepAnAdmin: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  if (req.user && String(req.user.id) === String(id)) {
+    throw new APIError(
+      lang(req) === 'he'
+        ? 'אי אפשר למחוק את החשבון שלך. מנהל אחר יכול למחוק אותו.'
+        : 'ما بتقدر تمسح حسابك إنت. مدير ثاني بيقدر يمسحه.',
+      400,
+      undefined,
+      true,
+    )
+  }
+  const target = await req.payload
+    .findByID({ collection: 'users', id, depth: 0, req, overrideAccess: true })
+    .catch(() => null)
+  if (target?.roles?.includes('admin') && (await otherAdmins(req, id)) === 0) {
+    throw new APIError(
+      lang(req) === 'he' ? 'זה המנהל האחרון — אי אפשר למחוק אותו.' : 'هاد آخر «مدير» باللوحة — ما بينفع ينمسح.',
+      400,
+      undefined,
+      true,
+    )
+  }
+}
+
+const keepAdminRole: CollectionBeforeChangeHook = async ({ data, operation, originalDoc, req }) => {
+  if (operation !== 'update' || !originalDoc?.roles?.includes('admin') || !Array.isArray(data?.roles)) return data
+  if (!data.roles.includes('admin') && (await otherAdmins(req, originalDoc.id)) === 0) {
+    throw new APIError(
+      lang(req) === 'he'
+        ? 'זה המנהל האחרון — השאירו לו הרשאת «מנהל» (אחרת אף אחד לא יוכל לנהל משתמשים ופניות).'
+        : 'هاد آخر «مدير» — خلّي عنده صلاحية «مدير» (غير هيك ما حدا بيقدر يدير المستخدمين والطلبات).',
+      400,
+      undefined,
+      true,
+    )
+  }
+  return data
+}
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  labels: { singular: 'مستخدم', plural: 'المستخدمون' },
+  labels: { singular: bi('مستخدم', 'משתמש'), plural: bi('المستخدمون', 'משתמשים') },
   admin: {
     // تبويب «API» تقني — مش لمجد وحسين
     hideAPIURL: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'roles'],
     group: 'الإدارة',
-    description:
-      'من يستطيع الدخول للوحة التحكم. «مدير» يتحكم بكل شيء، «محرّر» يعدّل محتوى الموقع فقط (لا يرى الطلبات ولا المستخدمين). ' +
-      'لتغيير كلمة السر تبعتك: اضغط على اسمك تحت بالقائمة الجانبية ← «تغيير كلمة المرور».',
+    description: bi(
+      'من يستطيع الدخول للوحة التحكم. «مدير» يتحكم بكل شيء، «محرّر» يعدّل محتوى الموقع فقط (لا يرى الطلبات ولا المستخدمين ولا التوقيع الإلكتروني). ' +
+        'لتغيير كلمة السر تبعتك: اضغط على اسمك تحت بالقائمة الجانبية ← «تغيير كلمة المرور».',
+      'מי יכול להיכנס ללוח הניהול. «מנהל» שולט בהכול; «עורך» עורך רק את תוכן האתר (בלי פניות, משתמשים וחתימה אלקטרונית). ' +
+        'לשינוי הסיסמה שלכם: לחצו על השם שלכם בתחתית התפריט ← «שינוי סיסמה».',
+    ),
   },
   auth: {
     maxLoginAttempts: 10,
     lockTime: 10 * 60 * 1000,
+    // The login cookie is only ever sent over HTTPS on the real site (Payload's default is not).
+    // A computer running the site on http://localhost keeps working.
+    cookies: { secure: serverURL().startsWith('https://'), sameSite: 'Lax' },
     // «نسيت كلمة السر»: Payload's own email has no right-to-left direction (Gmail shows the
     // Arabic aligned left). Same content, RTL, with the site's address.
     forgotPassword: {
@@ -44,25 +122,30 @@ export const Users: CollectionConfig = {
   fields: [
     {
       name: 'name',
-      label: 'الاسم',
+      label: bi('الاسم', 'שם'),
       type: 'text',
       required: true,
     },
     {
       name: 'roles',
-      label: 'الصلاحية',
+      label: bi('الصلاحية', 'הרשאה'),
       type: 'select',
       hasMany: true,
       required: true,
       defaultValue: ['editor'],
       saveToJWT: true,
       admin: {
-        description:
-          'اختار وحدة بس: «مدير» (كل إشي، مع الطلبات والحسابات) أو «محرّر» (نصوص وصور الموقع بس). إذا بدك تغيّرها، امسح القديمة بالـ ✕.',
+        // Not on the «create first user» screen: the first account is always an admin (hook
+        // below), and the default «محرّر» shown there made it look like an editor.
+        condition: (_data, _siblingData, { user }) => Boolean(user),
+        description: bi(
+          'اختار وحدة بس: «مدير» (كل إشي، مع الطلبات والحسابات والتوقيع) أو «محرّر» (نصوص وصور الموقع بس). إذا بدك تغيّرها، امسح القديمة بالـ ✕.',
+          'בחרו אחת בלבד: «מנהל» (הכול, כולל פניות, חשבונות וחתימה) או «עורך» (רק טקסטים ותמונות באתר). כדי להחליף, מחקו את הקודמת ב-✕.',
+        ),
       },
       options: [
-        { label: 'مدير (كل شيء)', value: 'admin' },
-        { label: 'محرّر (المحتوى فقط)', value: 'editor' },
+        { label: bi('مدير (كل شيء)', 'מנהל (הכול)'), value: 'admin' },
+        { label: bi('محرّر (المحتوى فقط)', 'עורך (תוכן בלבד)'), value: 'editor' },
       ],
       access: {
         // Only admins can give or remove permissions (editors can't promote themselves).
@@ -72,7 +155,10 @@ export const Users: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeOperation: [blockResetWithoutEmail],
+    beforeDelete: [keepAnAdmin],
     beforeChange: [
+      keepAdminRole,
       // The very first account (created on the /admin welcome screen) is always an admin.
       async ({ data, operation, req }) => {
         if (operation !== 'create' || isAdminUser(req)) return data

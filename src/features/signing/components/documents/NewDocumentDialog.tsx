@@ -25,9 +25,12 @@ let signerKey = 0;
 const blankSigner = (): SignerDraft => ({ key: ++signerKey, name: "", idNumber: "", phone: "" });
 
 /** PUT with progress events (fetch has no upload progress). */
-function putWithProgress(url: string, file: File, onProgress: (pct: number) => void): Promise<void> {
+function putWithProgress(url: string, file: File, onProgress: (pct: number) => void, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    // Dialog closed mid-upload: stop, so no orphan file lands in storage after the draft is discarded.
+    signal?.addEventListener("abort", () => xhr.abort());
+    xhr.onabort = () => reject(new Error("aborted"));
     xhr.open("PUT", url);
     xhr.setRequestHeader("content-type", "application/pdf");
     xhr.setRequestHeader("x-upsert", "true");
@@ -97,6 +100,7 @@ export function NewDocumentDialog({
   useEffect(() => {
     if (!open || !currentFile || draft) return;
     let cancelled = false;
+    const abort = new AbortController();
     (async () => {
       if (!/\.pdf$/i.test(currentFile.name) && currentFile.type !== "application/pdf") {
         setUpload({ state: "error", error: "not_pdf" });
@@ -124,6 +128,7 @@ export function NewDocumentDialog({
       try {
         await putWithProgress(started.uploadUrl, currentFile, (pct) =>
           setUpload({ state: "uploading", pct, documentId: started.documentId }),
+          abort.signal,
         );
         if (!cancelled) setUpload({ state: "done", documentId: started.documentId });
       } catch {
@@ -132,6 +137,7 @@ export function NewDocumentDialog({
     })();
     return () => {
       cancelled = true;
+      abort.abort();
     };
   }, [open, currentFile, draft]);
 

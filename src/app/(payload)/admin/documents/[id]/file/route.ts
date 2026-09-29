@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!objectPath) return new NextResponse("Not found", { status: 404 });
 
   const safeTitle = doc.title.replace(/[\/:*?"<>|]+/g, " ").trim() || "document";
-  const downloadName = request.nextUrl.searchParams.get("download") ? `${safeTitle}${useFinal ? " (signed)" : ""}.pdf` : undefined;
+  const downloadName = request.nextUrl.searchParams.get("download") ? `${safeTitle}${useFinal ? " - موقّع" : ""}.pdf` : undefined;
   const url = await fileStore().signedUrl(useFinal ? "finals" : "originals", objectPath, 60, downloadName);
   return NextResponse.redirect(url, { headers: { "cache-control": "no-store" } });
 }

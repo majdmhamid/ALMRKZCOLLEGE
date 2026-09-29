@@ -15,6 +15,8 @@ export const arTranslationFixes = {
     allLocales: 'كل اللغات',
     noResults: 'لسا ما في {{label}}.',
     fallbackToDefaultLocale: 'استعمل النص العربي',
+    // «جدولة النشر» (الأخبار): الترجمة الجاهزة ترجمت {{title}} نفسها فطلع «{{العنوان}}» بالعنوان
+    schedulePublishFor: 'جدولة النشر: «{{title}}»',
   },
   fields: {
     toggleBlock: 'افتح / سكّر',
@@ -31,13 +33,32 @@ export const arTranslationFixes = {
     publishAllLocales: 'نشر بكل اللغات',
     aboutToUnpublish: 'رح يختفي من الموقع (بس بضل محفوظ هون وبتقدر ترجع تنشره). متأكد؟',
     currentlyViewing: 'النسخة اللي قدامك',
+    // «جدول النشر» = جدول (table) — الصح «جدولة النشر»
+    schedulePublish: 'جدولة النشر',
   },
   error: {
+    // «عليك أن تقوم بتسجيل الدخول» كانت تطلع حتى لـ«محرّر» داخل، و«لا يسمح لك» كانت تطلع لما
+    // تنتهي جلسة الدخول (مثلاً الكمبيوتر نام) — بدون ما يعرف إنه لازم يدخل من جديد
+    unauthorized: 'ما إلك صلاحية لهاد الإشي: يا إما انتهت جلسة الدخول (ادخل من جديد)، يا إما بدها حساب «مدير».',
+    notAllowedToPerformAction:
+      'ما صار: يا إما انتهت جلسة الدخول، يا إما ما إلك صلاحية. افتح اللوحة بتبويب جديد وادخل من جديد (حتى ما يروح شغلك هون)، وبعدين جرّب كمان مرة.',
     followingFieldsInvalid_one: 'في خانة لازم تصلّحها:',
     followingFieldsInvalid_other: 'في خانات لازم تصلّحها:',
     correctInvalidFields: 'صلّح الخانات المعلّمة بالأحمر وجرّب كمان مرة.',
   },
   validation: {
     required: 'لازم تعبّي هاي الخانة.',
+  },
+}
+
+/** نفس الفكرة للعبري: بدون اسم «Payload»، «שפה» فوق هي لغة المحتوى مش لغة اللوحة، والترجمة ترجمت اسم المتغيّر نفسه. */
+export const heTranslationFixes = {
+  general: {
+    payloadSettings: 'הגדרות',
+    locale: 'שפת התוכן',
+    schedulePublishFor: 'תזמון פרסום: «{{title}}»',
+  },
+  version: {
+    noRowsSelected: 'לא נבחר {{label}}',
   },
 }

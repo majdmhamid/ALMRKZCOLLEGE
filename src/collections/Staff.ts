@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone, isStaff } from '@/access'
 import { orderField } from '@/fields/order'
+import { duplicateSlug } from '@/fields/slug'
 import { enforceContentRules } from '@/hooks/enforceContentRules'
 
 export const Staff: CollectionConfig = {
@@ -41,7 +42,14 @@ export const Staff: CollectionConfig = {
       filterOptions: { mimeType: { contains: 'image' } },
       admin: { description: 'صورة طولية (4:5)، الوجه واضح.' },
     },
-    { name: 'slug', type: 'text', unique: true, index: true, admin: { hidden: true } },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: { hidden: true },
+      hooks: { beforeDuplicate: [duplicateSlug] },
+    },
     orderField,
   ],
   hooks: { beforeValidate: [enforceContentRules] },

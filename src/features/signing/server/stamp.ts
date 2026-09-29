@@ -1,13 +1,15 @@
 import "server-only";
 import { degrees, PDFDocument, type PDFImage } from "pdf-lib";
-import { fractionToDrawOptions, type Box } from "@/features/signing/lib/geometry";
+import { containBox, fractionToDrawOptions, type Box } from "@/features/signing/lib/geometry";
 
 export type StampPlacement = Box & { page: number; signerId: string };
 
 /**
  * Draws each placement's signature PNG onto a copy of the ORIGINAL PDF and
  * returns the new file. Positions are fractions of the displayed page; the
- * page's /Rotate and CropBox are handled by fractionToDrawOptions.
+ * page's /Rotate and CropBox are handled by fractionToDrawOptions. The image keeps
+ * its proportions, centered in the box (like the editor's object-fit: contain), so a
+ * box resized without "lock ratio" never stretches the signature in the final PDF.
  * pdf-lib wraps the existing page content in q/Q before drawing, so whatever
  * graphics state the original left behind can't shift the signatures.
  */
@@ -30,8 +32,8 @@ export async function stampSignatures(
       image = await pdf.embedPng(png);
       embedded.set(p.signerId, image);
     }
-    const crop = page.getCropBox();
-    const opts = fractionToDrawOptions({ crop, rotation: page.getRotation().angle }, p);
+    const geometry = { crop: page.getCropBox(), rotation: page.getRotation().angle };
+    const opts = fractionToDrawOptions(geometry, containBox(geometry, p, image.width / image.height));
     page.drawImage(image, { x: opts.x, y: opts.y, width: opts.width, height: opts.height, rotate: degrees(opts.rotate) });
   }
 

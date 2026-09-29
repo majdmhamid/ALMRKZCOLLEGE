@@ -2,7 +2,10 @@ import type { CollectionSlug, ServerProps } from 'payload'
 import Link from 'next/link'
 import React from 'react'
 
+import { hasRole } from '@/access'
 import type { Lead, Media } from '@/payload-types'
+
+import { adminLang, shellText } from '../i18n'
 import './dashboard.scss'
 
 /**
@@ -10,11 +13,11 @@ import './dashboard.scss'
  */
 type Tile = { href: string; title: string; text: string; slug?: CollectionSlug; imageField?: string; count?: number; images?: string[] }
 
-const VERSIONED: { slug: CollectionSlug; label: string; titleField: string }[] = [
-  { slug: 'success-stories', label: 'خريج', titleField: 'graduateName' },
-  { slug: 'courses', label: 'دورة', titleField: 'name' },
-  { slug: 'news', label: 'خبر', titleField: 'title' },
-  { slug: 'course-groups', label: 'مجال', titleField: 'name' },
+const VERSIONED: { slug: CollectionSlug; titleField: string }[] = [
+  { slug: 'success-stories', titleField: 'graduateName' },
+  { slug: 'courses', titleField: 'name' },
+  { slug: 'news', titleField: 'title' },
+  { slug: 'course-groups', titleField: 'name' },
 ]
 
 const thumb = (m: unknown) => {
@@ -32,13 +35,18 @@ async function signingStats() {
 }
 
 export async function Dashboard(props: ServerProps) {
-  const { payload, user } = props
+  const { i18n, payload, user } = props
   if (!payload) return null
+  const lang = adminLang(i18n)
+  const t = shellText(lang).dash
   const name = (user as { name?: string } | null)?.name || ''
+  // Leads (names + phones) and e-signature are for admins only — an editor sees just the content
+  const isAdmin = hasRole(user as never, 'admin')
+  const none = { docs: [], totalDocs: 0 }
 
   const find = (slug: CollectionSlug, extra: Record<string, unknown> = {}) =>
     payload
-      .find({ collection: slug, limit: 4, depth: 1, locale: 'ar', sort: 'order', overrideAccess: true, ...extra } as never)
+      .find({ collection: slug, limit: 4, depth: 1, locale: lang, sort: 'order', overrideAccess: true, ...extra } as never)
       .catch(() => ({ docs: [], totalDocs: 0 }))
 
   const [stories, courses, news, staff, partners, leads, newLeads, ...drafts] = await Promise.all([
@@ -47,76 +55,79 @@ export async function Dashboard(props: ServerProps) {
     find('news', { sort: '-publishedAt' }),
     find('staff'),
     find('partners'),
-    find('leads', { sort: '-createdAt', limit: 5, depth: 1 }),
-    payload.count({ collection: 'leads', where: { status: { equals: 'new' } }, overrideAccess: true }).catch(() => ({ totalDocs: 0 })),
+    isAdmin ? find('leads', { sort: '-createdAt', limit: 5, depth: 1 }) : none,
+    isAdmin
+      ? payload.count({ collection: 'leads', where: { status: { equals: 'new' } }, overrideAccess: true }).catch(() => ({ totalDocs: 0 }))
+      : { totalDocs: 0 },
     ...VERSIONED.map((v) =>
       payload
-        .find({ collection: v.slug, where: { _status: { equals: 'draft' } }, draft: true, limit: 50, depth: 0, locale: 'ar', overrideAccess: true } as never)
-        .then((r) => r.docs.map((d) => ({ ...v, id: (d as { id: number }).id, title: String((d as unknown as Record<string, unknown>)[v.titleField] ?? '') })))
+        .find({ collection: v.slug, where: { _status: { equals: 'draft' } }, draft: true, limit: 50, depth: 0, locale: lang, overrideAccess: true } as never)
+        .then((r) => r.docs.map((d) => ({ ...v, label: t.kinds[v.slug] ?? '', id: (d as { id: number }).id, title: String((d as unknown as Record<string, unknown>)[v.titleField] ?? '') })))
         .catch(() => []),
     ),
   ])
-  const signing = await signingStats()
+  const signing = isAdmin ? await signingStats() : null
   const pending: { slug: string; label: string; id: number | string; title: string; href?: string }[] = (
     drafts as { slug: string; label: string; id: number; title: string }[][]
   ).flat()
   // الصفحة الرئيسية كمان إلها مسودة (تعديل ما انتشر)
   const home = (await payload.findGlobal({ slug: 'homepage', draft: true, depth: 0, overrideAccess: true }).catch(() => null)) as { _status?: string } | null
-  if (home?._status === 'draft') pending.unshift({ slug: 'homepage', label: 'صفحة', id: 'homepage', title: 'الصفحة الرئيسية للموقع', href: '/admin/globals/homepage' })
+  if (home?._status === 'draft') pending.unshift({ slug: 'homepage', label: t.kinds.homepage, id: 'homepage', title: t.tiles.homepage[0], href: '/admin/globals/homepage' })
 
   const pics = (r: { docs: unknown[] }, field: string) => r.docs.map((d) => thumb((d as Record<string, unknown>)[field])).filter(Boolean)
-  const tiles: Tile[] = [
-    { href: '/admin/collections/success-stories', title: 'الخريجون', text: 'زيد أو عدّل خريج على نفس بطاقة الموقع', count: stories.totalDocs, images: pics(stories, 'photo') },
-    { href: '/admin/collections/courses', title: 'الدورات', text: 'الاسم، الساعات، المحتوى، والصورة', count: courses.totalDocs, images: pics(courses, 'coverImage') },
-    { href: '/admin/collections/news', title: 'الأخبار', text: 'خبر جديد بصور وعنوان ونص', count: news.totalDocs, images: pics(news, 'coverImage') },
-    { href: '/admin/collections/staff', title: 'الطاقم', text: 'صور وأسماء ووظائف الطاقم', count: staff.totalDocs, images: pics(staff, 'photo') },
-    { href: '/admin/collections/partners', title: 'الشركاء', text: 'لوغوهات الجهات الشريكة', count: partners.totalDocs, images: pics(partners, 'logo') },
-    { href: '/admin/globals/homepage', title: 'الصفحة الرئيسية للموقع', text: 'ترتيب الأقسام، العناوين، الفيديو' },
-    { href: '/admin/globals/gallery', title: 'معرض الصور والفيديو', text: 'صور الورشات والفعاليات' },
-    { href: '/admin/globals/site-settings', title: 'معلومات الكلية', text: 'الهاتف، الواتساب، العنوان، اللوغو' },
-    {
+  const tiles = (
+  [
+    { href: '/admin/collections/success-stories', title: t.tiles.stories[0], text: t.tiles.stories[1], count: stories.totalDocs, images: pics(stories, 'photo') },
+    { href: '/admin/collections/courses', title: t.tiles.courses[0], text: t.tiles.courses[1], count: courses.totalDocs, images: pics(courses, 'coverImage') },
+    { href: '/admin/collections/news', title: t.tiles.news[0], text: t.tiles.news[1], count: news.totalDocs, images: pics(news, 'coverImage') },
+    { href: '/admin/collections/staff', title: t.tiles.staff[0], text: t.tiles.staff[1], count: staff.totalDocs, images: pics(staff, 'photo') },
+    { href: '/admin/collections/partners', title: t.tiles.partners[0], text: t.tiles.partners[1], count: partners.totalDocs, images: pics(partners, 'logo') },
+    { href: '/admin/globals/homepage', title: t.tiles.homepage[0], text: t.tiles.homepage[1] },
+    { href: '/admin/globals/gallery', title: t.tiles.gallery[0], text: t.tiles.gallery[1] },
+    { href: '/admin/globals/site-settings', title: t.tiles.settings[0], text: t.tiles.settings[1] },
+    isAdmin && {
       href: '/admin/documents',
-      title: 'التوقيع الإلكتروني',
-      text: signing ? `${signing.waiting} بانتظار التوقيع · ${signing.signed} موقّعة` : 'رفع مستند وإرساله للطلاب للتوقيع',
+      title: t.tiles.signing[0],
+      text: signing ? t.signingStats(signing.waiting, signing.signed) : t.tiles.signing[1],
       count: signing?.total,
     },
-  ]
+  ] as (Tile | false)[]
+  ).filter((t): t is Tile => Boolean(t))
 
   return (
     <main className="almrkz-dash gutter--left gutter--right">
       <section className="almrkz-dash__hero">
         <div>
-          <p className="almrkz-dash__eyebrow">كلية المركز للتأهيل المهني</p>
-          <h1>أهلاً {name}</h1>
-          <p>
-            كل تعديل بالخريجين والدورات والأخبار والمجالات والصفحة الرئيسية بينحفظ كمسودة، والزوار ما بشوفوه إلا لما تضغط «انشر».
-            الطاقم والشركاء والإعدادات بيتحدّثوا فوراً.
-          </p>
+          <p className="almrkz-dash__eyebrow">{t.eyebrow}</p>
+          <h1>
+            {t.hello} {name}
+          </h1>
+          <p>{t.intro}</p>
         </div>
         <div className="almrkz-dash__status">
           {pending.length ? (
             <>
-              <p className="almrkz-dash__status-label">تعديلات لسا ما انتشرت</p>
+              <p className="almrkz-dash__status-label">{t.pending}</p>
               <p className="almrkz-dash__status-num">{pending.length}</p>
               <ul>
                 {pending.slice(0, 5).map((p) => (
                   <li key={`${p.slug}-${p.id}`}>
                     <Link href={p.href ?? `/admin/collections/${p.slug}/${p.id}`}>
-                      {p.label}: {p.title || 'بدون اسم'}
+                      {p.label}: {p.title || t.untitled}
                     </Link>
                   </li>
                 ))}
               </ul>
             </>
           ) : (
-            <p className="almrkz-dash__ok">✓ الموقع محدّث — ما في تعديلات معلّقة</p>
+            <p className="almrkz-dash__ok">{t.upToDate}</p>
           )}
         </div>
       </section>
 
-      <div className="almrkz-dash__cols">
+      <div className={`almrkz-dash__cols${isAdmin ? '' : ' almrkz-dash__cols--full'}`}>
         <section>
-          <h2>شو بدك تعدّل؟</h2>
+          <h2>{t.whatToEdit}</h2>
           <div className="almrkz-dash__tiles">
             {tiles.map((t) => (
               <Link key={t.href} href={t.href} className="almrkz-tile">
@@ -138,10 +149,11 @@ export async function Dashboard(props: ServerProps) {
           </div>
         </section>
 
+        {isAdmin && (
         <aside className="almrkz-dash__leads">
           <h2>
-            آخر الطلبات
-            {newLeads.totalDocs > 0 && <span className="almrkz-dash__new">{newLeads.totalDocs} جديد</span>}
+            {t.latestLeads}
+            {newLeads.totalDocs > 0 && <span className="almrkz-dash__new">{t.newCount(newLeads.totalDocs)}</span>}
           </h2>
           {leads.docs.length ? (
             <ul>
@@ -152,20 +164,21 @@ export async function Dashboard(props: ServerProps) {
                     <span dir="ltr">{l.phone}</span>
                     <small>
                       {typeof l.course === 'object' && l.course ? (l.course as { name?: string }).name : l.courseOther || ''} ·{' '}
-                      {new Date(l.createdAt).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}
+                      {new Date(l.createdAt).toLocaleDateString(t.dateLocale, { day: 'numeric', month: 'short' })}
                     </small>
-                    {l.status === 'new' && <em>جديد</em>}
+                    {l.status === 'new' && <em>{t.newBadge}</em>}
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="almrkz-dash__empty">لسا ما وصل ولا طلب من استمارة «سجّل اهتمامك».</p>
+            <p className="almrkz-dash__empty">{t.noLeads}</p>
           )}
           <Link className="almrkz-dash__all" href="/admin/collections/leads">
-            كل الطلبات ←
+            {t.allLeads}
           </Link>
         </aside>
+        )}
       </div>
     </main>
   )

@@ -93,7 +93,13 @@ export function MotionToggle({
  */
 const focusOnMount = (el: HTMLElement | null) => el?.focus({ preventScroll: true })
 
-/** Adds `.is-in` to [data-reveal] elements when they scroll into view. */
+/**
+ * Marks [data-reveal] elements with `data-in` when they scroll into view (site.css fades them in).
+ * An attribute, not a class: React owns `className` and rewrites it whenever it changes (an FAQ
+ * item opening, a tab turning active…). A class added here would be wiped by that re-render, the
+ * element would fade out and animate back in — the «answer disappears and comes back» flicker.
+ * React never touches attributes it did not render, so `data-in` stays.
+ */
 export function RevealObserver() {
   useEffect(() => {
     document.documentElement.classList.remove('no-js')
@@ -101,20 +107,88 @@ export function RevealObserver() {
       (es) =>
         es.forEach((e) => {
           if (e.isIntersecting) {
-            e.target.classList.add('is-in')
+            e.target.setAttribute('data-in', '')
             io.unobserve(e.target)
           }
         }),
       { rootMargin: '0px 0px -6% 0px', threshold: 0.06 },
     )
     const scan = () =>
-      document.querySelectorAll('[data-reveal]:not(.is-in)').forEach((el) => io.observe(el))
+      document.querySelectorAll('[data-reveal]:not([data-in])').forEach((el) => io.observe(el))
     scan()
     const mo = new MutationObserver(scan)
     mo.observe(document.body, { childList: true, subtree: true })
     return () => {
       io.disconnect()
       mo.disconnect()
+    }
+  }, [])
+  return null
+}
+
+/**
+ * Links to a section further down the page (#register, #faq, /ar#contact…) must land on it.
+ * perf.css lets the browser skip the layout of far-away sections (`content-visibility: auto`) and
+ * count them as 640px placeholders; the real sections are taller, so the jump stopped short of
+ * the target (the «سجّل اهتمامك» button showed the gallery instead of the form). Just before the
+ * jump, the sections above the target are laid out for real so the browser measures the right spot.
+ */
+export function HashScroll() {
+  useEffect(() => {
+    /** Lays out every skipped section before (or containing) the target. */
+    const prepare = (id: string) => {
+      const target = id ? document.getElementById(id) : null
+      if (!target) return null
+      document.querySelectorAll<HTMLElement>('main > section, .footer').forEach((s) => {
+        const before = s.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING
+        if (before || s.contains(target)) s.style.contentVisibility = 'visible'
+      })
+      return target
+    }
+    const idOf = (hash: string) => {
+      try {
+        return decodeURIComponent(hash.slice(1))
+      } catch {
+        return ''
+      }
+    }
+    // Opened with an address that has #…: the browser already started its (smooth) jump to the
+    // spot it measured with the placeholders — correct it a few times while the page settles,
+    // until the visitor scrolls or taps themselves.
+    let touched = false
+    const onTouch = () => {
+      touched = true
+    }
+    const fixLoadJump = () => {
+      if (touched) return
+      const target = prepare(idOf(location.hash))
+      if (!target) return
+      const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0
+      if (Math.abs(target.getBoundingClientRect().top - margin) > 2)
+        target.scrollIntoView({ behavior: 'instant' })
+    }
+    const inputs = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
+    const timers: number[] = []
+    if (location.hash.length > 1) {
+      inputs.forEach((t) => window.addEventListener(t, onTouch, { once: true, passive: true }))
+      fixLoadJump()
+      for (const ms of [100, 300, 700, 1200, 2000]) timers.push(window.setTimeout(fixLoadJump, ms))
+      if (document.readyState !== 'complete') window.addEventListener('load', fixLoadJump)
+    }
+    // A click on a link to a section of this same page: prepare, then let the browser jump
+    // (keeps its smooth scrolling, history entry and keyboard focus).
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.('a[href*="#"]')
+      if (!(a instanceof HTMLAnchorElement)) return
+      if (a.origin !== location.origin || a.pathname !== location.pathname) return
+      prepare(idOf(a.hash))
+    }
+    document.addEventListener('click', onClick, true)
+    return () => {
+      document.removeEventListener('click', onClick, true)
+      window.removeEventListener('load', fixLoadJump)
+      timers.forEach((t) => clearTimeout(t))
+      inputs.forEach((t) => window.removeEventListener(t, onTouch))
     }
   }, [])
   return null
@@ -145,8 +219,10 @@ export function HeaderMenu({
 }) {
   const [open, setOpen] = useState(false)
   const toggle = useRef<HTMLButtonElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
   const close = () => setOpen(false)
   // Esc closes the menu and puts the keyboard focus back on the menu button.
+  // A tap/click anywhere outside the menu (and its button) closes it too.
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -154,8 +230,16 @@ export function HeaderMenu({
       setOpen(false)
       toggle.current?.focus()
     }
+    const onPointer = (e: PointerEvent) => {
+      const t = e.target as Node | null
+      if (t && !panel.current?.contains(t) && !toggle.current?.contains(t)) setOpen(false)
+    }
     document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onPointer)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('pointerdown', onPointer)
+    }
   }, [open])
   return (
     <>
@@ -170,7 +254,7 @@ export function HeaderMenu({
         {open ? <CloseIcon /> : <MenuIcon />}
       </button>
       {open && (
-        <div className="glass menu-panel" id="site-menu">
+        <div ref={panel} className="glass menu-panel" id="site-menu">
           <nav aria-label={navLabel || menuLabel}>
             {links.map((m, i) => (
               <a key={m.href + i} href={m.href} onClick={close}>
@@ -625,6 +709,8 @@ export type FormLabels = {
   tooMany: string
   /** «Send» pressed a moment after the form appeared (typical of bots). */
   tooFast: string
+  /** A required field left empty (instead of the browser's own message in the phone's language). */
+  required?: string
 }
 
 export function LeadForm({
@@ -674,6 +760,14 @@ export function LeadForm({
   }, [state.ok])
   const v = state.values
   const errId = `${formId}-err`
+  // «Please fill out this field» comes in the language of the phone, not of the page.
+  const required = {
+    onInvalid: (e: React.FormEvent<HTMLInputElement>) => {
+      const el = e.currentTarget
+      if (labels.required && el.validity.valueMissing) el.setCustomValidity(labels.required)
+    },
+    onInput: (e: React.FormEvent<HTMLInputElement>) => e.currentTarget.setCustomValidity(''),
+  }
   // A generic refusal is almost always a phone number the server did not accept.
   const phoneInvalid = Boolean(state.error && !state.reason)
   if (state.ok) {
@@ -730,6 +824,7 @@ export function LeadForm({
           <input
             name="name"
             required
+            {...required}
             maxLength={120}
             className="field"
             autoComplete="name"
@@ -744,6 +839,7 @@ export function LeadForm({
           <input
             name="phone"
             required
+            {...required}
             type="tel"
             inputMode="tel"
             dir="ltr"
@@ -833,6 +929,10 @@ export function LangSwitch({ locale, label }: { locale: string; label?: string |
       href={target === path ? `/${other}` : target}
       hrefLang={other}
       lang={other}
+      // Same section in the other language too (/ar#faq → /he#faq); the #… is only known here.
+      onClick={(e) => {
+        e.currentTarget.hash = location.hash
+      }}
     >
       {label}
     </a>

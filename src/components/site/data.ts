@@ -16,6 +16,7 @@ import type {
   Staff,
   SuccessStory,
 } from '@/payload-types'
+import { groupState, groupsWithPublishedCourses } from '@/lib/group-visibility'
 import { LOCALES, STORIES_ANCHOR } from '@/lib/preview'
 import type { SiteLocale } from '@/lib/rules'
 
@@ -85,11 +86,11 @@ async function loadShared(locale: SiteLocale, draft: boolean) {
   ])
   const publishedCourses = courses.docs.filter((c) => draft || c._status === 'published')
   // A course group is shown on the website only when it is published AND has at least one
-  // published course (an empty group would lead to an empty page). In preview (draft mode)
-  // staff see every group.
-  const groupsWithCourses = new Set(publishedCourses.map((c) => relId(c.group)))
+  // published course (lib/group-visibility.ts — the admin panel shows the same rule). In preview
+  // (draft mode) staff see every group.
+  const groupsWithCourses = groupsWithPublishedCourses(publishedCourses)
   const visibleGroups = groups.docs.filter(
-    (g) => draft || (g._status === 'published' && groupsWithCourses.has(g.id)),
+    (g) => draft || groupState(g._status, groupsWithCourses.has(g.id)) === 'visible',
   )
   return {
     settings,
