@@ -12,6 +12,7 @@ import { APIError, buildConfig, type EmailAdapter } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { bilingualCollection, bilingualGlobal } from './admin/bilingual/config'
 import { arTranslationFixes, heTranslationFixes } from './admin/translations'
 import { CourseGroups } from './collections/CourseGroups'
 import { Courses } from './collections/Courses'
@@ -225,11 +226,15 @@ export default buildConfig({
             },
           }
         : c,
-    ),
-  globals: [Homepage, UiTexts, Gallery, SiteSettings, Navigation].map((g) => ({
-    ...g,
-    hooks: { ...g.hooks, afterChange: [...(g.hooks?.afterChange ?? []), revalidateGlobal] },
-  })),
+    )
+    // عربي وعبري جنب بعض بصفحة التعديل (src/admin/bilingual)
+    .map(bilingualCollection),
+  globals: [Homepage, UiTexts, Gallery, SiteSettings, Navigation]
+    .map((g) => ({
+      ...g,
+      hooks: { ...g.hooks, afterChange: [...(g.hooks?.afterChange ?? []), revalidateGlobal] },
+    }))
+    .map(bilingualGlobal),
 
   editor: lexicalEditor(),
   secret,

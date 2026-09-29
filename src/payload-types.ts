@@ -302,6 +302,15 @@ export interface Course {
    * الرقم الأصغر يظهر أولاً (1 قبل 2).
    */
   order?: number | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -353,6 +362,15 @@ export interface CourseGroup {
    * الرقم الأصغر يظهر أولاً (1 قبل 2).
    */
   order?: number | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -371,6 +389,15 @@ export interface Media {
   alt: string;
   sourceFile?: string | null;
   caption?: string | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -458,6 +485,15 @@ export interface News {
    * الجزء الأخير من عنوان الصفحة على الإنترنت. إذا تركته فارغاً يُملأ تلقائياً من الاسم. لا تغيّره بعد النشر حتى لا تنكسر الروابط القديمة.
    */
   slug?: string | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -518,6 +554,15 @@ export interface SuccessStory {
    * الرقم الأصغر يظهر أولاً (1 قبل 2).
    */
   order?: number | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -546,6 +591,15 @@ export interface Staff {
    * الرقم الأصغر يظهر أولاً (1 قبل 2).
    */
   order?: number | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -568,6 +622,15 @@ export interface Partner {
    * الرقم الأصغر يظهر أولاً (1 قبل 2).
    */
   order?: number | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -887,6 +950,7 @@ export interface CoursesSelect<T extends boolean = true> {
   featured?: T;
   slug?: T;
   order?: T;
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -912,6 +976,7 @@ export interface CourseGroupsSelect<T extends boolean = true> {
       };
   slug?: T;
   order?: T;
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -938,6 +1003,7 @@ export interface NewsSelect<T extends boolean = true> {
         image?: T;
       };
   slug?: T;
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -960,6 +1026,7 @@ export interface SuccessStoriesSelect<T extends boolean = true> {
   featured?: T;
   slug?: T;
   order?: T;
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -975,6 +1042,7 @@ export interface StaffSelect<T extends boolean = true> {
   photo?: T;
   slug?: T;
   order?: T;
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -988,6 +1056,7 @@ export interface PartnersSelect<T extends boolean = true> {
   url?: T;
   slug?: T;
   order?: T;
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -999,6 +1068,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   sourceFile?: T;
   caption?: T;
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1194,6 +1264,15 @@ export interface Homepage {
         | RegisterBlock
         | GalleryBlock
       )[]
+    | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
@@ -1734,6 +1813,15 @@ export interface UiText {
      */
     contactForPrice?: string | null;
   };
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1759,6 +1847,15 @@ export interface Gallery {
         thumbnail?: (number | null) | Media;
         id?: string | null;
       }[]
+    | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1873,6 +1970,15 @@ export interface SiteSetting {
         email: string;
         id?: string | null;
       }[]
+    | null;
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -2105,6 +2211,15 @@ export interface Navigation {
         }[]
       | null;
   };
+  bilingualEdits?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2131,6 +2246,7 @@ export interface HomepageSelect<T extends boolean = true> {
         register?: T | RegisterBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
       };
+  bilingualEdits?: T;
   _status?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2491,6 +2607,7 @@ export interface UiTextsSelect<T extends boolean = true> {
     | {
         contactForPrice?: T;
       };
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2512,6 +2629,7 @@ export interface GallerySelect<T extends boolean = true> {
         thumbnail?: T;
         id?: T;
       };
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2577,6 +2695,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         email?: T;
         id?: T;
       };
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2693,6 +2812,7 @@ export interface NavigationSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  bilingualEdits?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
