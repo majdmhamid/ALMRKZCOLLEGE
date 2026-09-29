@@ -881,6 +881,7 @@ export function formLabels(shared: Shared, locale: SiteLocale): FormLabels {
       locale === 'he'
         ? 'רגע אחד… בדקו את הפרטים ולחצו שוב על שליחה.'
         : 'لحظة… تأكد من التفاصيل واضغط إرسال مرة ثانية.',
+    required: locale === 'he' ? 'נא למלא את השדה הזה.' : 'عبّي هذا الحقل لو سمحت.',
   }
 }
 

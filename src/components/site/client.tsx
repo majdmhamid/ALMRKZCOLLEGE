@@ -641,6 +641,8 @@ export type FormLabels = {
   tooMany: string
   /** «Send» pressed a moment after the form appeared (typical of bots). */
   tooFast: string
+  /** A required field left empty (instead of the browser's own message in the phone's language). */
+  required?: string
 }
 
 export function LeadForm({
@@ -690,6 +692,14 @@ export function LeadForm({
   }, [state.ok])
   const v = state.values
   const errId = `${formId}-err`
+  // «Please fill out this field» comes in the language of the phone, not of the page.
+  const required = {
+    onInvalid: (e: React.FormEvent<HTMLInputElement>) => {
+      const el = e.currentTarget
+      if (labels.required && el.validity.valueMissing) el.setCustomValidity(labels.required)
+    },
+    onInput: (e: React.FormEvent<HTMLInputElement>) => e.currentTarget.setCustomValidity(''),
+  }
   // A generic refusal is almost always a phone number the server did not accept.
   const phoneInvalid = Boolean(state.error && !state.reason)
   if (state.ok) {
@@ -746,6 +756,7 @@ export function LeadForm({
           <input
             name="name"
             required
+            {...required}
             maxLength={120}
             className="field"
             autoComplete="name"
@@ -760,6 +771,7 @@ export function LeadForm({
           <input
             name="phone"
             required
+            {...required}
             type="tel"
             inputMode="tel"
             dir="ltr"
