@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-import { anyone, isAdminField, isStaff } from '@/access'
+import { anyone, hasRole, isAdminField, isStaff } from '@/access'
 import { enforceContentRulesGlobal } from '@/hooks/enforceContentRules'
 
 const imageOnly = { mimeType: { contains: 'image' } }
@@ -300,6 +300,8 @@ export const SiteSettings: GlobalConfig = {
         },
         {
           label: 'إشعارات الطلبات',
+          // Only admins see (and may change) where leads are emailed — for an editor the tab was empty
+          admin: { condition: (_data, _siblingData, { user }) => hasRole(user as never, 'admin') },
           fields: [
             {
               name: 'leadsNotificationEmails',

@@ -25,6 +25,7 @@ import { useNav, useWindowInfo } from '@payloadcms/ui'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 import { useArabicToasts } from '../englishToasts'
 
@@ -61,9 +62,9 @@ export type NavItem = {
 }
 export type NavGroup = { title?: string; items: NavItem[] }
 
-export function NavLinks({ groups }: { groups: NavGroup[] }) {
+export function NavLinks({ groups, newLabel, closeLabel }: { groups: NavGroup[]; newLabel: string; closeLabel: string }) {
   const pathname = usePathname()
-  const { setNavOpen } = useNav()
+  const { navOpen, setNavOpen } = useNav()
   const { breakpoints } = useWindowInfo()
   // رسائل Payload اللي لسا بالإنجليزي ← عربي
   useArabicToasts()
@@ -79,9 +80,20 @@ export function NavLinks({ groups }: { groups: NavGroup[] }) {
     // Payload بيسكّرها كل ما تتغيّر مقاسات الشاشة — منرجع نفتحها بعده
   }, [setNavOpen, breakpoints.l, breakpoints.m])
 
+  // الجوال: القائمة درج فوق الصفحة (custom.scss) — كبسة على الخلفية المعتمة بتسكّرها
+  const drawer = navOpen && breakpoints.s
+  const backdrop = drawer
+    ? createPortal(
+        <button type="button" className="almrkz-nav__backdrop" aria-label={closeLabel} onClick={() => setNavOpen(false)} />,
+        // same stacking context as the nav, so the nav stays above the dim layer
+        document.querySelector('.template-default') ?? document.body,
+      )
+    : null
+
   const active = (it: NavItem) => (it.exact ? pathname === it.href : pathname === it.href || pathname.startsWith(`${it.href}/`))
   return (
     <div className="almrkz-nav__groups">
+      {backdrop}
       {groups.map((g, i) => {
         const items = g.items.filter((it) => it.show !== false)
         if (!items.length) return null
@@ -95,7 +107,7 @@ export function NavLinks({ groups }: { groups: NavGroup[] }) {
                   <Icon size={18} className="almrkz-nav__icon" aria-hidden="true" />
                   <span className="almrkz-nav__label">{it.label}</span>
                   {!!it.alert && (
-                    <span className="almrkz-nav__alert" title="جديد">
+                    <span className="almrkz-nav__alert" title={newLabel}>
                       {it.alert}
                     </span>
                   )}

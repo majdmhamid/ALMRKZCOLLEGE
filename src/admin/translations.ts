@@ -33,6 +33,8 @@ export const arTranslationFixes = {
     currentlyViewing: 'النسخة اللي قدامك',
   },
   error: {
+    // كانت «عليك أن تقوم بتسجيل الدخول» حتى لـ«محرّر» داخل — بتلخبط
+    unauthorized: 'ما عندك صلاحية لهاد الإشي. إذا لازم توصله، ادخل بحساب «مدير».',
     followingFieldsInvalid_one: 'في خانة لازم تصلّحها:',
     followingFieldsInvalid_other: 'في خانات لازم تصلّحها:',
     correctInvalidFields: 'صلّح الخانات المعلّمة بالأحمر وجرّب كمان مرة.',
