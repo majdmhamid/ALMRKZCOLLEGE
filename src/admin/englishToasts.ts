@@ -36,6 +36,12 @@ function fix(root: ParentNode) {
     if (node?.nodeType === Node.TEXT_NODE && node.nodeValue === 'All')
       node.nodeValue = document.documentElement.lang === 'he' ? 'כל השפות' : 'كل اللغات'
   })
+  // المعاينة الحيّة: حجم «Responsive» (بعرض اللوحة) مكتوب جوّا Payload
+  root.querySelectorAll?.('.live-preview-toolbar-controls *, .popup__content button').forEach((el) => {
+    const node = el.firstChild
+    if (node?.nodeType === Node.TEXT_NODE && node.nodeValue === 'Responsive' && el.childNodes.length === 1)
+      node.nodeValue = document.documentElement.lang === 'he' ? 'לפי רוחב המסך' : 'حسب عرض الشاشة'
+  })
   // عنوان عمود الساعات بمنتقي التاريخ مكتوب «Time»
   root.querySelectorAll?.('.react-datepicker-time__header').forEach((el) => {
     const node = el.firstChild
