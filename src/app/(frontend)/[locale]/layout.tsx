@@ -43,19 +43,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { settings } = await getShared(locale)
   const seo = settings.seo
   const title = seo?.defaultTitle || settings.siteName || ''
-  const icon =
-    mediaUrl(settings.favicon) || mediaUrl(settings.logoMark) || mediaUrl(settings.logoLight)
+  // Tab icon: the one uploaded in the admin panel, else the college's round mark (public/icon.png).
+  // (The wide logo is unreadable at 16×16, so it is no longer used here.)
+  const icon = mediaUrl(settings.favicon) || mediaUrl(settings.logoMark) || '/icon.png'
   const og = mediaUrl(seo?.ogImage, 'wide')
   return {
     metadataBase: new URL(serverURL()),
     title: { default: title, template: seo?.titleTemplate || `%s | ${settings.siteName ?? ''}` },
     description: seo?.defaultDescription ?? undefined,
-    icons: icon ? { icon } : undefined,
+    icons: { icon, apple: '/apple-touch-icon.png' },
     openGraph: {
       title,
       description: seo?.defaultDescription ?? undefined,
       images: og ? [og] : undefined,
-      locale: locale === 'he' ? 'he_IL' : 'ar',
+      locale: locale === 'he' ? 'he_IL' : 'ar_AR',
     },
   }
 }
