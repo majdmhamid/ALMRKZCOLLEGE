@@ -115,7 +115,7 @@ export function ConsentManager({ locale }: { locale: string }) {
   return (
     <>
       {open && (
-        <div ref={box} className="consent" role="region" aria-label={s.label}>
+        <div ref={box} className="consent" role="region" aria-label={s.label} aria-live="polite">
           <p>
             {s.before}{' '}
             {/* <bdi>: the English names inside Arabic/Hebrew text stay in the right order. */}

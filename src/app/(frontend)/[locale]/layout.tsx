@@ -83,7 +83,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body>
         <div className="page">
           <Header shared={shared} locale={locale} />
-          <main id="top" style={{ flex: 1, marginTop: -80 }}>
+          <main id="top" tabIndex={-1} style={{ flex: 1, marginTop: -80 }}>
             {children}
           </main>
           <Footer shared={shared} locale={locale} />

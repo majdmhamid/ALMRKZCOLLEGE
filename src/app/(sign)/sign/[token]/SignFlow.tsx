@@ -3,7 +3,7 @@
 import { CheckCircle2, FileSignature, Link2Off, Lock, PenLine, ShieldCheck, Type, UserCheck } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { LanguageSwitch } from "@/features/signing/components/LanguageSwitch";
 import { PdfPage, useElementWidth, usePdfDocument } from "@/features/signing/components/pdf/PdfView";
 import { SignaturePad, textSignatureDataUrl, type SignaturePadHandle } from "@/features/signing/components/signature/SignaturePad";
@@ -174,6 +174,7 @@ function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shar
   const [idNumber, setIdNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const hintId = useId();
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,8 +225,10 @@ function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shar
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value.replace(/[^\d\- ]/g, ""))}
             className={`${inputClass} text-end text-lg tracking-widest`}
+            aria-describedby={hintId}
+            aria-invalid={error ? true : undefined}
           />
-          <span className="mt-1 block text-xs text-muted">{t("idHint")}</span>
+          <span id={hintId} className="mt-1 block text-xs text-muted">{t("idHint")}</span>
         </label>
       </div>
       {/* Privacy notice before the ID number (חוק הגנת הפרטיות, סעיף 11): why, where it goes, no duty. */}
@@ -331,12 +334,15 @@ function SignStep({
         <div
           ref={boxRef}
           data-testid="pdf-viewer"
+          tabIndex={0}
+          role="region"
+          aria-label={t("readTitle")}
           className="max-h-[70dvh] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-slate-200/60 p-2"
         >
           {urlError || pdf.status === "error" ? (
             <p className="p-8 text-center text-sm text-red-600">{t("loadError")}</p>
           ) : pdf.status !== "ready" || width === 0 ? (
-            <p className="p-8 text-center text-sm text-muted">{t("loading")}</p>
+            <p role="status" className="p-8 text-center text-sm text-muted">{t("loading")}</p>
           ) : (
             <div className="flex flex-col items-center gap-2">
               {pdf.sizes.map((size, i) => (
@@ -376,8 +382,9 @@ function SignStep({
         </label>
       </section>
 
-      <section className={`rounded-2xl border border-line bg-card p-4 shadow-card transition-opacity ${read ? "" : "opacity-50"}`}>
+      <section className={`rounded-2xl border bg-card p-4 shadow-card ${read ? "border-line" : "border-dashed border-slate-300"}`}>
         <h2 className="mb-3 text-lg font-bold">{t("signTitle")}</h2>
+        {!read && <p className="mb-3 text-sm text-muted">{t("needRead")}</p>}
         {methods.length > 1 && (
           <div role="tablist" className="mb-3 grid gap-1 rounded-xl bg-slate-100 p-1" style={{ gridTemplateColumns: `repeat(${methods.length}, 1fr)` }}>
             {methods.map((m) => (
@@ -436,7 +443,7 @@ function SignStep({
             disabled={pending}
             data-testid="submit-signature"
             className={`h-13 w-full rounded-xl text-base font-bold text-white transition disabled:opacity-60 ${
-              read && esign && hasSignature ? "bg-signed hover:bg-green-700" : "bg-slate-400"
+              read && esign && hasSignature ? "bg-signed hover:bg-green-700" : "bg-slate-500"
             }`}
           >
             {pending ? t("submitting") : t("submit")}
