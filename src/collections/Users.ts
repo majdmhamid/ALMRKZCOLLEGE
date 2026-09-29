@@ -19,6 +19,9 @@ export const Users: CollectionConfig = {
   auth: {
     maxLoginAttempts: 10,
     lockTime: 10 * 60 * 1000,
+    // The login cookie is only ever sent over HTTPS on the real site (Payload's default is not).
+    // A computer running the site on http://localhost keeps working.
+    cookies: { secure: serverURL().startsWith('https://'), sameSite: 'Lax' },
     // «نسيت كلمة السر»: Payload's own email has no right-to-left direction (Gmail shows the
     // Arabic aligned left). Same content, RTL, with the site's address.
     forgotPassword: {
