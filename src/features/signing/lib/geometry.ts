@@ -75,3 +75,22 @@ export function fractionToDrawOptions(page: PageGeometry, fraction: Box) {
   const anchor = displayToPdf(page, dx, dy + height);
   return { x: anchor.x, y: anchor.y, width, height, rotate: normalizeRotation(page.rotation) };
 }
+
+/**
+ * The part of `box` an image of `aspect` (width / height, as shown upright) really covers
+ * when fitted inside it without stretching, centered — CSS `object-fit: contain`, which is
+ * how the placement editor shows it. Fractions of the displayed page, like `box`.
+ */
+export function containBox(page: PageGeometry, box: Box, aspect: number): Box {
+  if (!(aspect > 0) || !Number.isFinite(aspect)) return box;
+  const size = displaySize(page);
+  const w = box.width * size.width;
+  const h = box.height * size.height;
+  if (!w || !h) return box;
+  if (w / h > aspect) {
+    const width = (h * aspect) / size.width;
+    return { ...box, x: box.x + (box.width - width) / 2, width };
+  }
+  const height = w / aspect / size.height;
+  return { ...box, y: box.y + (box.height - height) / 2, height };
+}

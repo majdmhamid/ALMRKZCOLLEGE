@@ -7,7 +7,7 @@ import { concatTransformationMatrix, degrees, PDFDocument } from "pdf-lib";
 import { getDocument, OPS, type PDFPageProxy } from "pdfjs-dist/legacy/build/pdf.mjs";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
-import { displaySize, displayToPdf, fractionToDrawOptions, normalizeRotation, pdfToDisplay, type Box } from "@/features/signing/lib/geometry";
+import { containBox, displaySize, displayToPdf, fractionToDrawOptions, normalizeRotation, pdfToDisplay, type Box } from "@/features/signing/lib/geometry";
 import { stampSignatures } from "@/features/signing/server/stamp";
 
 const ROTATIONS = [0, 90, 180, 270] as const;
@@ -118,12 +118,35 @@ describe("stampSignatures", () => {
 
       const [box] = await paintedImageBoxes(page);
       expect(box, `page ${i + 1}`).toBeDefined();
-      expect(box.x / viewport.width).toBeCloseTo(fraction.x, 4);
-      expect(box.y / viewport.height).toBeCloseTo(fraction.y, 4);
-      expect(box.width / viewport.width).toBeCloseTo(fraction.width, 4);
-      expect(box.height / viewport.height).toBeCloseTo(fraction.height, 4);
+      // Fitted inside the box without stretching (the editor shows it with object-fit: contain).
+      const want = containBox({ crop: CROP, rotation: ROTATIONS[i] }, fraction, 3);
+      expect(box.x / viewport.width).toBeCloseTo(want.x, 4);
+      expect(box.y / viewport.height).toBeCloseTo(want.y, 4);
+      expect(box.width / viewport.width).toBeCloseTo(want.width, 4);
+      expect(box.height / viewport.height).toBeCloseTo(want.height, 4);
+      // Never stretched: the painted image keeps the PNG's 3:1 shape.
+      expect(box.width / box.height).toBeCloseTo(3, 3);
+      // …and stays inside the box the admin drew.
+      expect(box.x / viewport.width).toBeGreaterThanOrEqual(fraction.x - 1e-6);
+      expect(box.y / viewport.height).toBeGreaterThanOrEqual(fraction.y - 1e-6);
+      expect((box.x + box.width) / viewport.width).toBeLessThanOrEqual(fraction.x + fraction.width + 1e-6);
+      expect((box.y + box.height) / viewport.height).toBeLessThanOrEqual(fraction.y + fraction.height + 1e-6);
     }
     await task.destroy();
+  });
+
+  it("fits the image inside its box without stretching (object-fit: contain)", () => {
+    const page = { crop: { x: 0, y: 0, width: 600, height: 800 }, rotation: 0 };
+    // Box 300×80 pt, image 2:1 → 160×80 centered horizontally.
+    const wide = containBox(page, { x: 0.1, y: 0.1, width: 0.5, height: 0.1 }, 2);
+    expect(wide.width * 600).toBeCloseTo(160, 6);
+    expect(wide.height).toBeCloseTo(0.1, 6);
+    expect(wide.x * 600).toBeCloseTo(60 + 70, 6);
+    // Box 120×400 pt, image 3:1 → 120×40 centered vertically.
+    const tall = containBox(page, { x: 0, y: 0, width: 0.2, height: 0.5 }, 3);
+    expect(tall.width).toBeCloseTo(0.2, 6);
+    expect(tall.height * 800).toBeCloseTo(40, 6);
+    expect(tall.y * 800).toBeCloseTo(180, 6);
   });
 
   it("keeps the image upright: its top edge is at the top on every rotation", () => {
