@@ -6,6 +6,7 @@ import { Analytics } from '@/components/site/analytics'
 import { Footer, Header, MobileBar } from '@/components/site/chrome'
 import { RevealObserver } from '@/components/site/client'
 import { getShared, isDraft, isLocale, localeParams, mediaUrl } from '@/components/site/data'
+import { JsonLd, organizationData } from '@/components/site/structured-data'
 import { serverURL } from '@/lib/preview'
 import type { SiteLocale } from '@/lib/rules'
 import { RefreshRouteOnSave } from '../refresh-on-save'
@@ -88,6 +89,8 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Footer shared={shared} locale={locale} />
           <MobileBar shared={shared} locale={locale} />
         </div>
+        {/* Tells Google who the college is (name, address, phones, hours) — structured-data.tsx */}
+        <JsonLd data={organizationData(shared, locale)} />
         <RevealObserver />
         <Analytics locale={locale} />
         {draft && <RefreshRouteOnSave serverURL={serverURL()} />}

@@ -47,6 +47,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...page('', latest(homepage.updatedAt, lastCourse), 1),
     ...page('/courses', lastCourse, 0.9),
+    ...page('/about', homepage.updatedAt ?? undefined, 0.7),
+    ...page('/contact', undefined, 0.7),
+    ...page('/news', latest(...news.docs.map((n) => n.updatedAt)), 0.6),
     ...groups.docs
       .filter((g) => g.slug && groupIds.has(g.id))
       .flatMap((g) => page(`/courses/${encodeSlug(g.slug)}`, g.updatedAt, 0.8)),

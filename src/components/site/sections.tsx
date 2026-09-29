@@ -1,6 +1,6 @@
 import React from 'react'
 
-import type { Course, CourseGroup, Homepage, Media, SuccessStory } from '@/payload-types'
+import type { Course, CourseGroup, Homepage, Media, News, SuccessStory } from '@/payload-types'
 import { VOUCHER_TEXT, type SiteLocale } from '@/lib/rules'
 
 import { submitLead } from './actions'
@@ -30,6 +30,8 @@ import {
 import { A11Y } from './a11y-text'
 import { HeroVideo } from './hero-video'
 import { LEGAL_LABELS, legalHref } from './legal-links'
+import { PAGE_TEXT } from './page-text'
+import { JsonLd, faqData } from './structured-data'
 import type { getHomeData } from './data'
 import { ArrowIcon, CheckIcon, ChevronDown, PlayIcon, WhatsAppIcon } from './icons'
 
@@ -349,6 +351,62 @@ function Featured({
   )
 }
 
+/** Published courses with a start date that hasn't passed yet, soonest first. */
+export function upcomingCourses(shared: Shared, now = new Date()) {
+  const today = new Date(now)
+  today.setHours(0, 0, 0, 0)
+  return shared.courses
+    .filter((c) => c.nextStart && new Date(c.nextStart) >= today)
+    .sort((a, b) => a.nextStart!.localeCompare(b.nextStart!))
+}
+
+/**
+ * «دورات تفتح قريباً»: shown by itself (homepage, after the featured courses, and the /courses
+ * page) as soon as at least one course has a «موعد البدء» date in the admin panel.
+ */
+export function UpcomingCourses({
+  shared,
+  locale,
+  limit = 6,
+}: {
+  shared: Shared
+  locale: SiteLocale
+  limit?: number
+}) {
+  const list = upcomingCourses(shared).slice(0, limit)
+  if (!list.length) return null
+  const t = PAGE_TEXT[locale]
+  return (
+    <section id="upcoming" className="sec" style={{ padding: '24px 20px 40px' }}>
+      <div className="wrap">
+        <div data-reveal="" className="section-head" style={{ marginBottom: 18 }}>
+          <div>
+            <Kicker label={t.upcomingKicker} />
+            <h2 className="h2">{t.upcomingTitle}</h2>
+          </div>
+        </div>
+        <ul className="upcoming">
+          {list.map((c, i) => (
+            <li key={c.id} data-reveal="" className="glass lift" style={delay(i, 70)}>
+              <time dateTime={c.nextStart!} className="upcoming-date">
+                {formatDate(c.nextStart!, locale)}
+              </time>
+              <a href={courseHref(locale, c)} className="upcoming-name">
+                {c.name}
+              </a>
+              {asDoc(c.group)?.name && (
+                <span className="upcoming-group">{asDoc(c.group)?.name}</span>
+              )}
+              <ArrowIcon size={18} color="#158942" className="arrow upcoming-arrow" />
+            </li>
+          ))}
+        </ul>
+        <p className="upcoming-note">{t.upcomingNote}</p>
+      </div>
+    </section>
+  )
+}
+
 function Why({ b, n }: { b: Extract<Section, { blockType: 'why' }> } & Ctx) {
   const img = mediaUrl(b.image, 'wide')
   return (
@@ -605,6 +663,52 @@ function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'vi
   )
 }
 
+/** One news item as a card (homepage «أخبار» section and the /news page). */
+export function NewsCard({
+  x,
+  shared,
+  locale,
+  i = 0,
+}: {
+  x: News
+  shared: Shared
+  locale: SiteLocale
+  i?: number
+}) {
+  const img = mediaUrl(x.coverImage, 'card')
+  return (
+    <a
+      href={`/${locale}/news/${x.slug}`}
+      data-reveal=""
+      className="glass lift zoom news-card"
+      style={delay(i, 100)}
+    >
+      <div className="course-media">
+        {img && (
+          <img
+            src={img}
+            alt={mediaAlt(x.coverImage)}
+            className="cover"
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <time className="tag" dateTime={x.publishedAt}>
+          {formatDate(x.publishedAt, locale)}
+        </time>
+      </div>
+      <div className="course-body" style={{ gap: 8 }}>
+        <h3>{x.title}</h3>
+        {x.excerpt && <p className="ex">{x.excerpt}</p>}
+        <span className="more">
+          {shared.ui.common?.readMore}
+          <ArrowIcon />
+        </span>
+      </div>
+    </a>
+  )
+}
+
 function NewsSection({
   b,
   shared,
@@ -622,43 +726,15 @@ function NewsSection({
             <Kicker n={n} label={b.kicker} />
             <h2 className="h2">{b.title}</h2>
           </div>
+          <a href={`/${locale}/news`} className="btn btn-outline">
+            {PAGE_TEXT[locale].allNews}
+            <ArrowIcon />
+          </a>
         </div>
         <div className="news-grid">
-          {items.map((x, i) => {
-            const img = mediaUrl(x.coverImage, 'card')
-            return (
-              <a
-                key={x.id}
-                href={`/${locale}/news/${x.slug}`}
-                data-reveal=""
-                className="glass lift zoom news-card"
-                style={delay(i, 100)}
-              >
-                <div className="course-media">
-                  {img && (
-                    <img
-                      src={img}
-                      alt={mediaAlt(x.coverImage)}
-                      className="cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )}
-                  <time className="tag" dateTime={x.publishedAt}>
-                    {formatDate(x.publishedAt, locale)}
-                  </time>
-                </div>
-                <div className="course-body" style={{ gap: 8 }}>
-                  <h3>{x.title}</h3>
-                  {x.excerpt && <p className="ex">{x.excerpt}</p>}
-                  <span className="more">
-                    {shared.ui.common?.readMore}
-                    <ArrowIcon />
-                  </span>
-                </div>
-              </a>
-            )
-          })}
+          {items.map((x, i) => (
+            <NewsCard key={x.id} x={x} shared={shared} locale={locale} i={i} />
+          ))}
         </div>
       </div>
     </section>
@@ -763,6 +839,7 @@ function Employers({ b, shared, n }: { b: Extract<Section, { blockType: 'employe
 }
 
 function FaqSection({ b, n }: { b: Extract<Section, { blockType: 'faq' }> } & Ctx) {
+  const items = (b.items ?? []).map((f) => ({ question: f.question, answer: f.answer }))
   return (
     <section id={b.anchor || 'faq'} className="sec" style={{ padding: '0 20px 56px' }}>
       <div style={{ maxWidth: 860, margin: '0 auto' }}>
@@ -771,8 +848,9 @@ function FaqSection({ b, n }: { b: Extract<Section, { blockType: 'faq' }> } & Ct
           <h2 className="h2">{b.title}</h2>
           {b.text && <p style={{ marginTop: 8, fontSize: 16, color: '#4b5c61' }}>{b.text}</p>}
         </div>
-        <Faq items={(b.items ?? []).map((f) => ({ question: f.question, answer: f.answer }))} />
+        <Faq items={items} />
       </div>
+      {items.length > 0 && <JsonLd data={faqData(items)} />}
     </section>
   )
 }
@@ -1006,7 +1084,12 @@ export function HomeSections({ shared, home, locale }: Omit<Ctx, 'n'>) {
           case 'courseGroups':
             return <Groups key={b.id} b={b} {...ctx} />
           case 'featuredCourses':
-            return <Featured key={b.id} b={b} {...ctx} />
+            return (
+              <React.Fragment key={b.id}>
+                <Featured b={b} {...ctx} />
+                <UpcomingCourses shared={shared} locale={locale} />
+              </React.Fragment>
+            )
           case 'why':
             return <Why key={b.id} b={b} {...ctx} />
           case 'successStories':

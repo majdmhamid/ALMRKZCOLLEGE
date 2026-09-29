@@ -15,9 +15,11 @@ import {
   whatsappHref,
 } from './data'
 import { A11Y } from './a11y-text'
-import { PromoStage } from './client'
+import { PrintButton, PromoStage } from './client'
 import { CheckIcon, PlayIcon, WhatsAppIcon } from './icons'
-import { CourseCard, RegisterForm, youtubeId } from './sections'
+import { PAGE_TEXT } from './page-text'
+import { CourseCard, RegisterForm, UpcomingCourses, youtubeId } from './sections'
+import { JsonLd, breadcrumbData, courseData } from './structured-data'
 
 export function PageHero({
   image,
@@ -52,6 +54,7 @@ export function PageHero({
         <h1>{title}</h1>
         {sub && <p className="sub">{sub}</p>}
       </div>
+      <JsonLd data={breadcrumbData([...crumbs, { label: title }])} />
     </section>
   )
 }
@@ -159,7 +162,8 @@ export function CoursePage({
         title={c.name}
         sub={c.shortDescription}
       />
-      <div className="detail">
+      <JsonLd data={courseData(c, locale)} />
+      <div className="detail course-detail">
         <div>
           {(Boolean(c.fullDescription) || Boolean(c.highlights?.length)) && (
             <section className="card glass">
@@ -298,6 +302,8 @@ export function CoursePage({
           </section>
           {c.voucherEligible && <p className="note">{VOUCHER_TEXT[locale]}</p>}
           {ui.course?.contactForPrice && <p className="note muted">{ui.course.contactForPrice}</p>}
+          <PrintButton label={PAGE_TEXT[locale].print} />
+          <PrintContact shared={shared} locale={locale} />
           <a
             href={whatsappHref(
               shared,
@@ -323,6 +329,18 @@ export function CoursePage({
         </aside>
       </div>
     </>
+  )
+}
+
+/** Only on paper / PDF: who to call about the course (the page's header and footer are hidden). */
+function PrintContact({ shared, locale }: { shared: Shared; locale: SiteLocale }) {
+  const s = shared.settings
+  const phones = (s.contact?.phones ?? []).map((p) => p.number)
+  return (
+    <p className="print-only note muted">
+      <b>{s.siteName}</b> · {PAGE_TEXT[locale].printFooter}:{' '}
+      <span dir="ltr">{[...phones, s.contact?.email].filter(Boolean).join(' · ')}</span>
+    </p>
   )
 }
 
@@ -389,6 +407,7 @@ export function AllCoursesPage({ shared, locale }: { shared: Shared; locale: Sit
         crumbs={[{ href: `/${locale}`, label: shared.ui.nav?.home }]}
         title={shared.ui.nav?.allCourses ?? shared.ui.nav?.courses ?? ''}
       />
+      <UpcomingCourses shared={shared} locale={locale} limit={12} />
       <div className="wrap" style={{ padding: '40px 20px 56px', display: 'grid', gap: 40 }}>
         {shared.groups.map((g) => {
           const courses = shared.courses.filter((c) => (asDoc(c.group)?.id ?? c.group) === g.id)
@@ -425,7 +444,7 @@ export function NewsPage({ n, shared, locale }: { n: News; shared: Shared; local
         image={mediaUrl(n.coverImage, 'hero')}
         crumbs={[
           { href: `/${locale}`, label: shared.ui.nav?.home },
-          { href: `/${locale}#news`, label: shared.ui.nav?.news },
+          { href: `/${locale}/news`, label: shared.ui.nav?.news || PAGE_TEXT[locale].news },
         ]}
         title={n.title}
         sub={formatDate(n.publishedAt, locale)}

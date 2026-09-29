@@ -2555,3 +2555,214 @@
   border-radius: 14px;
   display: block;
 }
+
+/* contact page */
+.site-scope .contact-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.site-scope .contact-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px dashed rgba(21, 137, 66, 0.2);
+}
+.site-scope .contact-list li:last-child {
+  border-bottom: 0;
+}
+.site-scope .contact-list li > svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.site-scope .contact-list div {
+  display: grid;
+  gap: 2px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.site-scope .contact-list span {
+  font-size: 13px;
+  color: #4b5c61;
+}
+.site-scope .contact-list b {
+  color: #0f6b33;
+}
+.site-scope .map-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 16px;
+}
+.site-scope .map-placeholder {
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(136, 187, 60, 0.25), transparent 55%),
+    repeating-linear-gradient(45deg, #eef6e8 0 12px, #e6f1de 12px 24px);
+}
+.site-scope .map-placeholder .btn {
+  height: 48px;
+  padding: 0 22px;
+  white-space: nowrap;
+}
+
+/* about page */
+.site-scope .about-facts {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+.site-scope .about-facts div {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  padding: 16px 10px;
+  border-radius: 18px;
+  background: #f1f8ec;
+}
+.site-scope .about-facts b {
+  font-size: 34px;
+  font-weight: 800;
+  color: #0f6b33;
+  line-height: 1;
+}
+.site-scope .about-facts span {
+  font-size: 14px;
+  color: #4b5c61;
+}
+
+/* «دورات تفتح قريباً» */
+.site-scope .upcoming {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+}
+.site-scope .upcoming li {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'date name arrow' 'date group arrow';
+  align-items: center;
+  column-gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.85);
+}
+.site-scope .upcoming-date {
+  grid-area: date;
+  max-width: 7.5em;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #158942;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.35;
+}
+.site-scope .upcoming-name {
+  grid-area: name;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.4;
+}
+/* the whole row is clickable */
+.site-scope .upcoming-name::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.site-scope .upcoming-group {
+  grid-area: group;
+  font-size: 13px;
+  color: #4b5c61;
+}
+.site-scope .upcoming-arrow {
+  grid-area: arrow;
+}
+.site-scope .upcoming-note {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #4b5c61;
+}
+
+/* course page on paper / «احفظ PDF» */
+.site-scope .print-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+}
+.site-scope .print-only {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  .site-scope,
+  .site-scope .page {
+    background: #fff !important;
+  }
+  .site-scope header,
+  .site-scope footer,
+  .site-scope .tabbar,
+  .site-scope .tabbar-space,
+  .site-scope .wa-float,
+  .site-scope .btn,
+  .site-scope #register,
+  .site-scope form,
+  .site-scope iframe,
+  .site-scope video,
+  .site-scope .stage,
+  .site-scope .crumbs {
+    display: none !important;
+  }
+  .site-scope .print-only {
+    display: block !important;
+  }
+  .site-scope main {
+    margin-top: 0 !important;
+  }
+  .site-scope .page-hero {
+    padding: 0 0 12px;
+    background: none;
+    color: #000;
+  }
+  .site-scope .page-hero .bg {
+    display: none;
+  }
+  .site-scope .page-hero .sub {
+    color: #333;
+  }
+  .site-scope .detail {
+    display: block;
+    padding: 0;
+  }
+  .site-scope .sticky-side {
+    position: static;
+    margin-top: 18px;
+  }
+  .site-scope .card,
+  .site-scope .glass {
+    background: #fff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+  .site-scope [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

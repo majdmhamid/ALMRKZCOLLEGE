@@ -129,18 +129,28 @@ export const videos = {
   ],
 }
 
-/** Header links of Option A (desktop order) → homepage sections. */
-export const headerLinks: { nav: string; anchor: string }[] = [
+/**
+ * Header links of Option A (desktop order) → homepage sections, or a page of its own
+ * (`page`: «عن الكلية», «أخبار» and «اتصل بنا» have their own pages).
+ */
+export const headerLinks: { nav: string; anchor?: string; page?: string }[] = [
   { nav: 'courses', anchor: 'fields' },
-  { nav: 'about', anchor: 'why' },
+  { nav: 'about', page: 'about' },
   { nav: 'graduates', anchor: 'graduates' },
   { nav: 'gallery', anchor: 'video' },
-  { nav: 'news', anchor: 'news' },
+  { nav: 'news', page: 'news' },
   { nav: 'employers', anchor: 'employers' },
   { nav: 'faq', anchor: 'faq' },
 ]
 /** Footer «روابط سريعة» + mobile menu of Option A. */
-export const quickLinks = headerLinks.filter((l) => l.anchor !== 'video')
+export const quickLinks = [
+  ...headerLinks.filter((l) => l.anchor !== 'video'),
+  { nav: 'contact', page: 'contact' },
+]
+
+/** Link field value of one of the links above. */
+export const navLink = (l: { anchor?: string; page?: string }) =>
+  l.page ? { type: 'page', page: l.page } : { type: 'anchor', anchor: l.anchor }
 
 export const stats = [
   { key: 'courseCount', label: 'courses', anchor: 'courses' },

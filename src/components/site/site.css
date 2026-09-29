@@ -2593,3 +2593,214 @@ textarea.field {
   border-radius: 14px;
   display: block;
 }
+
+/* contact page */
+.contact-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.contact-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px dashed rgba(21, 137, 66, 0.2);
+}
+.contact-list li:last-child {
+  border-bottom: 0;
+}
+.contact-list li > svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.contact-list div {
+  display: grid;
+  gap: 2px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.contact-list span {
+  font-size: 13px;
+  color: #4b5c61;
+}
+.contact-list b {
+  color: #0f6b33;
+}
+.map-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 16px;
+}
+.map-placeholder {
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(136, 187, 60, 0.25), transparent 55%),
+    repeating-linear-gradient(45deg, #eef6e8 0 12px, #e6f1de 12px 24px);
+}
+.map-placeholder .btn {
+  height: 48px;
+  padding: 0 22px;
+  white-space: nowrap;
+}
+
+/* about page */
+.about-facts {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+.about-facts div {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  padding: 16px 10px;
+  border-radius: 18px;
+  background: #f1f8ec;
+}
+.about-facts b {
+  font-size: 34px;
+  font-weight: 800;
+  color: #0f6b33;
+  line-height: 1;
+}
+.about-facts span {
+  font-size: 14px;
+  color: #4b5c61;
+}
+
+/* «دورات تفتح قريباً» */
+.upcoming {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+}
+.upcoming li {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'date name arrow' 'date group arrow';
+  align-items: center;
+  column-gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.85);
+}
+.upcoming-date {
+  grid-area: date;
+  max-width: 7.5em;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #158942;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.35;
+}
+.upcoming-name {
+  grid-area: name;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.4;
+}
+/* the whole row is clickable */
+.upcoming-name::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.upcoming-group {
+  grid-area: group;
+  font-size: 13px;
+  color: #4b5c61;
+}
+.upcoming-arrow {
+  grid-area: arrow;
+}
+.upcoming-note {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #4b5c61;
+}
+
+/* course page on paper / «احفظ PDF» */
+.print-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 16px;
+}
+.print-only {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  body,
+  .page {
+    background: #fff !important;
+  }
+  header,
+  footer,
+  .tabbar,
+  .tabbar-space,
+  .wa-float,
+  .btn,
+  #register,
+  form,
+  iframe,
+  video,
+  .stage,
+  .crumbs {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  main {
+    margin-top: 0 !important;
+  }
+  .page-hero {
+    padding: 0 0 12px;
+    background: none;
+    color: #000;
+  }
+  .page-hero .bg {
+    display: none;
+  }
+  .page-hero .sub {
+    color: #333;
+  }
+  .detail {
+    display: block;
+    padding: 0;
+  }
+  .sticky-side {
+    position: static;
+    margin-top: 18px;
+  }
+  .card,
+  .glass {
+    background: #fff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -730,7 +730,6 @@ export function LeadForm({
         disabled={pending}
         aria-busy={pending || undefined}
       >
-
         {labels.submit}
       </button>
       <p className="privacy">
@@ -762,5 +761,48 @@ export function LangSwitch({ locale, label }: { locale: string; label?: string |
     >
       {label}
     </a>
+  )
+}
+
+/**
+ * Google map on the contact page. Loaded only when the visitor asks for it: Google Maps sets
+ * cookies and is heavy, so until the click there is just a button (same idea as the videos).
+ */
+export function MapEmbed({
+  src,
+  title,
+  showLabel,
+}: {
+  src: string
+  title: string
+  showLabel: string
+}) {
+  const [shown, setShown] = useState(false)
+  if (shown) {
+    return (
+      <iframe
+        ref={focusOnMount}
+        className="map-frame"
+        src={src}
+        title={title}
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        allowFullScreen
+      />
+    )
+  }
+  return (
+    <button type="button" className="map-frame map-placeholder" onClick={() => setShown(true)}>
+      <span className="btn btn-green">{showLabel}</span>
+    </button>
+  )
+}
+
+/** «اطبع / احفظ PDF» on a course page — the browser's print window can save the page as PDF. */
+export function PrintButton({ label }: { label: string }) {
+  return (
+    <button type="button" className="btn btn-outline print-btn" onClick={() => window.print()}>
+      {label}
+    </button>
   )
 }
