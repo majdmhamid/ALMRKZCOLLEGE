@@ -312,7 +312,13 @@ export async function submitSignature(
   db: Db,
   resolved: Resolved | null,
   session: SignSession | null,
-  input: { method: SignatureMethod; png: Uint8Array; readConfirmed: boolean },
+  input: {
+    method: SignatureMethod;
+    png: Uint8Array;
+    readConfirmed: boolean;
+    /** The signer ticked «I agree to sign electronically» (חוק חתימה אלקטרונית). Kept in the audit log. */
+    esignConsent?: boolean;
+  },
   client: ClientInfo,
 ): Promise<SubmitResult> {
   if (!resolved) return { ok: false, error: "invalid_link" };
@@ -377,7 +383,12 @@ export async function submitSignature(
         documentId: doc.id,
         signerId,
         event: "signed",
-        details: { method: input.method, signature_sha256: sha256Hex(png) },
+        details: {
+          method: input.method,
+          signature_sha256: sha256Hex(png),
+          read_confirmed: true,
+          esign_consent: Boolean(input.esignConsent),
+        },
         ip: client.ip,
         userAgent: client.userAgent,
       });

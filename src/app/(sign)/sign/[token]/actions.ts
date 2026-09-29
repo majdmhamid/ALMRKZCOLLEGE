@@ -65,13 +65,15 @@ const submitSchema = z.object({
     .max(Math.ceil((MAX_SIGNATURE_BYTES * 4) / 3) + 64)
     .regex(/^data:image\/png;base64,[A-Za-z0-9+/=]+$/),
   readConfirmed: z.literal(true),
+  // חוק חתימה אלקטרונית: explicit agreement to sign electronically (separate box in SignFlow).
+  esignConsent: z.literal(true),
 });
 
 export type SubmitState = { ok?: boolean; error?: SubmitError | "rate_limited" };
 
 export async function submitSignatureAction(
   token: string,
-  input: { method: SignatureMethod; dataUrl: string; readConfirmed: boolean },
+  input: { method: SignatureMethod; dataUrl: string; readConfirmed: boolean; esignConsent: boolean },
 ): Promise<SubmitState> {
   const { ip, userAgent } = await requestInfo();
   if (!(await rateLimit(`submit:ip:${ip ?? "unknown"}`, 10 * 60, 100))) return { error: "rate_limited" };
@@ -91,7 +93,7 @@ export async function submitSignatureAction(
     db,
     resolved,
     session,
-    { method: parsed.data.method, png, readConfirmed: parsed.data.readConfirmed },
+    { method: parsed.data.method, png, readConfirmed: parsed.data.readConfirmed, esignConsent: parsed.data.esignConsent },
     { ip, userAgent },
   );
   if (!result.ok) return { error: result.error };

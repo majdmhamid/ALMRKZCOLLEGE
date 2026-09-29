@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, FileSignature, Link2Off, Lock, PenLine, ShieldCheck, Type, UserCheck } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { LanguageSwitch } from "@/features/signing/components/LanguageSwitch";
@@ -156,6 +156,17 @@ function AlreadySigned({ token, title, canSignAnother }: { token: string; title:
 const inputClass =
   "h-12 w-full rounded-xl border border-line bg-white px-4 text-base outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-400/30";
 
+/** Link to the website's privacy policy, e-signature section, in the page's language. */
+function PrivacyLink() {
+  const t = useTranslations("sign");
+  const locale = useLocale() === "he" ? "he" : "ar";
+  return (
+    <a href={`/${locale}/privacy#esign`} target="_blank" rel="noopener" className="font-semibold text-brand-700 underline underline-offset-2">
+      {t("privacyLink")}
+    </a>
+  );
+}
+
 function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shared" }) {
   const t = useTranslations("sign");
   const router = useRouter();
@@ -217,6 +228,10 @@ function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shar
           <span className="mt-1 block text-xs text-muted">{t("idHint")}</span>
         </label>
       </div>
+      {/* Privacy notice before the ID number (חוק הגנת הפרטיות, סעיף 11): why, where it goes, no duty. */}
+      <p className="mt-4 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
+        {t("idNotice")} <PrivacyLink />
+      </p>
       {error && (
         <p role="alert" className="mt-4 rounded-xl bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">
           {error}
@@ -254,6 +269,8 @@ function SignStep({
   const [boxRef, width] = useElementWidth<HTMLDivElement>();
 
   const [read, setRead] = useState(false);
+  // חוק חתימה אלקטרונית: the signer agrees to sign electronically, separately from "I read it".
+  const [esign, setEsign] = useState(false);
   const [method, setMethod] = useState<SignatureMethod>("draw");
   const [padEmpty, setPadEmpty] = useState(true);
   const [typed, setTyped] = useState(view.signerName);
@@ -281,6 +298,7 @@ function SignStep({
   const submit = () => {
     setError(null);
     if (!read) return setError(t("needRead"));
+    if (!esign) return setError(t("needEsign"));
     if (!hasSignature) return setError(t("needSignature"));
     const fontFamily = getComputedStyle(document.body).fontFamily;
     const dataUrl =
@@ -289,7 +307,7 @@ function SignStep({
         : textSignatureDataUrl(typed.trim(), { check: method === "checkbox", fontFamily });
     if (!dataUrl) return setError(t("needSignature"));
     startTransition(async () => {
-      const result = await submitSignatureAction(token, { method, dataUrl, readConfirmed: true }).catch(() => ({
+      const result = await submitSignatureAction(token, { method, dataUrl, readConfirmed: true, esignConsent: true }).catch(() => ({
         error: "generic" as const,
       }));
       if ("ok" in result && result.ok) {
@@ -340,6 +358,23 @@ function SignStep({
         />
         <span className="text-sm font-medium leading-relaxed">{t("readConfirm")}</span>
       </label>
+
+      {/* What an electronic signature means (חוק חתימה אלקטרונית 2001) + the signer's separate consent. */}
+      <section className="mb-5 rounded-2xl border border-line bg-card p-4 shadow-card">
+        <p className="text-xs leading-relaxed text-slate-600">
+          {t("esignInfo")} <PrivacyLink />
+        </p>
+        <label className="mt-3 flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={esign}
+            onChange={(e) => setEsign(e.target.checked)}
+            className="mt-0.5 size-5 shrink-0 accent-brand-600"
+            data-testid="esign-consent"
+          />
+          <span className="text-sm font-medium leading-relaxed">{t("esignConsent")}</span>
+        </label>
+      </section>
 
       <section className={`rounded-2xl border border-line bg-card p-4 shadow-card transition-opacity ${read ? "" : "opacity-50"}`}>
         <h2 className="mb-3 text-lg font-bold">{t("signTitle")}</h2>
@@ -401,7 +436,7 @@ function SignStep({
             disabled={pending}
             data-testid="submit-signature"
             className={`h-13 w-full rounded-xl text-base font-bold text-white transition disabled:opacity-60 ${
-              read && hasSignature ? "bg-signed hover:bg-green-700" : "bg-slate-400"
+              read && esign && hasSignature ? "bg-signed hover:bg-green-700" : "bg-slate-400"
             }`}
           >
             {pending ? t("submitting") : t("submit")}

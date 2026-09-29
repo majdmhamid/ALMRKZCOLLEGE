@@ -100,6 +100,7 @@ try {
   step("right ID → the PDF is shown");
 
   await p.locator('[data-testid="read-confirm"]').check();
+  await p.locator('[data-testid="esign-consent"]').check();
   const canvas = p.locator('[data-testid="signature-canvas"]');
   await canvas.scrollIntoViewIfNeeded();
   const box = await canvas.boundingBox();
