@@ -1,7 +1,84 @@
-import type { CollectionConfig } from 'payload'
+import type {
+  CollectionBeforeChangeHook,
+  CollectionBeforeDeleteHook,
+  CollectionBeforeOperationHook,
+  CollectionConfig,
+} from 'payload'
+import { APIError } from 'payload'
 
 import { adminOrSelf, isAdmin, isAdminField, isAdminUser } from '@/access'
 import { serverURL } from '@/lib/preview'
+
+/**
+ * «نسيت كلمة السر» بدون إيميل مركّب (SMTP_HOST فاضي) على الموقع الحقيقي: Payload كان بيقول
+ * «تفقّد بريدك» وما بيبعت إشي. هون بنوقّف الطلب برسالة واضحة. محلياً (npm run dev) الرابط
+ * بينطبع بسجل السيرفر، فبنخليه يشتغل.
+ */
+export const emailIsSetUp = () => Boolean(process.env.SMTP_HOST) || process.env.NODE_ENV !== 'production'
+
+export const NO_EMAIL_MESSAGE = {
+  ar: 'إرسال الإيميلات لسا مش مفعّل بالموقع، فما بنقدر نبعتلك رابط لتغيير كلمة السر. اطلب من مدير اللوحة يغيّرها إلك من «المستخدمون».',
+  he: 'שליחת מיילים עדיין לא מופעלת באתר, ולכן אי אפשר לשלוח קישור לאיפוס הסיסמה. בקשו ממנהל הלוח לשנות אותה עבורכם ב«משתמשים».',
+}
+
+const blockResetWithoutEmail: CollectionBeforeOperationHook = ({ args, operation, req }) => {
+  if (operation === 'forgotPassword' && !emailIsSetUp()) {
+    throw new APIError(req.i18n?.language === 'he' ? NO_EMAIL_MESSAGE.he : NO_EMAIL_MESSAGE.ar, 503, undefined, true)
+  }
+  return args
+}
+
+const lang = (req: { i18n?: { language?: string } }) => (req.i18n?.language === 'he' ? 'he' : 'ar')
+
+const otherAdmins = async (req: Parameters<CollectionBeforeOperationHook>[0]['req'], id: number | string) => {
+  const { totalDocs } = await req.payload.count({
+    collection: 'users',
+    where: { and: [{ roles: { in: ['admin'] } }, { id: { not_equals: id } }] },
+    req,
+    overrideAccess: true,
+  })
+  return totalDocs
+}
+
+/** بدون حساب «مدير» واحد على الأقل ما حدا بيقدر يزيد مستخدمين أو يشوف الطلبات. */
+const keepAnAdmin: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  if (req.user && String(req.user.id) === String(id)) {
+    throw new APIError(
+      lang(req) === 'he'
+        ? 'אי אפשר למחוק את החשבון שלך. מנהל אחר יכול למחוק אותו.'
+        : 'ما بتقدر تمسح حسابك إنت. مدير ثاني بيقدر يمسحه.',
+      400,
+      undefined,
+      true,
+    )
+  }
+  const target = await req.payload
+    .findByID({ collection: 'users', id, depth: 0, req, overrideAccess: true })
+    .catch(() => null)
+  if (target?.roles?.includes('admin') && (await otherAdmins(req, id)) === 0) {
+    throw new APIError(
+      lang(req) === 'he' ? 'זה המנהל האחרון — אי אפשר למחוק אותו.' : 'هاد آخر «مدير» باللوحة — ما بينفع ينمسح.',
+      400,
+      undefined,
+      true,
+    )
+  }
+}
+
+const keepAdminRole: CollectionBeforeChangeHook = async ({ data, operation, originalDoc, req }) => {
+  if (operation !== 'update' || !originalDoc?.roles?.includes('admin') || !Array.isArray(data?.roles)) return data
+  if (!data.roles.includes('admin') && (await otherAdmins(req, originalDoc.id)) === 0) {
+    throw new APIError(
+      lang(req) === 'he'
+        ? 'זה המנהל האחרון — השאירו לו הרשאת «מנהל» (אחרת אף אחד לא יוכל לנהל משתמשים ופניות).'
+        : 'هاد آخر «مدير» — خلّي عنده صلاحية «مدير» (غير هيك ما حدا بيقدر يدير المستخدمين والطلبات).',
+      400,
+      undefined,
+      true,
+    )
+  }
+  return data
+}
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -72,7 +149,10 @@ export const Users: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeOperation: [blockResetWithoutEmail],
+    beforeDelete: [keepAnAdmin],
     beforeChange: [
+      keepAdminRole,
       // The very first account (created on the /admin welcome screen) is always an admin.
       async ({ data, operation, req }) => {
         if (operation !== 'create' || isAdminUser(req)) return data
