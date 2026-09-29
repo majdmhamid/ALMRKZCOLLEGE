@@ -12,7 +12,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
-import { arTranslationFixes } from './admin/translations'
+import { arTranslationFixes, heTranslationFixes } from './admin/translations'
 import { CourseGroups } from './collections/CourseGroups'
 import { Courses } from './collections/Courses'
 import { Leads } from './collections/Leads'
@@ -117,6 +117,12 @@ export default buildConfig({
       description: 'لوحة تحكم موقع كلية المركز للتأهيل المهني',
     },
     dateFormat: 'dd/MM/yyyy HH:mm',
+    // «جدولة النشر» كانت تطلب «المنطقة الزمنية» من قائمة فاضية. الكلية بإسرائيل — وحدة بس.
+    // (ما في ولا خانة تاريخ مع `timezone` — فهاد ما بيغيّر القاعدة.)
+    timezones: {
+      defaultTimezone: 'Asia/Jerusalem',
+      supportedTimezones: [{ label: 'توقيت إسرائيل / فلسطين (Asia/Jerusalem)', value: 'Asia/Jerusalem' }],
+    },
     livePreview: {
       url: ({ data, collectionConfig, globalConfig, locale }) => {
         if (globalConfig) return previewPath({ global: globalConfig.slug, locale: locale?.code })
@@ -141,7 +147,7 @@ export default buildConfig({
     supportedLanguages: { ar, he },
     fallbackLanguage: 'ar',
     // أخطاء بالترجمة العربية الجاهزة تبعت Payload (src/admin/translations.ts)
-    translations: { ar: arTranslationFixes },
+    translations: { ar: arTranslationFixes, he: heTranslationFixes },
   },
 
   // Website content: every text field marked `localized` has an Arabic and a Hebrew version.

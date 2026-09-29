@@ -15,6 +15,8 @@ export const arTranslationFixes = {
     allLocales: 'كل اللغات',
     noResults: 'لسا ما في {{label}}.',
     fallbackToDefaultLocale: 'استعمل النص العربي',
+    // «جدولة النشر» (الأخبار): الترجمة الجاهزة ترجمت {{title}} نفسها فطلع «{{العنوان}}» بالعنوان
+    schedulePublishFor: 'جدولة النشر: «{{title}}»',
   },
   fields: {
     toggleBlock: 'افتح / سكّر',
@@ -31,6 +33,8 @@ export const arTranslationFixes = {
     publishAllLocales: 'نشر بكل اللغات',
     aboutToUnpublish: 'رح يختفي من الموقع (بس بضل محفوظ هون وبتقدر ترجع تنشره). متأكد؟',
     currentlyViewing: 'النسخة اللي قدامك',
+    // «جدول النشر» = جدول (table) — الصح «جدولة النشر»
+    schedulePublish: 'جدولة النشر',
   },
   error: {
     followingFieldsInvalid_one: 'في خانة لازم تصلّحها:',
@@ -39,5 +43,15 @@ export const arTranslationFixes = {
   },
   validation: {
     required: 'لازم تعبّي هاي الخانة.',
+  },
+}
+
+/** نفس الإشي بالعبري (اللوحة بالعبري من «الإعدادات ← اللغة»): الترجمة ترجمت اسم المتغيّر نفسه. */
+export const heTranslationFixes = {
+  general: {
+    schedulePublishFor: 'תזמון פרסום: «{{title}}»',
+  },
+  version: {
+    noRowsSelected: 'לא נבחר {{label}}',
   },
 }
