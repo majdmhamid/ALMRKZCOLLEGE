@@ -12,6 +12,7 @@ import React, {
 
 import { trackLead } from '@/lib/analytics'
 
+import { MOTION_STORAGE_KEY } from './a11y-text'
 import type { LeadState } from './actions'
 import {
   ChevronDown,
@@ -26,10 +27,65 @@ import {
   WhatsAppIcon,
 } from './icons'
 
-/** Visitor asked the device for less motion (no auto-rotation, no smooth scrolling). */
-const noSubscribe = () => () => {}
+/*
+ * «Stop motion» (accessibility, WCAG 2.2.2): the header has a button that stops everything that
+ * moves by itself — the hero video, the moving strips, the graduates' auto-rotation. The choice is
+ * a class on <html> (site.css pauses the animations) and is remembered on this device.
+ */
+const MOTION_KEY = MOTION_STORAGE_KEY
+const MOTION_EVENT = 'almrkz:motion'
+export const motionOff = () =>
+  typeof document !== 'undefined' && document.documentElement.classList.contains('motion-off')
+export const subscribeMotion = (cb: () => void) => {
+  window.addEventListener(MOTION_EVENT, cb)
+  return () => window.removeEventListener(MOTION_EVENT, cb)
+}
+const applyMotion = (off: boolean) => {
+  document.documentElement.classList.toggle('motion-off', off)
+  window.dispatchEvent(new Event(MOTION_EVENT))
+}
+/** Visitor asked the device (or the header button) for less motion. */
 const reducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  typeof window !== 'undefined' &&
+  (window.matchMedia('(prefers-reduced-motion: reduce)').matches || motionOff())
+
+export function MotionToggle({
+  pauseLabel,
+  resumeLabel,
+}: {
+  pauseLabel: string
+  resumeLabel: string
+}) {
+  const off = useSyncExternalStore(subscribeMotion, motionOff, () => false)
+  // No saved choice yet: start from the device's own «reduce motion» setting.
+  useEffect(() => {
+    let stored: string | null = null
+    try {
+      stored = localStorage.getItem(MOTION_KEY)
+    } catch {}
+    const initial =
+      stored === '1' ||
+      (stored === null && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    if (initial !== motionOff()) applyMotion(initial)
+  }, [])
+  return (
+    <button
+      type="button"
+      className="icon-btn square motion-btn"
+      aria-pressed={off}
+      aria-label={off ? resumeLabel : pauseLabel}
+      title={off ? resumeLabel : pauseLabel}
+      onClick={() => {
+        try {
+          localStorage.setItem(MOTION_KEY, off ? '0' : '1')
+        } catch {}
+        applyMotion(!off)
+      }}
+    >
+      {off ? <ResumeIcon size={16} /> : <PauseIcon size={16} />}
+    </button>
+  )
+}
 
 /**
  * Ref callback: move the keyboard focus to an element that just replaced the button the visitor
@@ -74,6 +130,7 @@ export function HeaderMenu({
   whatsappLabel,
   menuLabel,
   navLabel,
+  newTabLabel,
 }: {
   links: MenuLink[]
   registerHref: string
@@ -83,6 +140,8 @@ export function HeaderMenu({
   menuLabel: string
   /** Name of the menu's <nav> for screen readers. */
   navLabel?: string
+  /** «opens in a new window» — read out after the WhatsApp link. */
+  newTabLabel?: string
 }) {
   const [open, setOpen] = useState(false)
   const toggle = useRef<HTMLButtonElement>(null)
@@ -127,6 +186,7 @@ export function HeaderMenu({
             <a href={whatsappHref} target="_blank" rel="noopener" className="btn btn-wa">
               <WhatsAppIcon size={20} />
               {whatsappLabel}
+              {newTabLabel && <span className="sr-only"> ({newTabLabel})</span>}
             </a>
           </div>
         </div>
@@ -264,7 +324,7 @@ export function Stories({
   const [playing, setPlaying] = useState(false)
   // Auto-rotation stops when the visitor presses pause, while the mouse or keyboard focus is
   // inside, and never starts for visitors who asked their device for less motion.
-  const reduced = useSyncExternalStore(noSubscribe, reducedMotion, () => false)
+  const reduced = useSyncExternalStore(subscribeMotion, reducedMotion, () => false)
   const [pausedByVisitor, setPaused] = useState<boolean | null>(null)
   const paused = pausedByVisitor ?? reduced
   const [hold, setHold] = useState(false)

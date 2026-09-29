@@ -18,7 +18,7 @@ import { A11Y } from './a11y-text'
 import { PrintButton, PromoStage } from './client'
 import { CheckIcon, PlayIcon, WhatsAppIcon } from './icons'
 import { PAGE_TEXT } from './page-text'
-import { CourseCard, RegisterForm, UpcomingCourses, youtubeId } from './sections'
+import { CourseCard, NewTab, RegisterForm, UpcomingCourses, youtubeId } from './sections'
 import { JsonLd, breadcrumbData, courseData } from './structured-data'
 
 export function PageHero({
@@ -316,6 +316,7 @@ export function CoursePage({
           >
             <WhatsAppIcon />
             {ui.common?.whatsappLong}
+            <NewTab locale={locale} />
           </a>
           <section className="card glass" id="register">
             <h2>{ui.common?.registerInterest}</h2>
@@ -390,6 +391,7 @@ export function GroupPage({
             >
               <WhatsAppIcon />
               {shared.ui.common?.whatsappLong}
+              <NewTab locale={locale} />
             </a>
           </div>
         )}
