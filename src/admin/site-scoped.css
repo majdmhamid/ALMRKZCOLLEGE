@@ -574,9 +574,14 @@
   background: rgba(255, 255, 255, 0.92);
   /* short screens (phone held sideways): the menu scrolls instead of running off the screen or
      under the bottom bar */
-  max-height: calc(100dvh - 176px);
+  max-height: calc(100dvh - 170px);
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* .glass writes -webkit-backdrop-filter after backdrop-filter, and the CSS build then keeps
+     only the -webkit- one, which Chrome/Android ignore: no blur, the page text showed through
+     the menu. Repeated here (the build adds the prefix). Not on .header-bar: a blur there would
+     make it the frame of this fixed menu. */
+  backdrop-filter: blur(16px);
 }
 .site-scope .menu-panel nav {
   display: grid;
@@ -2352,6 +2357,7 @@
   align-items: stretch;
   height: 66px;
   padding: 6px;
+  backdrop-filter: blur(16px); /* see .menu-panel */
 }
 .site-scope .tabbar a {
   display: flex;
