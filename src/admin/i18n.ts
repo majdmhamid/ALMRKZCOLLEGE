@@ -157,3 +157,6 @@ const he: ShellText = {
 }
 
 export const shellText = (lang: AdminLang): ShellText => (lang === 'he' ? he : ar)
+
+/** Label / description in both admin languages (Payload picks the one of the admin language). */
+export const bi = (ar: string, he: string) => ({ ar, he })

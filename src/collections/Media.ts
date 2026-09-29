@@ -3,6 +3,7 @@ import { APIError } from 'payload'
 import { text } from 'payload/shared'
 
 import { anyone, isStaff } from '@/access'
+import { bi } from '@/admin/i18n'
 import { enforceContentRules } from '@/hooks/enforceContentRules'
 import { mediaInUseEndpoint, refuseDeletingUsedMedia } from '@/hooks/mediaInUse'
 
@@ -14,7 +15,7 @@ const webp = { format: 'webp' as const, options: { quality: 80 } }
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  labels: { singular: 'صورة / فيديو', plural: 'مكتبة الصور والفيديو' },
+  labels: { singular: bi('صورة / فيديو', 'תמונה / וידאו'), plural: bi('مكتبة الصور والفيديو', 'ספריית תמונות ווידאו') },
   admin: {
     // تبويب «API» تقني — مش لمجد وحسين
     hideAPIURL: true,
@@ -23,10 +24,14 @@ export const Media: CollectionConfig = {
     useAsTitle: 'alt',
     defaultColumns: ['filename', 'alt', 'updatedAt'],
     listSearchableFields: ['filename', 'alt'],
-    description:
+    description: bi(
       `🎬 الفيديو: يجب أن يكون قصيراً (يُفضّل أقل من دقيقة) ومضغوطاً — بصيغة MP4، وحجمه أقل من ${MAX_VIDEO_MB} ميغابايت. ` +
-      'الفيديو الكبير يجعل الموقع بطيئاً جداً على الموبايل. للضغط استعمل برنامجاً مجانياً مثل HandBrake (اختيار «Fast 1080p30») أو موقع freeconvert.com. ' +
-      `📷 الصور: JPG أو PNG أو WEBP، حتى ${MAX_IMAGE_MB} ميغابايت. الموقع يصغّرها تلقائياً.`,
+        'الفيديو الكبير يجعل الموقع بطيئاً جداً على الموبايل. للضغط استعمل برنامجاً مجانياً مثل HandBrake (اختيار «Fast 1080p30») أو موقع freeconvert.com. ' +
+        `📷 الصور: JPG أو PNG أو WEBP، حتى ${MAX_IMAGE_MB} ميغابايت. الموقع يصغّرها تلقائياً.`,
+      `🎬 וידאו: קצר (עדיף פחות מדקה) ודחוס — MP4, עד ${MAX_VIDEO_MB} מגה-בייט. ` +
+        'וידאו גדול מאט מאוד את האתר בטלפון. לדחיסה: תוכנה חינמית כמו HandBrake («Fast 1080p30») או האתר freeconvert.com. ' +
+        `📷 תמונות: JPG, PNG או WEBP, עד ${MAX_IMAGE_MB} מגה-בייט. האתר מקטין אותן לבד.`,
+    ),
   },
   access: {
     read: anyone,
@@ -51,20 +56,23 @@ export const Media: CollectionConfig = {
   fields: [
     {
       name: 'alt',
-      label: 'وصف الصورة / الفيديو',
+      label: bi('وصف الصورة / الفيديو', 'תיאור התמונה / הווידאו'),
       type: 'text',
       localized: true,
       required: true,
       // رسالة واضحة بدل «هذا الحقل مطلوب»
       validate: (value: string | null | undefined, args: Parameters<typeof text>[1]) => {
         const result = text(value, args)
-        return result !== true && !String(value ?? '').trim()
-          ? 'اكتب جملة قصيرة شو بالصورة (مثلاً: «طالب بيتدرّب على اللحام بالورشة») — بدونها الصورة ما بتنحفظ.'
-          : result
+        if (result === true || String(value ?? '').trim()) return result
+        return args.req?.i18n?.language === 'he'
+          ? 'כתבו משפט קצר מה רואים בתמונה (למשל: «סטודנט מתאמן בריתוך בסדנה») — בלעדיו התמונה לא נשמרת.'
+          : 'اكتب جملة قصيرة شو بالصورة (مثلاً: «طالب بيتدرّب على اللحام بالورشة») — بدونها الصورة ما بتنحفظ.'
       },
       admin: {
-        description:
+        description: bi(
           'جملة قصيرة تصف ما يظهر (مثال: «طالب يتدرّب على اللحام في ورشة الكلية»). مهم لجوجل وللمكفوفين. اكتبها بالعربي وبالعبري.',
+          'משפט קצר שמתאר מה רואים (למשל: «סטודנט מתאמן בריתוך בסדנת המכללה»). חשוב לגוגל ולעיוורים. כתבו אותו בערבית ובעברית.',
+        ),
       },
     },
     {
@@ -76,7 +84,7 @@ export const Media: CollectionConfig = {
     },
     {
       name: 'caption',
-      label: 'تعليق يظهر تحت الصورة (اختياري)',
+      label: bi('تعليق يظهر تحت الصورة (اختياري)', 'כיתוב מתחת לתמונה (לא חובה)'),
       type: 'text',
       localized: true,
     },

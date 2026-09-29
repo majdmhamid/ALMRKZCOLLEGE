@@ -7,6 +7,7 @@ import type {
 import { APIError } from 'payload'
 
 import { adminOrSelf, isAdmin, isAdminField, isAdminUser } from '@/access'
+import { bi } from '@/admin/i18n'
 import { emailIsSetUp, NO_EMAIL_MESSAGE } from '@/lib/email'
 import { serverURL } from '@/lib/preview'
 
@@ -76,16 +77,19 @@ const keepAdminRole: CollectionBeforeChangeHook = async ({ data, operation, orig
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  labels: { singular: 'مستخدم', plural: 'المستخدمون' },
+  labels: { singular: bi('مستخدم', 'משתמש'), plural: bi('المستخدمون', 'משתמשים') },
   admin: {
     // تبويب «API» تقني — مش لمجد وحسين
     hideAPIURL: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'roles'],
     group: 'الإدارة',
-    description:
-      'من يستطيع الدخول للوحة التحكم. «مدير» يتحكم بكل شيء، «محرّر» يعدّل محتوى الموقع فقط (لا يرى الطلبات ولا المستخدمين). ' +
-      'لتغيير كلمة السر تبعتك: اضغط على اسمك تحت بالقائمة الجانبية ← «تغيير كلمة المرور».',
+    description: bi(
+      'من يستطيع الدخول للوحة التحكم. «مدير» يتحكم بكل شيء، «محرّر» يعدّل محتوى الموقع فقط (لا يرى الطلبات ولا المستخدمين ولا التوقيع الإلكتروني). ' +
+        'لتغيير كلمة السر تبعتك: اضغط على اسمك تحت بالقائمة الجانبية ← «تغيير كلمة المرور».',
+      'מי יכול להיכנס ללוח הניהול. «מנהל» שולט בהכול; «עורך» עורך רק את תוכן האתר (בלי פניות, משתמשים וחתימה אלקטרונית). ' +
+        'לשינוי הסיסמה שלכם: לחצו על השם שלכם בתחתית התפריט ← «שינוי סיסמה».',
+    ),
   },
   auth: {
     maxLoginAttempts: 10,
@@ -115,13 +119,13 @@ export const Users: CollectionConfig = {
   fields: [
     {
       name: 'name',
-      label: 'الاسم',
+      label: bi('الاسم', 'שם'),
       type: 'text',
       required: true,
     },
     {
       name: 'roles',
-      label: 'الصلاحية',
+      label: bi('الصلاحية', 'הרשאה'),
       type: 'select',
       hasMany: true,
       required: true,
@@ -131,12 +135,14 @@ export const Users: CollectionConfig = {
         // Not on the «create first user» screen: the first account is always an admin (hook
         // below), and the default «محرّر» shown there made it look like an editor.
         condition: (_data, _siblingData, { user }) => Boolean(user),
-        description:
-          'اختار وحدة بس: «مدير» (كل إشي، مع الطلبات والحسابات) أو «محرّر» (نصوص وصور الموقع بس). إذا بدك تغيّرها، امسح القديمة بالـ ✕.',
+        description: bi(
+          'اختار وحدة بس: «مدير» (كل إشي، مع الطلبات والحسابات والتوقيع) أو «محرّر» (نصوص وصور الموقع بس). إذا بدك تغيّرها، امسح القديمة بالـ ✕.',
+          'בחרו אחת בלבד: «מנהל» (הכול, כולל פניות, חשבונות וחתימה) או «עורך» (רק טקסטים ותמונות באתר). כדי להחליף, מחקו את הקודמת ב-✕.',
+        ),
       },
       options: [
-        { label: 'مدير (كل شيء)', value: 'admin' },
-        { label: 'محرّر (المحتوى فقط)', value: 'editor' },
+        { label: bi('مدير (كل شيء)', 'מנהל (הכול)'), value: 'admin' },
+        { label: bi('محرّر (المحتوى فقط)', 'עורך (תוכן בלבד)'), value: 'editor' },
       ],
       access: {
         // Only admins can give or remove permissions (editors can't promote themselves).
