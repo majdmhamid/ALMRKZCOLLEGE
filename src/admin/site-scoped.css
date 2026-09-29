@@ -212,7 +212,7 @@
 .site-scope [data-reveal='x'] {
   transform: translateX(-30px);
 }
-.site-scope [data-reveal].is-in {
+.site-scope [data-reveal][data-in] {
   opacity: 1;
   transform: none;
 }

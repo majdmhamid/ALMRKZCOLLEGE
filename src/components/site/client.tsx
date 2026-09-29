@@ -37,7 +37,13 @@ const reducedMotion = () =>
  */
 const focusOnMount = (el: HTMLElement | null) => el?.focus({ preventScroll: true })
 
-/** Adds `.is-in` to [data-reveal] elements when they scroll into view. */
+/**
+ * Marks [data-reveal] elements with `data-in` when they scroll into view (site.css fades them in).
+ * An attribute, not a class: React owns `className` and rewrites it whenever it changes (an FAQ
+ * item opening, a tab turning active…). A class added here would be wiped by that re-render, the
+ * element would fade out and animate back in — the «answer disappears and comes back» flicker.
+ * React never touches attributes it did not render, so `data-in` stays.
+ */
 export function RevealObserver() {
   useEffect(() => {
     document.documentElement.classList.remove('no-js')
@@ -45,14 +51,14 @@ export function RevealObserver() {
       (es) =>
         es.forEach((e) => {
           if (e.isIntersecting) {
-            e.target.classList.add('is-in')
+            e.target.setAttribute('data-in', '')
             io.unobserve(e.target)
           }
         }),
       { rootMargin: '0px 0px -6% 0px', threshold: 0.06 },
     )
     const scan = () =>
-      document.querySelectorAll('[data-reveal]:not(.is-in)').forEach((el) => io.observe(el))
+      document.querySelectorAll('[data-reveal]:not([data-in])').forEach((el) => io.observe(el))
     scan()
     const mo = new MutationObserver(scan)
     mo.observe(document.body, { childList: true, subtree: true })

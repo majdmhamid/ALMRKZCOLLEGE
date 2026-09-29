@@ -250,7 +250,7 @@ textarea:focus {
 [data-reveal='x'] {
   transform: translateX(-30px);
 }
-[data-reveal].is-in {
+[data-reveal][data-in] {
   opacity: 1;
   transform: none;
 }
