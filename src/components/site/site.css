@@ -250,7 +250,7 @@ textarea:focus {
 [data-reveal='x'] {
   transform: translateX(-30px);
 }
-[data-reveal].is-in {
+[data-reveal][data-in] {
   opacity: 1;
   transform: none;
 }
@@ -533,6 +533,10 @@ textarea:focus {
   z-index: 50;
   padding: 10px 16px;
 }
+/* the open menu goes over the cookie banner (z-index 60) instead of under it */
+.header:has(.menu-panel) {
+  z-index: 61;
+}
 .header-bar {
   max-width: 1200px;
   margin: 0 auto;
@@ -543,6 +547,21 @@ textarea:focus {
   justify-content: space-between;
   padding: 0 8px;
   gap: 8px;
+  /* The blur of .glass never reached Chrome/Android (see .menu-panel), so the page text showed
+     through the menu bar. It is drawn by ::before instead: a blur on the bar itself would make
+     the bar the frame of the fixed .menu-panel inside it (narrower menu, no blur of its own). */
+  position: relative;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.header-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  backdrop-filter: blur(16px);
+  pointer-events: none;
 }
 .header-logo {
   display: flex;
@@ -610,6 +629,15 @@ textarea:focus {
   z-index: 60;
   animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   background: rgba(255, 255, 255, 0.92);
+  /* short screens (phone held sideways): the menu scrolls instead of running off the screen or
+     under the bottom bar */
+  max-height: calc(100dvh - 170px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* .glass writes -webkit-backdrop-filter after backdrop-filter, and the CSS build then keeps
+     only the -webkit- one, which Chrome/Android ignore: no blur, the page text showed through
+     the menu. Repeated here (the build adds the prefix). */
+  backdrop-filter: blur(16px);
 }
 .menu-panel nav {
   display: grid;
@@ -2194,6 +2222,8 @@ textarea.field {
   background: #07371b;
   color: rgba(255, 255, 255, 0.85);
   border-top: 4px solid #88bb3c;
+  /* #contact links: the sticky header must not cover the top of the footer */
+  scroll-margin-top: 90px;
 }
 .footer-grid {
   max-width: 1200px;
@@ -2383,6 +2413,7 @@ textarea.field {
   align-items: stretch;
   height: 66px;
   padding: 6px;
+  backdrop-filter: blur(16px); /* see .menu-panel */
 }
 .tabbar a {
   display: flex;
@@ -2763,7 +2794,9 @@ textarea.field {
   iframe,
   video,
   .stage,
-  .crumbs {
+  .crumbs,
+  .consent,
+  .skip-link {
     display: none !important;
   }
   .print-only {
