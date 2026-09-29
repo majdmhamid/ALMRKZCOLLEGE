@@ -3,7 +3,7 @@
 import { toast } from '@payloadcms/ui'
 import { GripVertical, ImagePlus, Loader2, Pencil, Plus, Rocket, Star, Table2, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useRef, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 
 import { publishAll, publishDoc } from './actions'
 import { ApiError, createDoc, deleteDoc, updateDoc, uploadMedia } from './api'
@@ -313,19 +313,57 @@ function EditableCard({
     }, delay)
   }
 
-  /** بستنى كل الحفظ المعلّق (قبل النشر) */
+  /**
+   * بستنى كل الحفظ المعلّق (قبل النشر). بيرجّع false إذا في تعديل ما انحفظ (مثلاً سعر) —
+   * وقتها ما منكمّل للنشر. الطابور بضل «سليم» حتى بعد غلط، وإلا كل تعديل بعده ما كان ينحفظ.
+   */
   const flush = async () => {
+    let ok = true
     for (const [key, t] of Object.entries(timers.current)) {
       clearTimeout(t)
       const job = latest.current[key]
       if (job) {
         delete latest.current[key]
         const j = job
-        queue.current = queue.current.then(() => updateDoc(collection, card.id, { [j.field]: j.value }, { locale: j.loc, draft: versioned }).then(() => undefined))
+        queue.current = queue.current.then(() =>
+          updateDoc(collection, card.id, { [j.field]: j.value }, { locale: j.loc, draft: versioned }).then(
+            () => undefined,
+            (e) => {
+              ok = false
+              setSave('error')
+              toast.error(e instanceof ApiError ? e.message : 'ما انحفظ التعديل.')
+            },
+          ),
+        )
       }
     }
     await queue.current
+    return ok
   }
+
+  // طلعت من الصفحة (مثلاً ضغطت ✎) قبل ما يخلص الـ 0.7 ثانية؟ منبعت آخر تعديل فوراً.
+  const unsent = useRef({ collection, id: card.id, versioned })
+  useEffect(() => {
+    unsent.current = { collection, id: card.id, versioned }
+  })
+  useEffect(() => {
+    const pending = latest.current
+    const waiting = timers.current
+    const sendNow = () => {
+      for (const t of Object.values(waiting)) clearTimeout(t)
+      const { collection: c, id, versioned: v } = unsent.current
+      for (const [key, job] of Object.entries(pending)) {
+        delete pending[key]
+        void updateDoc(c, id, { [job.field]: job.value }, { locale: job.loc, draft: v, keepalive: true }).catch(() => undefined)
+      }
+    }
+    // ✎ و«عرض كجدول» روابط عادية: الصفحة بتنسكّر بدون ما React يفكّ البطاقات
+    window.addEventListener('pagehide', sendNow)
+    return () => {
+      window.removeEventListener('pagehide', sendNow)
+      sendNow()
+    }
+  }, [])
 
   const edit = (key: keyof Card, field: string | undefined, value: string, loc: Locale = locale) => {
     if (!field) return
@@ -358,7 +396,10 @@ function EditableCard({
 
   const publish = async () => {
     setBusy(true)
-    await flush().catch(() => undefined)
+    if (!(await flush())) {
+      setBusy(false)
+      return
+    }
     const r = await publishDoc(collection, card.id)
     setBusy(false)
     if (r.ok) {

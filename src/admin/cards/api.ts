@@ -43,11 +43,18 @@ async function call<T>(url: string, init: RequestInit): Promise<T> {
   return (json.doc ?? json) as T
 }
 
-export function updateDoc(collection: string, id: number | string, data: Record<string, unknown>, opts: { locale: Locale; draft: boolean }) {
+export function updateDoc(
+  collection: string,
+  id: number | string,
+  data: Record<string, unknown>,
+  opts: { locale: Locale; draft: boolean; keepalive?: boolean },
+) {
   const q = new URLSearchParams({ locale: opts.locale, depth: '0' })
   if (opts.draft) q.set('draft', 'true')
   return call<{ id: number }>(`/api/${collection}/${id}?${q}`, {
     method: 'PATCH',
+    // بيكمّل الطلب حتى لو الصفحة انسكّرت
+    keepalive: opts.keepalive,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
