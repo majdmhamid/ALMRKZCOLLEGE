@@ -8,11 +8,11 @@ import { ar } from '@payloadcms/translations/languages/ar'
 import { he } from '@payloadcms/translations/languages/he'
 import crypto from 'crypto'
 import path from 'path'
-import { buildConfig } from 'payload'
+import { APIError, buildConfig, type EmailAdapter } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
-import { arTranslationFixes } from './admin/translations'
+import { arTranslationFixes, heTranslationFixes } from './admin/translations'
 import { CourseGroups } from './collections/CourseGroups'
 import { Courses } from './collections/Courses'
 import { Leads } from './collections/Leads'
@@ -70,7 +70,7 @@ const useS3 = !useBlob && Boolean(process.env.S3_BUCKET)
  */
 const smtpPort = Number(process.env.SMTP_PORT || 587)
 const smtpOnThisComputer = /^(localhost|127.0.0.1)$/.test(process.env.SMTP_HOST || '')
-const email = process.env.SMTP_HOST
+const smtpEmail = process.env.SMTP_HOST
   ? nodemailerAdapter({
       defaultFromAddress: process.env.EMAIL_FROM_ADDRESS || 'no-reply@almrkz.net',
       defaultFromName: process.env.EMAIL_FROM_NAME || 'كلية المركز — الموقع',
@@ -91,6 +91,34 @@ const email = process.env.SMTP_HOST
     })
   : undefined
 
+/**
+ * A failed send (wrong SMTP password, provider down) reached «نسيت كلمة السر» as Payload's
+ * English «Something went wrong». Same adapter, but the failure is logged and shown in Arabic.
+ * (New-lead emails catch their own errors — the lead is always saved.)
+ */
+const email = smtpEmail?.then(
+  (adapter): EmailAdapter =>
+    (args) => {
+      const initialized = adapter(args)
+      return {
+        ...initialized,
+        sendEmail: async (message) => {
+          try {
+            return await initialized.sendEmail(message)
+          } catch (err) {
+            args.payload.logger.error({ err, msg: 'Sending email failed' })
+            throw new APIError(
+              'ما قدرنا نبعت الإيميل هلأ. جرّب كمان شوي، وإذا ضلّت المشكلة احكي مع المسؤول عن الموقع.',
+              502,
+              undefined,
+              true,
+            )
+          }
+        },
+      }
+    },
+)
+
 export default buildConfig({
   serverURL: serverURL(),
   admin: {
@@ -102,8 +130,12 @@ export default buildConfig({
     components: {
       graphics: { Logo: '@/admin/Logo#Logo', Icon: '@/admin/Logo#Icon' },
       Nav: '@/admin/nav/Nav#Nav',
+      // «هاي الصورة مستعملة بـ …، متأكد؟» قبل مسح صورة مستعملة بالموقع
+      providers: ['@/admin/MediaDeleteGuard#MediaDeleteGuard'],
       views: {
         dashboard: { Component: '@/admin/dashboard/Dashboard#Dashboard' },
+        // «نسيت كلمة السر» بتحكي الحقيقة لما الإيميل مش مركّب أو الإرسال فشل
+        forgot: { Component: '@/admin/forgot/ForgotPassword#ForgotPassword' },
         // التوقيع الإلكتروني — نفس اللوحة ونفس الدخول (src/admin/signing, src/features/signing)
         signingDocuments: { Component: '@/admin/signing/views#SigningDocumentsView', path: '/documents', exact: true },
         signingDocument: { Component: '@/admin/signing/views#SigningDocumentView', path: '/documents/:id', exact: true },
@@ -115,6 +147,8 @@ export default buildConfig({
     meta: {
       titleSuffix: ' — لوحة تحكم كلية المركز',
       description: 'لوحة تحكم موقع كلية المركز للتأهيل المهني',
+      // College mark in the browser tab (instead of Payload's black «P»)
+      icons: [{ rel: 'icon', type: 'image/png', url: '/admin-icon.png' }],
     },
     dateFormat: 'dd/MM/yyyy HH:mm',
     livePreview: {
@@ -141,7 +175,7 @@ export default buildConfig({
     supportedLanguages: { ar, he },
     fallbackLanguage: 'ar',
     // أخطاء بالترجمة العربية الجاهزة تبعت Payload (src/admin/translations.ts)
-    translations: { ar: arTranslationFixes },
+    translations: { ar: arTranslationFixes, he: heTranslationFixes },
   },
 
   // Website content: every text field marked `localized` has an Arabic and a Hebrew version.

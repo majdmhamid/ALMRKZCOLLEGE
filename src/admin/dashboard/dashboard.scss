@@ -90,6 +90,10 @@
     grid-template-columns: 1fr;
   }
 }
+// «محرّر» ما بيشوف عمود الطلبات — البلاطات بتاخد كل العرض
+.almrkz-dash__cols--full {
+  grid-template-columns: 1fr;
+}
 .almrkz-dash__tiles {
   display: grid;
   gap: 16px;

@@ -1,10 +1,7 @@
 import type { Payload } from 'payload'
 
-/**
- * أعداد صغيرة للقائمة الجانبية وللرئيسية. أي خطأ = بدون رقم (القائمة ما بتوقف).
- * `signing: false` (محرّر) = بدون أرقام التوقيع الإلكتروني — القسم مخفي عنه أصلاً.
- */
-export async function navCounts(payload: Payload, { signing: withSigning = true } = {}) {
+/** أعداد صغيرة للقائمة الجانبية وللرئيسية. أي خطأ = بدون رقم (القائمة ما بتوقف). */
+export async function navCounts(payload: Payload, show: { leads: boolean; signing: boolean } = { leads: true, signing: true }) {
   const count = async (collection: string, where?: Record<string, unknown>) => {
     try {
       const r = await payload.count({ collection: collection as 'courses', where: where as never, overrideAccess: true })
@@ -20,10 +17,11 @@ export async function navCounts(payload: Payload, { signing: withSigning = true 
     count('news'),
     count('staff'),
     count('partners'),
-    count('leads'),
-    count('leads', { status: { equals: 'new' } }),
+    // Leads and e-signature are for admins only — no numbers for an editor
+    show.leads ? count('leads') : undefined,
+    show.leads ? count('leads', { status: { equals: 'new' } }) : undefined,
   ])
-  const signing = withSigning ? await signingCounts() : NO_SIGNING
+  const signing = show.signing ? await signingCounts() : NO_SIGNING
   return { courses, groups, stories, news, staff, partners, leads, newLeads, ...signing }
 }
 

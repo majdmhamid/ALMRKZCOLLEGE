@@ -2,6 +2,7 @@ import type { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 
 import { isAdmin, isAdminField, isAdminUser } from '@/access'
+import { bi } from '@/admin/i18n'
 import { serverURL } from '@/lib/preview'
 import type { Lead } from '@/payload-types'
 
@@ -10,6 +11,7 @@ const STATUS_LABELS: Record<string, string> = {
   contacted: 'تمّ التواصل',
   closed: 'مغلق',
 }
+const STATUS_LABELS_HE: Record<string, string> = { new: 'חדש', contacted: 'נוצר קשר', closed: 'סגור' }
 
 const escapeHtml = (s: string) =>
   s.replace(
@@ -93,7 +95,7 @@ const notifyCollege: CollectionAfterChangeHook<Lead> = async ({ doc, operation, 
 
 export const Leads: CollectionConfig = {
   slug: 'leads',
-  labels: { singular: 'طلب تسجيل', plural: 'طلبات «سجّل اهتمامك»' },
+  labels: { singular: bi('طلب تسجيل', 'פנייה'), plural: bi('طلبات «سجّل اهتمامك»', 'פניות «השאירו פרטים»') },
   admin: {
     // تبويب «API» تقني — مش لمجد وحسين
     hideAPIURL: true,
@@ -106,8 +108,10 @@ export const Leads: CollectionConfig = {
       beforeListTable: ['@/admin/leads/ExportLeads#ExportLeads'],
       edit: { beforeDocumentControls: ['@/admin/leads/LeadContact#LeadContact'] },
     },
-    description:
+    description: bi(
       'كل من عبّأ استمارة «سجّل اهتمامك» في الموقع. بعد التواصل مع الشخص غيّر الحالة إلى «تمّ التواصل». يصل إيميل للكلية مع كل طلب جديد.',
+      'כל מי שמילא את טופס «השאירו פרטים» באתר. אחרי שיצרתם קשר, שנו את הסטטוס ל«נוצר קשר». על כל פנייה חדשה נשלח מייל למכללה.',
+    ),
   },
   defaultSort: '-createdAt',
   access: {
@@ -121,67 +125,72 @@ export const Leads: CollectionConfig = {
     delete: isAdmin,
   },
   fields: [
-    { name: 'name', label: 'الاسم', type: 'text', required: true, maxLength: 120 },
+    { name: 'name', label: bi('الاسم', 'שם'), type: 'text', required: true, maxLength: 120 },
     {
       name: 'phone',
-      label: 'الهاتف',
+      label: bi('الهاتف', 'טלפון'),
       type: 'text',
       required: true,
       maxLength: 30,
-      validate: (value: string | null | undefined) => {
+      validate: (value: string | null | undefined, { req }: { req: { i18n?: { language?: string } } }) => {
         const digits = (value || '').replace(/\D/g, '')
-        return digits.length >= 9 && digits.length <= 15 ? true : 'رقم الهاتف غير صحيح.'
+        if (digits.length >= 9 && digits.length <= 15) return true
+        return req?.i18n?.language === 'he' ? 'מספר הטלפון לא תקין.' : 'رقم الهاتف غير صحيح.'
       },
     },
     {
       name: 'course',
-      label: 'الدورة المطلوبة',
+      label: bi('الدورة المطلوبة', 'הקורס המבוקש'),
       type: 'relationship',
       relationTo: 'courses',
+      // No «+ new course» / edit buttons inside a lead
+      admin: { allowCreate: false, allowEdit: false },
     },
     {
       name: 'courseOther',
-      label: 'دورة أخرى / غير متأكد',
+      label: bi('دورة أخرى / غير متأكد', 'קורס אחר / לא בטוח'),
       type: 'text',
       maxLength: 200,
     },
-    { name: 'message', label: 'الرسالة', type: 'textarea', maxLength: 2000 },
+    { name: 'message', label: bi('الرسالة', 'הודעה'), type: 'textarea', maxLength: 2000 },
     {
       name: 'status',
-      label: 'الحالة',
+      label: bi('الحالة', 'סטטוס'),
       type: 'select',
       required: true,
       defaultValue: 'new',
       index: true,
-      options: Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label })),
+      options: Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label: bi(label, STATUS_LABELS_HE[value]) })),
       access: { create: isAdminField, update: isAdminField },
       admin: {
         position: 'sidebar',
-        description:
+        description: bi(
           'بعد ما تحكي مع الشخص غيّرها لـ«تمّ التواصل» واضغط «حفظ». الرقم الأحمر بالقائمة بيعدّ الطلبات «الجديدة» بس.',
+          'אחרי השיחה שנו ל«נוצר קשר» ולחצו «שמירה». המספר האדום בתפריט סופר רק פניות «חדשות».',
+        ),
       },
     },
     {
       name: 'internalNotes',
-      label: 'ملاحظات داخلية',
+      label: bi('ملاحظات داخلية', 'הערות פנימיות'),
       type: 'textarea',
       access: { create: isAdminField, read: isAdminField, update: isAdminField },
-      admin: { position: 'sidebar', description: 'لا يراها أحد خارج الكلية.' },
+      admin: { position: 'sidebar', description: bi('لا يراها أحد خارج الكلية.', 'אף אחד מחוץ למכללה לא רואה אותן.') },
     },
     {
       name: 'locale',
-      label: 'لغة الصفحة',
+      label: bi('لغة الصفحة', 'שפת הדף'),
       type: 'select',
       defaultValue: 'ar',
       options: [
-        { label: 'عربي', value: 'ar' },
-        { label: 'عبري', value: 'he' },
+        { label: bi('عربي', 'ערבית'), value: 'ar' },
+        { label: bi('عبري', 'עברית'), value: 'he' },
       ],
       admin: { position: 'sidebar', readOnly: true },
     },
     {
       name: 'sourcePage',
-      label: 'من أي صفحة',
+      label: bi('من أي صفحة', 'מאיזה דף'),
       type: 'text',
       maxLength: 300,
       admin: { position: 'sidebar', readOnly: true },
