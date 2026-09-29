@@ -29,6 +29,18 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      // Basic browser protections on every address (site, admin, signing). Framing is allowed
+      // only from the site itself (the admin panel's live preview shows the site in a frame).
+      // Camera/microphone/location are never used, so no page (or embedded map/video) may ask.
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
       // Fonts never change under the same name → the browser keeps them for a year.
       {
         source: '/fonts/:path*',
