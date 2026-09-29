@@ -79,7 +79,6 @@ export function ConsentManager({ locale }: { locale: string }) {
       cancel?.()
       back.current = document.activeElement as HTMLElement | null
       setOpen(true)
-      requestAnimationFrame(() => box.current?.querySelector('button')?.focus())
     }
     // WhatsApp / phone clicks (sent only after consent — trackContact checks it).
     const onClick = (e: MouseEvent) => {
@@ -96,6 +95,11 @@ export function ConsentManager({ locale }: { locale: string }) {
       document.removeEventListener('click', onClick, true)
     }
   }, [])
+
+  // Re-opened from the footer link: keyboard focus moves into the banner (and back on choice).
+  useEffect(() => {
+    if (open && back.current) box.current?.querySelector('button')?.focus()
+  }, [open])
 
   const decide = (c: ConsentChoice) => {
     saveConsent(c)
