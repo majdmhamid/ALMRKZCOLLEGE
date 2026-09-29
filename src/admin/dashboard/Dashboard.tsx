@@ -35,6 +35,8 @@ export async function Dashboard(props: ServerProps) {
   const { payload, user } = props
   if (!payload) return null
   const name = (user as { name?: string } | null)?.name || ''
+  // التوقيع الإلكتروني للمدراء بس — المحرّر ما بيشوف بطاقته
+  const isAdmin = Boolean((user as { roles?: string[] } | null)?.roles?.includes('admin'))
 
   const find = (slug: CollectionSlug, extra: Record<string, unknown> = {}) =>
     payload
@@ -56,7 +58,7 @@ export async function Dashboard(props: ServerProps) {
         .catch(() => []),
     ),
   ])
-  const signing = await signingStats()
+  const signing = isAdmin ? await signingStats() : null
   const pending: { slug: string; label: string; id: number | string; title: string; href?: string }[] = (
     drafts as { slug: string; label: string; id: number; title: string }[][]
   ).flat()
@@ -74,12 +76,16 @@ export async function Dashboard(props: ServerProps) {
     { href: '/admin/globals/homepage', title: 'الصفحة الرئيسية للموقع', text: 'ترتيب الأقسام، العناوين، الفيديو' },
     { href: '/admin/globals/gallery', title: 'معرض الصور والفيديو', text: 'صور الورشات والفعاليات' },
     { href: '/admin/globals/site-settings', title: 'معلومات الكلية', text: 'الهاتف، الواتساب، العنوان، اللوغو' },
-    {
-      href: '/admin/documents',
-      title: 'التوقيع الإلكتروني',
-      text: signing ? `${signing.waiting} بانتظار التوقيع · ${signing.signed} موقّعة` : 'رفع مستند وإرساله للطلاب للتوقيع',
-      count: signing?.total,
-    },
+    ...(isAdmin
+      ? [
+          {
+            href: '/admin/documents',
+            title: 'التوقيع الإلكتروني',
+            text: signing ? `${signing.waiting} بانتظار التوقيع · ${signing.signed} موقّعة` : 'رفع مستند وإرساله للطلاب للتوقيع',
+            count: signing?.total,
+          },
+        ]
+      : []),
   ]
 
   return (

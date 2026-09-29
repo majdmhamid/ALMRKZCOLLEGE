@@ -1,7 +1,10 @@
 import type { Payload } from 'payload'
 
-/** أعداد صغيرة للقائمة الجانبية وللرئيسية. أي خطأ = بدون رقم (القائمة ما بتوقف). */
-export async function navCounts(payload: Payload) {
+/**
+ * أعداد صغيرة للقائمة الجانبية وللرئيسية. أي خطأ = بدون رقم (القائمة ما بتوقف).
+ * `signing: false` (محرّر) = بدون أرقام التوقيع الإلكتروني — القسم مخفي عنه أصلاً.
+ */
+export async function navCounts(payload: Payload, { signing: withSigning = true } = {}) {
   const count = async (collection: string, where?: Record<string, unknown>) => {
     try {
       const r = await payload.count({ collection: collection as 'courses', where: where as never, overrideAccess: true })
@@ -20,9 +23,11 @@ export async function navCounts(payload: Payload) {
     count('leads'),
     count('leads', { status: { equals: 'new' } }),
   ])
-  const signing = await signingCounts()
+  const signing = withSigning ? await signingCounts() : NO_SIGNING
   return { courses, groups, stories, news, staff, partners, leads, newLeads, ...signing }
 }
+
+const NO_SIGNING: { docsWaiting?: number; docsUnread?: number } = {}
 
 /** التوقيع الإلكتروني: كم مستند بانتظار التوقيع، وكم توقيع جديد ما انشاف */
 async function signingCounts(): Promise<{ docsWaiting?: number; docsUnread?: number }> {

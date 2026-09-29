@@ -18,8 +18,8 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
   if (!payload) return null
   const can = (slug: string) =>
     !visibleEntities || visibleEntities.collections.includes(slug) || visibleEntities.globals.includes(slug)
-  const counts = await navCounts(payload)
   const isAdmin = Boolean((user as { roles?: string[] } | null)?.roles?.includes('admin'))
+  const counts = await navCounts(payload, { signing: isAdmin })
 
   const groups: NavGroup[] = [
     { items: [{ href: '/admin', label: 'الرئيسية', icon: 'home', exact: true }] },
@@ -40,9 +40,9 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
     {
       title: 'التوقيع الإلكتروني',
       items: [
-        { href: '/admin/documents', label: 'المستندات', icon: 'sign', count: counts.docsWaiting, alert: counts.docsUnread },
-        { href: '/admin/signed', label: 'المستندات الموقّعة', icon: 'signed' },
-        { href: '/admin/settings', label: 'إعدادات التوقيع', icon: 'settings' },
+        { href: '/admin/documents', label: 'المستندات', icon: 'sign', count: counts.docsWaiting, alert: counts.docsUnread, show: isAdmin },
+        { href: '/admin/signed', label: 'المستندات الموقّعة', icon: 'signed', show: isAdmin },
+        { href: '/admin/settings', label: 'إعدادات التوقيع', icon: 'settings', show: isAdmin },
       ],
     },
     {
@@ -72,7 +72,8 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
             <small>لوحة التحكم</small>
           </span>
         </Link>
-        <NavLinks groups={groups} />
+        {/* Hidden items are dropped here on the server, so an editor's page doesn't even carry them. */}
+        <NavLinks groups={groups.map((g) => ({ ...g, items: g.items.filter((it) => it.show !== false) }))} />
         <div className="almrkz-nav__footer">
           <a href="/ar" target="_blank" rel="noopener" className="almrkz-nav__link">
             <span className="almrkz-nav__icon" aria-hidden="true">↗</span>
