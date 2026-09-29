@@ -7,6 +7,7 @@ import { slugField } from '@/fields/slug'
 import { enforceContentRules } from '@/hooks/enforceContentRules'
 import { previewPath } from '@/lib/preview'
 import { APPROVED_EMPLOYMENT_WORDING, VOUCHER_TEXT } from '@/lib/rules'
+import { validateYoutubeUrl } from '@/lib/youtube'
 
 /**
  * A course (PLAN.md §4). There is deliberately NO price field — prices are never
@@ -295,6 +296,7 @@ export const Courses: CollectionConfig = {
               name: 'youtubeUrl',
               label: 'أو رابط يوتيوب (اختياري)',
               type: 'text',
+              validate: validateYoutubeUrl,
               admin: { description: 'بدل رفع الفيديو، يمكن وضع رابط فيديو من يوتيوب.' },
             },
           ],

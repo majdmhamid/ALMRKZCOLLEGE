@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { anyone, isStaff } from '@/access'
 import { enforceContentRulesGlobal } from '@/hooks/enforceContentRules'
+import { validateYoutubeUrl } from '@/lib/youtube'
 
 export const Gallery: GlobalConfig = {
   slug: 'gallery',
@@ -14,6 +15,12 @@ export const Gallery: GlobalConfig = {
   },
   access: { read: anyone, update: isStaff },
   fields: [
+    {
+      // «ظاهر بالموقع» أو ليش لأ — بدون عمود بالقاعدة (خانة عرض بس)
+      name: 'siteState',
+      type: 'ui',
+      admin: { components: { Field: '@/admin/GallerySiteState#GallerySiteState' } },
+    },
     { name: 'title', label: 'العنوان', type: 'text', localized: true },
     { name: 'intro', label: 'النص تحت العنوان', type: 'textarea', localized: true },
     {
@@ -36,6 +43,7 @@ export const Gallery: GlobalConfig = {
           name: 'youtubeUrl',
           label: 'رابط يوتيوب',
           type: 'text',
+          validate: validateYoutubeUrl,
           admin: { description: 'مثال: https://www.youtube.com/watch?v=c3PP4-TM3Y0' },
         },
         {
