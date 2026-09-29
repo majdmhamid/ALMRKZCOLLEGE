@@ -160,8 +160,10 @@ export function HeaderMenu({
 }) {
   const [open, setOpen] = useState(false)
   const toggle = useRef<HTMLButtonElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
   const close = () => setOpen(false)
   // Esc closes the menu and puts the keyboard focus back on the menu button.
+  // A tap/click anywhere outside the menu (and its button) closes it too.
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -169,8 +171,16 @@ export function HeaderMenu({
       setOpen(false)
       toggle.current?.focus()
     }
+    const onPointer = (e: PointerEvent) => {
+      const t = e.target as Node | null
+      if (t && !panel.current?.contains(t) && !toggle.current?.contains(t)) setOpen(false)
+    }
     document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onPointer)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('pointerdown', onPointer)
+    }
   }, [open])
   return (
     <>
@@ -185,7 +195,7 @@ export function HeaderMenu({
         {open ? <CloseIcon /> : <MenuIcon />}
       </button>
       {open && (
-        <div className="glass menu-panel" id="site-menu">
+        <div ref={panel} className="glass menu-panel" id="site-menu">
           <nav aria-label={navLabel || menuLabel}>
             {links.map((m, i) => (
               <a key={m.href + i} href={m.href} onClick={close}>
@@ -832,6 +842,10 @@ export function LangSwitch({ locale, label }: { locale: string; label?: string |
       href={target === path ? `/${other}` : target}
       hrefLang={other}
       lang={other}
+      // Same section in the other language too (/ar#faq → /he#faq); the #… is only known here.
+      onClick={(e) => {
+        e.currentTarget.hash = location.hash
+      }}
     >
       {label}
     </a>

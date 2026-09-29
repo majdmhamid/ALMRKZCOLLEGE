@@ -610,6 +610,11 @@ textarea:focus {
   z-index: 60;
   animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   background: rgba(255, 255, 255, 0.92);
+  /* short screens (phone held sideways): the menu scrolls instead of running off the screen or
+     under the bottom bar */
+  max-height: calc(100dvh - 176px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .menu-panel nav {
   display: grid;
