@@ -112,7 +112,7 @@ export const CourseGroups: CollectionConfig = {
         if (!found.size) return
         const names = [...found.values()].slice(0, 5).map((n) => `«${n}»`).join('، ')
         throw new APIError(
-          `ما بنقدر نحذف المجال — فيه ${found.size === 1 ? "دورة" : `${found.size} دورات`}: ${names}${found.size > 5 ? '…' : ''}. ` +
+          `ما بنقدر نحذف المجال — فيه ${found.size === 1 ? 'دورة' : `${found.size} دورات`}: ${names}${found.size > 5 ? '…' : ''}. ` +
             'افتح كل دورة وغيّر خانة «المجال» لمجال ثاني (أو احذف الدورة)، وبعدين احذف المجال.',
           400,
           undefined,
