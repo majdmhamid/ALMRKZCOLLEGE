@@ -2,6 +2,7 @@ import { DefaultListView } from '@payloadcms/ui'
 import type { ListViewClientProps, ListViewServerProps, Where } from 'payload'
 import React from 'react'
 
+import { groupState, groupsWithPublishedCourses, type GroupState } from '@/lib/group-visibility'
 import type { Course, CourseGroup, Media, News, Partner, Staff, SuccessStory } from '@/payload-types'
 import '../site-scoped.css'
 import './cards.scss'
@@ -106,6 +107,17 @@ export async function CardsListView(props: ListViewServerProps) {
     }
   }
 
+  // المجالات: هل المجال ظاهر بالموقع؟ (نفس قاعدة الموقع — lib/group-visibility.ts)
+  const groupStates = new Map<number, GroupState>()
+  if (kind === 'groups') {
+    const [live, published] = await Promise.all([
+      payload.find({ collection: 'course-groups', draft: false, depth: 0, limit: 500, pagination: false, select: { _status: true }, overrideAccess: true }),
+      payload.find({ collection: 'courses', draft: false, depth: 0, limit: 1000, pagination: false, where: { _status: { equals: 'published' } }, select: { group: true, _status: true }, overrideAccess: true }),
+    ])
+    const withCourses = groupsWithPublishedCourses(published.docs)
+    for (const g of live.docs) groupStates.set(g.id, groupState(g._status, withCourses.has(g.id)))
+  }
+
   const cards: Card[] = cur.docs.map((raw) => {
     const d = raw as unknown as Record<string, unknown>
     const o = otherById.get(raw.id) ?? {}
@@ -159,7 +171,17 @@ export async function CardsListView(props: ListViewServerProps) {
       }
       case 'groups': {
         const g = raw as unknown as CourseGroup
-        return { ...common, title: g.name ?? '', titleOther: String(o.name ?? ''), sub: g.tagline ?? '', subOther: String(o.tagline ?? ''), image: mediaUrl(g.image, 'card'), imageId: mediaId(g.image), icon: mediaUrl(g.icon) }
+        return {
+          ...common,
+          title: g.name ?? '',
+          titleOther: String(o.name ?? ''),
+          sub: g.tagline ?? '',
+          subOther: String(o.tagline ?? ''),
+          image: mediaUrl(g.image, 'card'),
+          imageId: mediaId(g.image),
+          icon: mediaUrl(g.icon),
+          siteState: groupStates.get(g.id) ?? 'draft',
+        }
       }
     }
   })
@@ -188,6 +210,7 @@ export async function CardsListView(props: ListViewServerProps) {
       labels={labels}
       courseOptions={courseOptions}
       flagNote={flagNote}
+      lang={props.i18n?.language === 'he' ? 'he' : 'ar'}
       canCreate={Boolean(props.hasCreatePermission)}
       canDelete={props.hasDeletePermission !== false}
     />

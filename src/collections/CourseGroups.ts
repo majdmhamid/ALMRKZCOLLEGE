@@ -84,6 +84,15 @@ export const CourseGroups: CollectionConfig = {
       admin: { description: 'الدورة بتنضاف للمجال من صفحة الدورة نفسها (خانة «المجال»).' },
     },
     seoField,
+    {
+      // «ظاهر بالموقع» / «مخفي: …» — بدون عمود بالقاعدة (خانة عرض بس)
+      name: 'siteState',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/admin/GroupSiteState#GroupSiteState' },
+      },
+    },
     slugField('name'),
     orderField,
   ],

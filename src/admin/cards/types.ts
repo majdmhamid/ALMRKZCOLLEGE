@@ -23,6 +23,8 @@ export type Card = {
   sessions?: number | null
   flag?: boolean
   voucher?: boolean
+  /** المجالات: ظاهر بالموقع، أو ليش مخفي (lib/group-visibility.ts) */
+  siteState?: 'visible' | 'noCourses' | 'draft'
 }
 
 export type CardLabels = {

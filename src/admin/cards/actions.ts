@@ -5,6 +5,7 @@ import { headers } from 'next/headers'
 import { getPayload, ValidationError, type CollectionSlug, type Payload } from 'payload'
 
 import { labelFor } from '@/hooks/enforceContentRules'
+import { groupState, type GroupState } from '@/lib/group-visibility'
 
 const LOCALES = ['ar', 'he'] as const
 const SYSTEM_FIELDS = new Set(['id', 'createdAt', 'updatedAt', '_status', 'updatedBy', 'createdBy'])
@@ -43,7 +44,10 @@ function explain(e: unknown, payload: Payload | undefined, collection: string): 
  * ينشر آخر مسودة للعنصر (العربي والعبري) — نفس زر «نشر التغييرات» بصفحة التعديل،
  * بس من البطاقة مباشرة.
  */
-export async function publishDoc(collection: string, id: number): Promise<{ ok: true } | { ok: false; message: string }> {
+export async function publishDoc(
+  collection: string,
+  id: number,
+): Promise<{ ok: true; groupState?: GroupState } | { ok: false; message: string }> {
   let payload: Payload | undefined
   try {
     const s = await session()
@@ -71,6 +75,15 @@ export async function publishDoc(collection: string, id: number): Promise<{ ok: 
         user,
         overrideAccess: false,
       })
+    }
+    if (collection === 'course-groups') {
+      // مجال بدون دورة منشورة بينحفظ بس ما بيبين بالموقع — منحكيله هيك (lib/group-visibility.ts)
+      const { totalDocs } = await payload.count({
+        collection: 'courses',
+        where: { and: [{ group: { equals: id } }, { _status: { equals: 'published' } }] },
+        overrideAccess: true,
+      })
+      return { ok: true, groupState: groupState('published', totalDocs > 0) }
     }
     return { ok: true }
   } catch (e) {

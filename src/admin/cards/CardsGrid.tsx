@@ -7,6 +7,8 @@ import React, { useCallback, useRef, useState, useTransition } from 'react'
 
 import { publishAll, publishDoc } from './actions'
 import { ApiError, createDoc, deleteDoc, updateDoc, uploadMedia } from './api'
+import { groupStateText } from '@/lib/group-visibility'
+
 import type { Card, CardKind, CardLabels, Locale } from './types'
 
 /** اسم الحقل بقاعدة البيانات لكل خانة بالبطاقة */
@@ -51,6 +53,8 @@ type Props = {
   canDelete: boolean
   /** تنبيه إذا النجمة ☆ ما إلها تأثير (اختيار يدوي بالرئيسية) */
   flagNote?: string
+  /** لغة اللوحة (مش لغة المحتوى) — لنصوص مثل «ظاهر بالموقع» */
+  lang?: 'ar' | 'he'
 }
 
 export function CardsGrid(props: Props) {
@@ -253,6 +257,7 @@ function EditableCard({
   labels,
   courseOptions,
   canDelete,
+  lang,
   onLocal,
   onDragStart,
   onDragEnd,
@@ -357,7 +362,8 @@ function EditableCard({
     const r = await publishDoc(collection, card.id)
     setBusy(false)
     if (r.ok) {
-      toast.success('انتشر على الموقع.')
+      if (r.groupState === 'noCourses') toast.info(groupStateText(lang).savedNoCourses, { duration: 15000 })
+      else toast.success('انتشر على الموقع.')
       onPublished()
     } else toast.error(r.message, { duration: 20000 })
   }
@@ -495,6 +501,12 @@ function EditableCard({
           </div>
         </article>
       )
+      if (card.siteState) body = (
+        <>
+          {body}
+          <SiteState state={card.siteState} lang={lang} />
+        </>
+      )
       break
   }
 
@@ -605,6 +617,18 @@ function EditableCard({
         </div>
       )}
     </div>
+  )
+}
+
+/** المجال: ظاهر بالموقع، أو ليش مخفي — نفس قاعدة الموقع (lib/group-visibility.ts) */
+function SiteState({ state, lang }: { state: NonNullable<Card['siteState']>; lang?: 'ar' | 'he' }) {
+  const t = groupStateText(lang)
+  return (
+    <p className={`site-state site-state--${state === 'visible' ? 'on' : 'off'}`} title={t.hint}>
+      {state === 'visible' ? '✓ ' : '⚠ '}
+      {t[state]}
+      {state === 'draft' && <> — {t.draftHint}</>}
+    </p>
   )
 }
 
