@@ -299,6 +299,86 @@ export const SiteSettings: GlobalConfig = {
           ],
         },
         {
+          label: 'الوصولية والخصوصية',
+          fields: [
+            {
+              name: 'accessibility',
+              type: 'group',
+              label: 'ممثّل الوصولية (רכז נגישות)',
+              admin: {
+                description:
+                  'القانون بيطلب اسم شخص من الكلية بيرد على أسئلة الوصولية. بيظهر بصفحة «إعلان الوصولية» بالعربي وبالعبري. إذا الحقول فاضية بتنعرض تفاصيل الاتصال العامة.',
+              },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'coordinatorName', label: 'الاسم', type: 'text', localized: true },
+                    {
+                      name: 'coordinatorRole',
+                      label: 'الوظيفة',
+                      type: 'text',
+                      localized: true,
+                      admin: { description: 'مثال: «مركّز الوصولية» / «רכז נגישות».' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'coordinatorPhone', label: 'الهاتف', type: 'text' },
+                    { name: 'coordinatorEmail', label: 'البريد الإلكتروني', type: 'email' },
+                  ],
+                },
+                {
+                  name: 'building',
+                  label: 'وصولية مبنى الكلية',
+                  type: 'textarea',
+                  localized: true,
+                  admin: {
+                    description:
+                      'اكتب شو موجود بالمبنى: مدخل بدون درج / منحدر، موقف معاق، مصعد، حمّام ملائم، لافتات… وشو مش موجود. كل سطر جملة.',
+                  },
+                },
+                {
+                  name: 'auditDate',
+                  label: 'تاريخ آخر فحص وصولية للموقع',
+                  type: 'date',
+                  admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'dd/MM/yyyy' } },
+                },
+              ],
+            },
+            {
+              name: 'privacy',
+              type: 'group',
+              label: 'الخصوصية',
+              fields: [
+                {
+                  name: 'leadsRetentionMonths',
+                  label: 'كم شهر منحتفظ بطلبات «سجّل اهتمامك»',
+                  type: 'number',
+                  min: 1,
+                  max: 84,
+                  defaultValue: 24,
+                  admin: {
+                    description:
+                      'قانون الخصوصية بيطلب ما نحتفظ بالمعلومات أكثر من اللازم. كل ليلة بينمسح تلقائياً أي طلب أقدم من هاي المدة (والمكتوب بسياسة الخصوصية نفس الرقم). المعتاد: 24 شهر.',
+                  },
+                },
+                {
+                  name: 'contactEmail',
+                  label: 'إيميل طلبات الخصوصية',
+                  type: 'email',
+                  admin: {
+                    description:
+                      'لطلبات «شو عندكم معلومات عني / امسحوها». إذا فاضي بينعرض الإيميل العام من تبويب «الاتصال».',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
           label: 'إشعارات الطلبات',
           fields: [
             {

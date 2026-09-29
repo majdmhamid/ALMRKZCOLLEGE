@@ -355,6 +355,7 @@ Drafts: **no** · REST: `/api/leads` · Local API: `payload.find({ collection: '
 | `course` | relationship |  | الدورة المطلوبة | → `courses` |
 | `courseOther` | text |  | دورة أخرى / غير متأكد |  |
 | `message` | textarea |  | الرسالة |  |
+| `marketingConsent` | checkbox |  | وافق على رسائل تسويقية | default: `false` |
 | `status` | select | required | الحالة | `new` · `contacted` · `closed` default: `"new"` |
 | `internalNotes` | textarea |  | ملاحظات داخلية |  |
 | `locale` | select |  | لغة الصفحة | `ar` · `he` default: `"ar"` |
@@ -451,7 +452,7 @@ Drafts: **no** · REST: `/api/globals/ui-texts` · Local API: `payload.findGloba
 | `form.courseAny` | text | 🌐 ar/he | لم أقرر بعد / استشارة عامة |  |
 | `form.message` | text | 🌐 ar/he | ملاحظات (اختياري) |  |
 | `form.submit` | text | 🌐 ar/he | زر الإرسال |  |
-| `form.privacy` | text | 🌐 ar/he | جملة الخصوصية |  |
+| `form.privacy` | text | 🌐 ar/he | جملة قصيرة فوق التنويه القانوني (اختياري) |  |
 | `form.successTitle` | text | 🌐 ar/he | عنوان رسالة النجاح |  |
 | `form.successText` | text | 🌐 ar/he | نص رسالة النجاح |  |
 | `form.error` | text | 🌐 ar/he | رسالة خطأ (إذا لم يُرسَل الطلب) |  |
@@ -513,6 +514,16 @@ Drafts: **no** · REST: `/api/globals/site-settings` · Local API: `payload.find
 | `seo.defaultTitle` | text | 🌐 ar/he | عنوان الصفحة الرئيسية في جوجل |  |
 | `seo.defaultDescription` | textarea | 🌐 ar/he | وصف الموقع في جوجل |  |
 | `seo.ogImage` | upload |  | صورة المشاركة الافتراضية | → `media` |
+| `accessibility` | group |  | ممثّل الوصولية (רכז נגישות) |  |
+| `accessibility.coordinatorName` | text | 🌐 ar/he | الاسم |  |
+| `accessibility.coordinatorRole` | text | 🌐 ar/he | الوظيفة |  |
+| `accessibility.coordinatorPhone` | text |  | الهاتف |  |
+| `accessibility.coordinatorEmail` | email |  | البريد الإلكتروني |  |
+| `accessibility.building` | textarea | 🌐 ar/he | وصولية مبنى الكلية |  |
+| `accessibility.auditDate` | date |  | تاريخ آخر فحص وصولية للموقع |  |
+| `privacy` | group |  | الخصوصية |  |
+| `privacy.leadsRetentionMonths` | number |  | كم شهر منحتفظ بطلبات «سجّل اهتمامك» | default: `24` |
+| `privacy.contactEmail` | email |  | إيميل طلبات الخصوصية |  |
 | `leadsNotificationEmails` | array |  | إيميلات تستقبل الطلبات الجديدة |  |
 | `leadsNotificationEmails[].email` | email | required | الإيميل |  |
 | `bilingualEdits` | json |  | النص باللغة الثانية |  |

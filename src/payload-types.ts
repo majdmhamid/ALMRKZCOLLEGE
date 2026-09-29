@@ -635,7 +635,7 @@ export interface Partner {
   createdAt: string;
 }
 /**
- * كل من عبّأ استمارة «سجّل اهتمامك» في الموقع. بعد التواصل مع الشخص غيّر الحالة إلى «تمّ التواصل». يصل إيميل للكلية مع كل طلب جديد.
+ * كل من عبّأ استمارة «سجّل اهتمامك» في الموقع. بعد التواصل مع الشخص غيّر الحالة إلى «تمّ التواصل». يصل إيميل للكلية مع كل طلب جديد. خصوصية: الطلبات الأقدم من المدة المحدّدة في «معلومات الكلية ← الوصولية والخصوصية» تُحذف تلقائياً كل ليلة. إذا طلب شخص حذف معلوماته: افتح طلبه ← «حذف». إذا طلب نسخة منها: «نسخة للشخص».
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "leads".
@@ -647,6 +647,10 @@ export interface Lead {
   course?: (number | null) | Course;
   courseOther?: string | null;
   message?: string | null;
+  /**
+   * علّمها الشخص بنفسه في الاستمارة. إذا مش معلّمة: ممنوع نبعتله عروض ودورات جديدة بالواتساب/SMS/إيميل — بس نرد على طلبه (قانون الرسائل الدعائية).
+   */
+  marketingConsent?: boolean | null;
   /**
    * بعد ما تحكي مع الشخص غيّرها لـ«تمّ التواصل» واضغط «حفظ». الرقم الأحمر بالقائمة بيعدّ الطلبات «الجديدة» بس.
    */
@@ -1135,6 +1139,7 @@ export interface LeadsSelect<T extends boolean = true> {
   course?: T;
   courseOther?: T;
   message?: T;
+  marketingConsent?: T;
   status?: T;
   internalNotes?: T;
   locale?: T;
@@ -1802,6 +1807,9 @@ export interface UiText {
     courseAny?: string | null;
     message?: string | null;
     submit?: string | null;
+    /**
+     * التنويه القانوني نفسه (شو منجمع، ليش، لمين، وقديش منحتفظ فيه) ثابت وبيظهر دايماً تحت الاستمارة — حسب قانون حماية الخصوصية.
+     */
     privacy?: string | null;
     successTitle?: string | null;
     successText?: string | null;
@@ -1961,6 +1969,33 @@ export interface SiteSetting {
      * تظهر عند مشاركة رابط الموقع في واتساب وفيسبوك. 1200×630 بكسل.
      */
     ogImage?: (number | null) | Media;
+  };
+  /**
+   * القانون بيطلب اسم شخص من الكلية بيرد على أسئلة الوصولية. بيظهر بصفحة «إعلان الوصولية» بالعربي وبالعبري. إذا الحقول فاضية بتنعرض تفاصيل الاتصال العامة.
+   */
+  accessibility?: {
+    coordinatorName?: string | null;
+    /**
+     * مثال: «مركّز الوصولية» / «רכז נגישות».
+     */
+    coordinatorRole?: string | null;
+    coordinatorPhone?: string | null;
+    coordinatorEmail?: string | null;
+    /**
+     * اكتب شو موجود بالمبنى: مدخل بدون درج / منحدر، موقف معاق، مصعد، حمّام ملائم، لافتات… وشو مش موجود. كل سطر جملة.
+     */
+    building?: string | null;
+    auditDate?: string | null;
+  };
+  privacy?: {
+    /**
+     * قانون الخصوصية بيطلب ما نحتفظ بالمعلومات أكثر من اللازم. كل ليلة بينمسح تلقائياً أي طلب أقدم من هاي المدة (والمكتوب بسياسة الخصوصية نفس الرقم). المعتاد: 24 شهر.
+     */
+    leadsRetentionMonths?: number | null;
+    /**
+     * لطلبات «شو عندكم معلومات عني / امسحوها». إذا فاضي بينعرض الإيميل العام من تبويب «الاتصال».
+     */
+    contactEmail?: string | null;
   };
   /**
    * كل طلب «سجّل اهتمامك» جديد يُرسَل لهذه العناوين. إذا تُركت فارغة يُرسَل للإيميل في تبويب «الاتصال».
@@ -2688,6 +2723,22 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         defaultTitle?: T;
         defaultDescription?: T;
         ogImage?: T;
+      };
+  accessibility?:
+    | T
+    | {
+        coordinatorName?: T;
+        coordinatorRole?: T;
+        coordinatorPhone?: T;
+        coordinatorEmail?: T;
+        building?: T;
+        auditDate?: T;
+      };
+  privacy?:
+    | T
+    | {
+        leadsRetentionMonths?: T;
+        contactEmail?: T;
       };
   leadsNotificationEmails?:
     | T
