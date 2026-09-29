@@ -28,19 +28,30 @@ async function ensureProfile(userId: string, displayName: string) {
   ensured.add(userId);
 }
 
-/** المدير الحالي (أي مستخدم داخل على لوحة التحكم)، أو null */
-export const getAdmin = cache(async (): Promise<AdminUser | null> => {
+type PanelUser = { id: number | string; email?: string; name?: string; roles?: string[] | null };
+
+/** التوقيع الإلكتروني للمدراء بس (صلاحية «مدير»). «المحرّر» ما بيشوفه ولا بيقدر يستعمله. */
+export const isSigningAdmin = (user: unknown) => Boolean((user as PanelUser | null)?.roles?.includes("admin"));
+
+/** المستخدم الداخل على لوحة التحكم (مدير أو محرّر)، أو null */
+const getPanelUser = cache(async (): Promise<PanelUser | null> => {
   const payload = await getPayload({ config });
   const { user } = await payload.auth({ headers: await headers() });
-  if (!user) return null;
-  const u = user as { id: number | string; email?: string; name?: string };
+  return (user as PanelUser | null) ?? null;
+});
+
+/** المدير الحالي (مستخدم لوحة التحكم بصلاحية «مدير»)، أو null */
+export const getAdmin = cache(async (): Promise<AdminUser | null> => {
+  const u = await getPanelUser();
+  if (!u || !isSigningAdmin(u)) return null;
   const admin = { userId: payloadUserUuid(u.id), email: u.email ?? "", displayName: u.name || u.email || "" };
   await ensureProfile(admin.userId, admin.displayName);
   return admin;
 });
 
+/** مش داخل ← صفحة الدخول. داخل بس مش مدير (محرّر) ← رئيسية اللوحة. */
 export async function requireAdmin(): Promise<AdminUser> {
   const admin = await getAdmin();
-  if (!admin) redirect("/admin/login");
-  return admin;
+  if (admin) return admin;
+  redirect((await getPanelUser()) ? "/admin" : "/admin/login");
 }
