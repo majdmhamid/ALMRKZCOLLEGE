@@ -29,7 +29,8 @@ import {
 } from './data'
 import { A11Y } from './a11y-text'
 import { HeroVideo } from './hero-video'
-import { LEGAL_LABELS, legalHref } from './legal-links'
+import { legalHref } from './legal-links'
+import { LEAD_NOTICE, leadRetentionMonths } from './notice-text'
 import { PAGE_TEXT } from './page-text'
 import { JsonLd, faqData } from './structured-data'
 import type { getHomeData } from './data'
@@ -865,7 +866,12 @@ export function formLabels(shared: Shared, locale: SiteLocale): FormLabels {
     message: f?.message ?? '',
     submit: f?.submit ?? '',
     privacy: f?.privacy ?? '',
-    privacyLink: { href: legalHref(locale, 'privacy'), label: LEGAL_LABELS[locale].privacy },
+    notice: LEAD_NOTICE[locale].text.replace(
+      '{months}',
+      String(leadRetentionMonths(shared.settings.privacy?.leadsRetentionMonths)),
+    ),
+    privacyLink: { href: `${legalHref(locale, 'privacy')}#leads`, label: LEAD_NOTICE[locale].link },
+    marketing: LEAD_NOTICE[locale].marketing,
     successTitle: f?.successTitle ?? '',
     successText: f?.successText ?? '',
     error:

@@ -547,9 +547,17 @@ export type FormLabels = {
   courseAny: string
   message: string
   submit: string
+  /** Optional short sentence from the admin panel, shown above the legal notice. */
   privacy: string
-  /** Link to the privacy policy page, shown after the privacy sentence. */
+  /**
+   * Privacy notice under the form (section 11 of the Privacy Protection Law): what is collected,
+   * why, who sees it, how long it is kept. Always shown, in code (notice-text.ts).
+   */
+  notice: string
+  /** Link to the privacy policy page, shown after the notice. */
   privacyLink?: { href: string; label: string }
+  /** Separate, unchecked opt-in for marketing messages (חוק הספאם). */
+  marketing: string
   successTitle: string
   successText: string
   error: string
@@ -714,6 +722,11 @@ export function LeadForm({
           defaultValue={v?.message}
         />
       </label>
+      {/* Marketing messages: a separate box, never pre-checked (חוק התקשורת סעיף 30א). */}
+      <label className="consent-check">
+        <input type="checkbox" name="marketing" value="yes" defaultChecked={v?.marketing} />
+        <span>{labels.marketing}</span>
+      </label>
       {state.error && (
         <p className="form-error" role="alert" id={errId}>
           {state.reason === 'rate_limited'
@@ -732,8 +745,10 @@ export function LeadForm({
       >
         {labels.submit}
       </button>
+      {/* Privacy notice (section 11): shown before the visitor sends anything. */}
       <p className="privacy">
-        {labels.privacy}
+        {labels.privacy && <>{labels.privacy} </>}
+        {labels.notice}
         {labels.privacyLink && (
           <>
             {' '}

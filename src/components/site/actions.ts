@@ -3,7 +3,13 @@
 import { getPayloadClient, isLocale } from './data'
 import { clientIp, isTooFast, leadRateOk } from './lead-guard'
 
-export type LeadValues = { name: string; phone: string; course: string; message: string }
+export type LeadValues = {
+  name: string
+  phone: string
+  course: string
+  message: string
+  marketing: boolean
+}
 
 export type LeadState = {
   ok: boolean
@@ -24,6 +30,7 @@ export async function submitLead(_prev: LeadState, form: FormData): Promise<Lead
     phone: get('phone').slice(0, 30),
     course: get('course').slice(0, 12),
     message: get('message').slice(0, 2000),
+    marketing: get('marketing') === 'yes',
   }
   // Spam checks (the timing field `ft` is only read here — it is never stored).
   if (isTooFast(get('ft'))) return { ok: false, error: true, reason: 'too_fast', values }
@@ -40,6 +47,8 @@ export async function submitLead(_prev: LeadState, form: FormData): Promise<Lead
         course: Number.isFinite(course) && course > 0 ? course : undefined,
         message: get('message') || undefined,
         locale: isLocale(locale) ? locale : 'ar',
+        // Separate, unchecked-by-default box in the form (חוק הספאם). Anything else = no.
+        marketingConsent: get('marketing') === 'yes',
         sourcePage: get('sourcePage').slice(0, 300),
         website: get('website') || undefined,
         status: 'new',

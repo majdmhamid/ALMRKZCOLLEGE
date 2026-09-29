@@ -2117,7 +2117,34 @@
 }
 .site-scope .privacy {
   font-size: 12px;
+  line-height: 1.7;
   color: #4b5c61;
+}
+.site-scope .privacy a {
+  color: #0f6b33;
+  font-weight: 800;
+}
+/* «أوافق على رسائل تسويقية» — a real checkbox, never pre-checked, big enough for a thumb */
+.site-scope .consent-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #1f3a2c;
+  cursor: pointer;
+}
+.site-scope .consent-check input {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: #158942;
+  cursor: pointer;
+}
+.site-scope .consent-check input:focus-visible {
+  outline: 3px solid #88bb3c;
+  outline-offset: 2px;
 }
 .site-scope .form-error {
   font-size: 14px;

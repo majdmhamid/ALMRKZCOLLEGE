@@ -56,6 +56,7 @@ const notifyCollege: CollectionAfterChangeHook<Lead> = async ({ doc, operation, 
       ['الهاتف', doc.phone],
       ['الدورة', courseName || '—'],
       ['الرسالة', doc.message || '—'],
+      ['رسائل تسويقية', doc.marketingConsent ? 'وافق ✓' : 'لم يوافق — بس التواصل بخصوص طلبه'],
       ['لغة الصفحة', doc.locale === 'he' ? 'عبري' : 'عربي'],
       ['من صفحة', doc.sourcePage || '—'],
     ]
@@ -103,11 +104,12 @@ export const Leads: CollectionConfig = {
     listSearchableFields: ['name', 'phone', 'message'],
     components: {
       // «تنزيل كملف Excel» فوق الجدول، و«اتصل / واتساب» جنب زر الحفظ
-      beforeListTable: ['@/admin/leads/ExportLeads#ExportLeads'],
+      beforeListTable: ['@/admin/leads/ExportLeads#ExportLeads', '@/admin/leads/PurgeLeads#PurgeLeads'],
       edit: { beforeDocumentControls: ['@/admin/leads/LeadContact#LeadContact'] },
     },
     description:
-      'كل من عبّأ استمارة «سجّل اهتمامك» في الموقع. بعد التواصل مع الشخص غيّر الحالة إلى «تمّ التواصل». يصل إيميل للكلية مع كل طلب جديد.',
+      'كل من عبّأ استمارة «سجّل اهتمامك» في الموقع. بعد التواصل مع الشخص غيّر الحالة إلى «تمّ التواصل». يصل إيميل للكلية مع كل طلب جديد. ' +
+      'خصوصية: الطلبات الأقدم من المدة المحدّدة في «معلومات الكلية ← الوصولية والخصوصية» تُحذف تلقائياً كل ليلة. إذا طلب شخص حذف معلوماته: افتح طلبه ← «حذف». إذا طلب نسخة منها: «نسخة للشخص».',
   },
   defaultSort: '-createdAt',
   access: {
@@ -143,6 +145,20 @@ export const Leads: CollectionConfig = {
       maxLength: 200,
     },
     { name: 'message', label: 'الرسالة', type: 'textarea', maxLength: 2000 },
+    {
+      // חוק התקשורת סעיף 30א («חוק הספאם»): marketing messages only with a separate, explicit
+      // opt-in. Unchecked = contact the person about their request only.
+      name: 'marketingConsent',
+      label: 'وافق على رسائل تسويقية',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description:
+          'علّمها الشخص بنفسه في الاستمارة. إذا مش معلّمة: ممنوع نبعتله عروض ودورات جديدة بالواتساب/SMS/إيميل — بس نرد على طلبه (قانون الرسائل الدعائية).',
+      },
+    },
     {
       name: 'status',
       label: 'الحالة',

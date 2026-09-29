@@ -10,6 +10,7 @@ type LeadRow = {
   course?: { name?: string } | number | null
   courseOther?: string | null
   message?: string | null
+  marketingConsent?: boolean | null
   status?: string
   internalNotes?: string | null
   locale?: string | null
@@ -34,7 +35,7 @@ export const ExportLeads: React.FC = () => {
       })
       if (!res.ok) throw new Error(String(res.status))
       const { docs } = (await res.json()) as { docs: LeadRow[] }
-      const header = ['التاريخ', 'الاسم', 'الهاتف', 'الدورة', 'دورة أخرى / غير متأكد', 'الرسالة', 'الحالة', 'ملاحظات داخلية', 'لغة الصفحة']
+      const header = ['التاريخ', 'الاسم', 'الهاتف', 'الدورة', 'دورة أخرى / غير متأكد', 'الرسالة', 'رسائل تسويقية', 'الحالة', 'ملاحظات داخلية', 'لغة الصفحة']
       const rows = docs.map((d) => [
         d.createdAt ? new Date(d.createdAt).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' }) : '',
         d.name,
@@ -42,6 +43,7 @@ export const ExportLeads: React.FC = () => {
         typeof d.course === 'object' && d.course ? d.course.name : '',
         d.courseOther,
         d.message,
+        d.marketingConsent ? 'وافق' : 'لا',
         STATUS[d.status ?? ''] ?? d.status,
         d.internalNotes,
         d.locale === 'he' ? 'عبري' : 'عربي',
