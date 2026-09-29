@@ -30,6 +30,9 @@ const SUPABASE_STUBS = `
     file_size_limit bigint, allowed_mime_types text[]
   );
   create publication supabase_realtime;
+  -- Payload's own tables are created before these migrations run (npm run ci: payload migrate first).
+  create table public.leads (id serial primary key, phone text);
+  insert into public.leads (phone) values ('050-0000000');
 `;
 
 const ADMIN = "11111111-1111-1111-1111-111111111111";
@@ -206,8 +209,7 @@ describe("row level security", () => {
   });
 
   it("keeps rate_limits and the server-only functions away from admins' browsers", async () => {
-    const r = await asRole("authenticated", ADMIN, "select * from public.rate_limits");
-    expect(r.rows).toHaveLength(0);
+    await expect(asRole("authenticated", ADMIN, "select * from public.rate_limits")).rejects.toThrow(/permission denied/i);
     await expect(asRole("authenticated", ADMIN, "select public.rate_limit_hit('x', 60, 1)")).rejects.toThrow(
       /permission denied/i,
     );
@@ -218,5 +220,28 @@ describe("row level security", () => {
     await asRole("authenticated", ADMIN, `insert into public.audit_events (document_id, event) values ('${id}', 'created')`);
     const upd = await asRole("authenticated", ADMIN, "update public.audit_events set event = 'opened' returning id");
     expect(upd.rows).toHaveLength(0);
+  });
+});
+
+describe("website (Payload) tables — 0004", () => {
+  it("are closed to anon and authenticated, open to the owner and service_role", async () => {
+    await expect(asRole("anon", null, "select * from public.leads")).rejects.toThrow(/permission denied/i);
+    await expect(asRole("authenticated", ADMIN, "select * from public.leads")).rejects.toThrow(/permission denied/i);
+    expect((await db.query("select * from public.leads")).rows).toHaveLength(1);
+    await db.exec("insert into public.leads (phone) values ('052-1111111')");
+    const rls = await one<{ relrowsecurity: boolean }>("select relrowsecurity from pg_class where oid = 'public.leads'::regclass");
+    expect(rls.relrowsecurity).toBe(true);
+  });
+
+  it("keep the signing tables usable for admins", async () => {
+    const r = await asRole("authenticated", ADMIN, "select * from public.documents");
+    expect(r.rows.length).toBeGreaterThan(0);
+  });
+
+  it("give tables created later no rights to anon/authenticated, and can run twice", async () => {
+    await db.exec("create table public.news (id serial primary key, title text)");
+    await expect(asRole("anon", null, "select * from public.news")).rejects.toThrow(/permission denied/i);
+    await expect(asRole("authenticated", ADMIN, "select * from public.news")).rejects.toThrow(/permission denied/i);
+    await db.exec(readFileSync(path.join(MIGRATIONS, "0004_lock_public_tables.sql"), "utf8"));
   });
 });
