@@ -160,7 +160,7 @@ Drafts: **yes** · REST: `/api/courses` · Local API: `payload.find({ collection
 | Field | Type | Flags | Label (admin) | Notes |
 |---|---|---|---|---|
 | `name` | text | required, 🌐 ar/he | اسم الدورة |  |
-| `group` | relationship | required | المجموعة | → `course-groups` |
+| `group` | relationship | required | المجال | → `course-groups` |
 | `shortDescription` | textarea | required, 🌐 ar/he | وصف مختصر (للبطاقة) |  |
 | `fullDescription` | richText | 🌐 ar/he | وصف كامل |  |
 | `topics` | array |  | مواضيع الدورة |  |
@@ -198,27 +198,29 @@ Drafts: **yes** · REST: `/api/courses` · Local API: `payload.find({ collection
 | `featured` | checkbox |  | دورة مميّزة (تظهر في الصفحة الرئيسية) | default: `false` |
 | `slug` | text |  | الرابط (slug) |  |
 | `order` | number |  | الترتيب | default: `0` |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 | `_status` | select |  |  | `draft` · `published` (drafts are hidden from the public API) |
 
-### `course-groups` — مجموعات الدورات
+### `course-groups` — مجالات الدورات
 
 Drafts: **yes** · REST: `/api/course-groups` · Local API: `payload.find({ collection: 'course-groups', locale })`
 
 | Field | Type | Flags | Label (admin) | Notes |
 |---|---|---|---|---|
-| `name` | text | required, 🌐 ar/he | اسم المجموعة |  |
+| `name` | text | required, 🌐 ar/he | اسم المجال |  |
 | `shortName` | text | 🌐 ar/he | اسم مختصر |  |
 | `tagline` | text | 🌐 ar/he | جملة تعريف (على البطاقة) |  |
-| `description` | textarea | 🌐 ar/he | وصف أطول (لصفحة المجموعة) |  |
-| `image` | upload |  | صورة المجموعة | → `media` |
+| `description` | textarea | 🌐 ar/he | وصف أطول (لصفحة المجال) |  |
+| `image` | upload |  | صورة المجال | → `media` |
 | `icon` | upload |  | أيقونة | → `media` |
-| `courses` | join |  | الدورات في هذه المجموعة | reverse of `courses.group` |
+| `courses` | join |  | الدورات في هذا المجال | reverse of `courses.group` |
 | `seo` | group |  | ظهور في جوجل (SEO) |  |
 | `seo.title` | text | 🌐 ar/he | عنوان الصفحة في جوجل |  |
 | `seo.description` | textarea | 🌐 ar/he | وصف قصير في جوجل |  |
 | `seo.image` | upload |  | صورة المشاركة (واتساب/فيسبوك) | → `media` |
 | `slug` | text |  | الرابط (slug) |  |
 | `order` | number |  | الترتيب | default: `0` |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 | `_status` | select |  |  | `draft` · `published` (drafts are hidden from the public API) |
 
 ### `news` — أخبار وإعلانات
@@ -241,6 +243,7 @@ Drafts: **yes** · REST: `/api/news` · Local API: `payload.find({ collection: '
 | `seo.description` | textarea | 🌐 ar/he | وصف قصير في جوجل |  |
 | `seo.image` | upload |  | صورة المشاركة (واتساب/فيسبوك) | → `media` |
 | `slug` | text |  | الرابط (slug) |  |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 | `_status` | select |  |  | `draft` · `published` (drafts are hidden from the public API) |
 
 ### `success-stories` — قصص نجاح الخريجين
@@ -262,6 +265,7 @@ Drafts: **yes** · REST: `/api/success-stories` · Local API: `payload.find({ co
 | `featured` | checkbox |  | تظهر في الصفحة الرئيسية | default: `false` |
 | `slug` | text |  | الرابط (slug) |  |
 | `order` | number |  | الترتيب | default: `0` |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 | `_status` | select |  |  | `draft` · `published` (drafts are hidden from the public API) |
 
 ### `staff` — طاقم الكلية
@@ -276,6 +280,7 @@ Drafts: **no** · REST: `/api/staff` · Local API: `payload.find({ collection: '
 | `photo` | upload |  | الصورة | → `media` |
 | `slug` | text |  | Slug |  |
 | `order` | number |  | الترتيب | default: `0` |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 
 ### `partners` — الشركاء والجهات المعتمِدة
 
@@ -288,8 +293,9 @@ Drafts: **no** · REST: `/api/partners` · Local API: `payload.find({ collection
 | `url` | text |  | موقعهم (اختياري) |  |
 | `slug` | text |  | Slug |  |
 | `order` | number |  | الترتيب | default: `0` |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 
-### `media` — الصور والفيديو
+### `media` — مكتبة الصور والفيديو
 
 Drafts: **no** · REST: `/api/media` · Local API: `payload.find({ collection: 'media', locale })`
 
@@ -298,6 +304,7 @@ Drafts: **no** · REST: `/api/media` · Local API: `payload.find({ collection: '
 | `alt` | text | required, 🌐 ar/he | وصف الصورة / الفيديو |  |
 | `sourceFile` | text |  | Source File |  |
 | `caption` | text | 🌐 ar/he | تعليق يظهر تحت الصورة (اختياري) |  |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 | `url` | text |  | URL |  |
 | `thumbnailURL` | text |  | Thumbnail URL |  |
 | `filename` | text |  |  |  |
@@ -382,9 +389,10 @@ Drafts: **yes** · REST: `/api/globals/homepage` · Local API: `payload.findGlob
 | Field | Type | Flags | Label (admin) | Notes |
 |---|---|---|---|---|
 | `sections` | blocks |  | الأقسام | blocks: `hero` · `stats` · `courseGroups` · `featuredCourses` · `why` · `successStories` · `staff` · `videos` · `news` · `partners` · `employers` · `faq` · `register` · `gallery` |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 | `_status` | select |  |  | `draft` · `published` (drafts are hidden from the public API) |
 
-### `ui-texts` — النصوص الثابتة
+### `ui-texts` — نصوص الموقع الثابتة
 
 Drafts: **no** · REST: `/api/globals/ui-texts` · Local API: `payload.findGlobal({ slug: 'ui-texts', locale })`
 
@@ -449,6 +457,7 @@ Drafts: **no** · REST: `/api/globals/ui-texts` · Local API: `payload.findGloba
 | `form.error` | text | 🌐 ar/he | رسالة خطأ (إذا لم يُرسَل الطلب) |  |
 | `course` | group |  | صفحة الدورة |  |
 | `course.contactForPrice` | text | 🌐 ar/he | جملة «للاستفسار عن الرسوم…» |  |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 
 ### `gallery` — معرض الصور والفيديو
 
@@ -464,8 +473,9 @@ Drafts: **no** · REST: `/api/globals/gallery` · Local API: `payload.findGlobal
 | `videos[].youtubeUrl` | text |  | رابط يوتيوب |  |
 | `videos[].file` | upload |  | أو ملف فيديو | → `media` |
 | `videos[].thumbnail` | upload |  | صورة الغلاف | → `media` |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 
-### `site-settings` — إعدادات الموقع
+### `site-settings` — معلومات الكلية
 
 Drafts: **no** · REST: `/api/globals/site-settings` · Local API: `payload.findGlobal({ slug: 'site-settings', locale })`
 
@@ -505,6 +515,7 @@ Drafts: **no** · REST: `/api/globals/site-settings` · Local API: `payload.find
 | `seo.ogImage` | upload |  | صورة المشاركة الافتراضية | → `media` |
 | `leadsNotificationEmails` | array |  | إيميلات تستقبل الطلبات الجديدة |  |
 | `leadsNotificationEmails[].email` | email | required | الإيميل |  |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 
 ### `navigation` — القائمة والتذييل
 
@@ -520,7 +531,7 @@ Drafts: **no** · REST: `/api/globals/navigation` · Local API: `payload.findGlo
 | `header.items[].link.page` | select |  | الصفحة | `home` · `courses` · `about` · `gallery` · `success-stories` · `news` · `companies` · `contact` · `staff` · `faq` · `register` · `accessibility` |
 | `header.items[].link.anchor` | text |  | اسم القسم |  |
 | `header.items[].link.course` | relationship |  | الدورة | → `courses` |
-| `header.items[].link.courseGroup` | relationship |  | المجموعة | → `course-groups` |
+| `header.items[].link.courseGroup` | relationship |  | المجال | → `course-groups` |
 | `header.items[].link.url` | text |  | العنوان (URL) |  |
 | `header.items[].link.whatsappMessage` | text | 🌐 ar/he | رسالة جاهزة للواتساب (اختياري) |  |
 | `header.items[].link.newTab` | checkbox |  | يفتح في نافذة جديدة | default: `false` |
@@ -531,7 +542,7 @@ Drafts: **no** · REST: `/api/globals/navigation` · Local API: `payload.findGlo
 | `header.items[].children[].link.page` | select |  | الصفحة | `home` · `courses` · `about` · `gallery` · `success-stories` · `news` · `companies` · `contact` · `staff` · `faq` · `register` · `accessibility` |
 | `header.items[].children[].link.anchor` | text |  | اسم القسم |  |
 | `header.items[].children[].link.course` | relationship |  | الدورة | → `courses` |
-| `header.items[].children[].link.courseGroup` | relationship |  | المجموعة | → `course-groups` |
+| `header.items[].children[].link.courseGroup` | relationship |  | المجال | → `course-groups` |
 | `header.items[].children[].link.url` | text |  | العنوان (URL) |  |
 | `header.items[].children[].link.whatsappMessage` | text | 🌐 ar/he | رسالة جاهزة للواتساب (اختياري) |  |
 | `header.items[].children[].link.newTab` | checkbox |  | يفتح في نافذة جديدة | default: `false` |
@@ -543,7 +554,7 @@ Drafts: **no** · REST: `/api/globals/navigation` · Local API: `payload.findGlo
 | `header.cta.link.page` | select |  | الصفحة | `home` · `courses` · `about` · `gallery` · `success-stories` · `news` · `companies` · `contact` · `staff` · `faq` · `register` · `accessibility` |
 | `header.cta.link.anchor` | text |  | اسم القسم |  |
 | `header.cta.link.course` | relationship |  | الدورة | → `courses` |
-| `header.cta.link.courseGroup` | relationship |  | المجموعة | → `course-groups` |
+| `header.cta.link.courseGroup` | relationship |  | المجال | → `course-groups` |
 | `header.cta.link.url` | text |  | العنوان (URL) |  |
 | `header.cta.link.whatsappMessage` | text | 🌐 ar/he | رسالة جاهزة للواتساب (اختياري) |  |
 | `header.cta.link.newTab` | checkbox |  | يفتح في نافذة جديدة | default: `false` |
@@ -558,7 +569,7 @@ Drafts: **no** · REST: `/api/globals/navigation` · Local API: `payload.findGlo
 | `footer.columns[].links[].link.page` | select |  | الصفحة | `home` · `courses` · `about` · `gallery` · `success-stories` · `news` · `companies` · `contact` · `staff` · `faq` · `register` · `accessibility` |
 | `footer.columns[].links[].link.anchor` | text |  | اسم القسم |  |
 | `footer.columns[].links[].link.course` | relationship |  | الدورة | → `courses` |
-| `footer.columns[].links[].link.courseGroup` | relationship |  | المجموعة | → `course-groups` |
+| `footer.columns[].links[].link.courseGroup` | relationship |  | المجال | → `course-groups` |
 | `footer.columns[].links[].link.url` | text |  | العنوان (URL) |  |
 | `footer.columns[].links[].link.whatsappMessage` | text | 🌐 ar/he | رسالة جاهزة للواتساب (اختياري) |  |
 | `footer.columns[].links[].link.newTab` | checkbox |  | يفتح في نافذة جديدة | default: `false` |
@@ -571,10 +582,11 @@ Drafts: **no** · REST: `/api/globals/navigation` · Local API: `payload.findGlo
 | `footer.bottomLinks[].link.page` | select |  | الصفحة | `home` · `courses` · `about` · `gallery` · `success-stories` · `news` · `companies` · `contact` · `staff` · `faq` · `register` · `accessibility` |
 | `footer.bottomLinks[].link.anchor` | text |  | اسم القسم |  |
 | `footer.bottomLinks[].link.course` | relationship |  | الدورة | → `courses` |
-| `footer.bottomLinks[].link.courseGroup` | relationship |  | المجموعة | → `course-groups` |
+| `footer.bottomLinks[].link.courseGroup` | relationship |  | المجال | → `course-groups` |
 | `footer.bottomLinks[].link.url` | text |  | العنوان (URL) |  |
 | `footer.bottomLinks[].link.whatsappMessage` | text | 🌐 ar/he | رسالة جاهزة للواتساب (اختياري) |  |
 | `footer.bottomLinks[].link.newTab` | checkbox |  | يفتح في نافذة جديدة | default: `false` |
+| `bilingualEdits` | json |  | النص باللغة الثانية |  |
 
 ## Blocks
 

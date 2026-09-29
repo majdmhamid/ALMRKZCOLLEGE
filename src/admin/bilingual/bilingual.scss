@@ -1,0 +1,79 @@
+// عربي وعبري جنب بعض — العربي دايماً يمين، العبري يسار (الصفحة RTL)
+.bi {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.bi__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 calc(var(--base) * 0.75);
+  align-items: start;
+
+  // اللغة المختارة عبري ← العربي (الخانة الثانية) بيضل على اليمين
+  &.bi--main-he .bi__col--main {
+    order: 2;
+  }
+
+  > .bi__col {
+    min-width: 0;
+  }
+}
+
+// بخانة ضيّقة (جوّا صف أو شاشة صغيرة): وحدة تحت الثانية
+@container (max-width: 520px) {
+  .bi__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+
+    .bi__col--main {
+      order: 0 !important;
+    }
+  }
+}
+
+.bi__col--other {
+  .field-type {
+    margin-bottom: 0;
+  }
+
+  .localized {
+    color: var(--color-success-600, #2e7d32);
+    font-weight: 600;
+  }
+
+  input,
+  textarea {
+    font-family: inherit;
+  }
+}
+
+.bi__col--main .field-label .localized {
+  color: var(--color-success-600, #2e7d32);
+  font-weight: 600;
+}
+
+.bi__col--missing {
+  input,
+  textarea {
+    border-color: #e0a800 !important;
+    background: #fff8e1 !important;
+  }
+}
+
+.bi__hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #8a6d00;
+}
+
+.bi__rich-note {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--theme-elevation-600);
+
+  a {
+    color: var(--color-success-600, #2e7d32);
+    font-weight: 600;
+  }
+}

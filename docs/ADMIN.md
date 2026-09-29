@@ -19,6 +19,14 @@
 | أنماط الموقع داخل اللوحة | `scripts/scope-site-css.mjs` ← `src/admin/site-scoped.css` | نسخة من `site.css` محصورة بـ `.site-scope` (بتتولّد لحالها مع predev/prebuild) |
 | التوقيع الإلكتروني | `src/features/signing/**`، `src/admin/signing/views.tsx`، `src/app/(sign)/**` | صفحات Payload مخصّصة: `/admin/documents`، `/admin/documents/:id`، `/admin/signed`، `/admin/settings`. صفحة العميل `/sign/[token]` |
 
+### عربي وعبري جنب بعض بصفحة التعديل (2026-09-29)
+طلب حسين: ما بدنا نبدّل «لغة المحتوى» ونرجع. كل خانة `text`/`textarea` عليها `localized: true` بتنعرض بعمودين (`src/admin/bilingual/`):
+- `config.ts` — بيلف على كل الحقول (tabs/groups/arrays/blocks) وبيحط `BilingualField` كـ Field component، وبيزيد خانة مخفية `bilingualEdits` (json، `virtual` — بدون عمود وبدون migration) + afterChange hook.
+- `BilingualField.tsx` — خانة Payload العادية للغة الحالية + خانة للغة الثانية. القيمة الثانية بتنقرأ بطلب واحد (`?locale=he&fallback-locale=none&draft=true`) وبتنكتب بـ `bilingualEdits` بعنوان ثابت برقم الصف (`sections.#<id>.title`، `paths.ts`) — ترتيب الصفوف ما بيخربط.
+- مع الحفظ: afterChange بيحفظ اللغة الثانية بنفس الطلب ونفس الـ transaction (مسودة/نشر/حفظ تلقائي حسب الحفظ الأصلي). `req` بيرجع زي ما كان بعدها (`withSameReq`) — غير هيك الرد بيرجع بالعبري للفورم العربي. قواعد الكلية (سعر/تشغيل) بتفحص العبري كمان وبترفض كل الحفظ. نشر مع خانة عبرية إجبارية فاضية ← رسالة «النسخة العبرية ناقصة — عبّي: ...».
+- `richText` (وصف كامل، نص الخبر، القصة) بضل بلغة وحدة: تحته زر «اكتبه بالعبري ←» (`RichTextNote.tsx`).
+- الفحص: `tests/bilingual-paths.test.ts`؛ يدوياً: طاقم (بدون مسودات)، دورة (حفظ تلقائي + صف جديد بالمواضيع + نشر)، الصفحة الرئيسية (blocks)، إعدادات الموقع، سعر بالعبري ← 400 وما انحفظ ولا إشي.
+
 ### التعديل على البطاقات — كيف بيشتغل
 - الحفظ عبر REST (`/api/<collection>/<id>?locale=..&draft=true`) بجلسة اللوحة؛ قواعد الكلية (`enforceContentRules`) بترفض السعر/وعد التشغيل وبتطلع الرسالة.
 - الحفظ لكل بطاقة **بالدور** وبآخر قيمة (ما في طلبين متوازيين يخربطوا — كان في خلل هيك وانصلح).

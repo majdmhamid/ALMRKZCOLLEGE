@@ -1,3 +1,4 @@
+import { BilingualField as BilingualField_3ff768b50f8872b0fe8f8b273d2ce4fa } from '@/admin/bilingual/BilingualField'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -21,6 +22,7 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { RichTextNote as RichTextNote_4582579267af33113e813b8b4378e852 } from '@/admin/bilingual/RichTextNote'
 import { RulesNote as RulesNote_18aa454a3e45d8e4473f803e4d7db7f0 } from '@/admin/RulesNote'
 import { CardsListView as CardsListView_bf0a937740c9c99f0bdf4fece3c1e00f } from '@/admin/cards/CardsListView'
 import { ExportLeads as ExportLeads_cbd296615833fff0a3f221b20984b47f } from '@/admin/leads/ExportLeads'
@@ -43,6 +45,7 @@ import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc056
 
 /** @type import('payload').ImportMap */
 export const importMap = {
+  "@/admin/bilingual/BilingualField#BilingualField": BilingualField_3ff768b50f8872b0fe8f8b273d2ce4fa,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -66,6 +69,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/admin/bilingual/RichTextNote#RichTextNote": RichTextNote_4582579267af33113e813b8b4378e852,
   "@/admin/RulesNote#RulesNote": RulesNote_18aa454a3e45d8e4473f803e4d7db7f0,
   "@/admin/cards/CardsListView#CardsListView": CardsListView_bf0a937740c9c99f0bdf4fece3c1e00f,
   "@/admin/leads/ExportLeads#ExportLeads": ExportLeads_cbd296615833fff0a3f221b20984b47f,
