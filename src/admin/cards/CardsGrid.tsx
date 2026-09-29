@@ -97,7 +97,7 @@ export function CardsGrid(props: Props) {
     start(async () => {
       const r = await publishAll(collection)
       if (r.ok) toast.success(r.count ? `انتشر ${r.count} — الموقع صار محدّث.` : 'ما في تعديلات للنشر.')
-      else toast.error(`انتشر ${r.count} بس — ${r.message}`)
+      else toast.error(r.count ? `انتشر ${r.count}. ${r.message}` : r.message, { duration: 20000 })
       router.refresh()
     })
 
@@ -359,7 +359,7 @@ function EditableCard({
     if (r.ok) {
       toast.success('انتشر على الموقع.')
       onPublished()
-    } else toast.error(r.message)
+    } else toast.error(r.message, { duration: 20000 })
   }
 
   const title = (cls: string, placeholder: string) => (

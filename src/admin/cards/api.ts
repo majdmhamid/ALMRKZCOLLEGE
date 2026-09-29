@@ -8,15 +8,34 @@ export type Locale = 'ar' | 'he'
 
 export class ApiError extends Error {}
 
+/** أسماء خانات البطاقات، لما الغلط بيرجع بدون اسم الخانة (مثلاً «القيمة لازم تكون فريدة») */
+const FIELD_LABELS: Record<string, string> = {
+  slug: 'الرابط (slug) — مستعمل بعنصر ثاني',
+  name: 'الاسم',
+  title: 'العنوان',
+  graduateName: 'اسم الخريج/ة',
+  role: 'الوظيفة',
+  logo: 'اللوغو',
+  alt: 'وصف الصورة',
+}
+
 async function call<T>(url: string, init: RequestInit): Promise<T> {
   const res = await fetch(url, { credentials: 'include', ...init })
   const json = (await res.json().catch(() => ({}))) as {
-    errors?: { message?: string; data?: { errors?: { message?: string; label?: string }[] } }[]
+    errors?: { message?: string; data?: { errors?: { message?: string; label?: string; path?: string }[] } }[]
     doc?: T
   } & T
   if (!res.ok) {
     const e = json.errors?.[0]
-    const detail = e?.data?.errors?.map((x) => x.message).filter(Boolean).join(' · ')
+    const detail = e?.data?.errors
+      ?.map((x) => {
+        // قواعد الكلية بتكتب الشرح كامل بالـ label؛ غير هيك منحط اسم الخانة قبل الغلط
+        if (typeof x.label === 'string' && x.label.includes(' — ')) return x.label
+        const field = typeof x.label === 'string' && x.label ? x.label : x.path ? (FIELD_LABELS[x.path] ?? '') : ''
+        return field && x.message ? `«${field}»: ${x.message}` : x.message
+      })
+      .filter(Boolean)
+      .join(' · ')
     throw new ApiError(detail || e?.message || 'ما قدرنا نحفظ — جرّب كمان مرة.')
   }
   return (json.doc ?? json) as T

@@ -2,10 +2,18 @@
 
 import config from '@payload-config'
 import { headers } from 'next/headers'
-import { getPayload, type CollectionSlug } from 'payload'
+import { getPayload, ValidationError, type CollectionSlug, type Payload } from 'payload'
+
+import { labelFor } from '@/hooks/enforceContentRules'
 
 const LOCALES = ['ar', 'he'] as const
 const SYSTEM_FIELDS = new Set(['id', 'createdAt', 'updatedAt', '_status', 'updatedBy', 'createdBy'])
+const TITLE_FIELD: Record<string, string> = {
+  courses: 'name',
+  'course-groups': 'name',
+  news: 'title',
+  'success-stories': 'graduateName',
+}
 
 async function session() {
   const payload = await getPayload({ config })
@@ -14,15 +22,33 @@ async function session() {
   return { payload, user }
 }
 
-const message = (e: unknown) => (e instanceof Error ? e.message : String(e))
+/**
+ * رسالة مفهومة: اسم الخانة بالعربي وشو الغلط — مش «slug» أو اسم تقني.
+ * (خطأ «القيمة لازم تكون فريدة» من القاعدة ما فيه اسم الخانة، فمنجيبه من إعدادات القسم.)
+ */
+function explain(e: unknown, payload: Payload | undefined, collection: string): string {
+  if (e instanceof ValidationError && e.data?.errors?.length) {
+    const fields = payload?.collections[collection as CollectionSlug]?.config.fields
+    const parts = e.data.errors.map((er) => {
+      const label = typeof er.label === 'string' && er.label ? er.label : (labelFor(fields, er.path) ?? er.path)
+      // قواعد الكلية (سعر / وعد تشغيل) بتكتب الشرح كامل بالـ label
+      return label.includes(' — ') ? label : `«${label}»: ${er.message}`
+    })
+    return `في ${parts.length > 1 ? 'خانات' : 'خانة'} لازم تصلّحها — ${parts.join(' · ')}`
+  }
+  return e instanceof Error ? e.message : String(e)
+}
 
 /**
  * ينشر آخر مسودة للعنصر (العربي والعبري) — نفس زر «نشر التغييرات» بصفحة التعديل،
  * بس من البطاقة مباشرة.
  */
 export async function publishDoc(collection: string, id: number): Promise<{ ok: true } | { ok: false; message: string }> {
+  let payload: Payload | undefined
   try {
-    const { payload, user } = await session()
+    const s = await session()
+    payload = s.payload
+    const { user } = s
     for (const locale of LOCALES) {
       const draft = (await payload.findByID({
         collection: collection as CollectionSlug,
@@ -48,12 +74,17 @@ export async function publishDoc(collection: string, id: number): Promise<{ ok: 
     }
     return { ok: true }
   } catch (e) {
-    return { ok: false, message: message(e) }
+    return { ok: false, message: explain(e, payload, collection) }
   }
 }
 
-/** ينشر كل المسودات بهذا القسم (مثلاً كل تعديلات الخريجين) */
-export async function publishAll(collection: string): Promise<{ ok: true; count: number } | { ok: false; message: string; count: number }> {
+/**
+ * ينشر كل المسودات بهذا القسم (مثلاً كل تعديلات الخريجين).
+ * عنصر فيه خانة ناقصة ما بيوقّف الباقي — بينشر الباقي وبيحكي مين ما انتشر وليش.
+ */
+export async function publishAll(
+  collection: string,
+): Promise<{ ok: true; count: number } | { ok: false; message: string; count: number }> {
   let count = 0
   try {
     const { payload, user } = await session()
@@ -67,13 +98,17 @@ export async function publishAll(collection: string): Promise<{ ok: true; count:
       user,
       overrideAccess: false,
     })
+    const failed: string[] = []
     for (const doc of drafts.docs) {
       const r = await publishDoc(collection, doc.id as number)
-      if (!r.ok) return { ok: false, message: r.message, count }
-      count++
+      if (r.ok) count++
+      else {
+        const title = String((doc as unknown as Record<string, unknown>)[TITLE_FIELD[collection] ?? 'name'] ?? '').trim()
+        failed.push(`«${title || 'بدون اسم'}»: ${r.message}`)
+      }
     }
-    return { ok: true, count }
+    return failed.length ? { ok: false, message: `ما انتشر ${failed.length}: ${failed.join(' | ')}`, count } : { ok: true, count }
   } catch (e) {
-    return { ok: false, message: message(e), count }
+    return { ok: false, message: explain(e, undefined, collection), count }
   }
 }
