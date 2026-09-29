@@ -31,21 +31,19 @@ const TEXT = {
  * thought they were live. Not shown inside the live-preview panel of the admin (an iframe).
  */
 export function PreviewBanner({ locale }: { locale: 'ar' | 'he' }) {
-  const [show, setShow] = useState(false)
+  const [exitHref, setExitHref] = useState<string | null>(null)
   useEffect(() => {
     try {
+      if (window.self !== window.top) return
+      const here = window.location.pathname + window.location.search + window.location.hash
       // eslint-disable-next-line react-hooks/set-state-in-effect -- window is only known here
-      setShow(window.self === window.top)
+      setExitHref(`/next/exit-preview?path=${encodeURIComponent(here)}`)
     } catch {
-      setShow(false)
+      // inside a cross-origin frame: no banner
     }
   }, [])
-  if (!show) return null
+  if (!exitHref) return null
   const t = TEXT[locale]
-  const exit = () => {
-    const path = window.location.pathname + window.location.search + window.location.hash
-    window.location.href = `/next/exit-preview?path=${encodeURIComponent(path)}`
-  }
   return (
     <div
       role="status"
@@ -75,9 +73,8 @@ export function PreviewBanner({ locale }: { locale: 'ar' | 'he' }) {
       {/* above the phone tab bar (hidden from 1024px) */}
       <style>{`.preview-banner{bottom:calc(96px + env(safe-area-inset-bottom))}@media (min-width:1024px){.preview-banner{bottom:12px}}@media print{.preview-banner{display:none!important}}`}</style>
       <span>👁 {t.note}</span>
-      <button
-        type="button"
-        onClick={exit}
+      <a
+        href={exitHref}
         style={{
           border: 0,
           borderRadius: 999,
@@ -85,12 +82,11 @@ export function PreviewBanner({ locale }: { locale: 'ar' | 'he' }) {
           background: '#0f6b33',
           color: '#fff',
           fontWeight: 700,
-          cursor: 'pointer',
-          font: 'inherit',
+          textDecoration: 'none',
         }}
       >
         {t.exit}
-      </button>
+      </a>
     </div>
   )
 }
