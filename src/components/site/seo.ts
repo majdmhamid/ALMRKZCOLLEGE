@@ -34,8 +34,8 @@ export async function pageMetadata(
       title: title || siteTitle,
       description,
       url: alternates.canonical,
-      locale: locale === 'he' ? 'he_IL' : 'ar',
-      alternateLocale: locale === 'he' ? 'ar' : 'he_IL',
+      locale: locale === 'he' ? 'he_IL' : 'ar_AR',
+      alternateLocale: locale === 'he' ? 'ar_AR' : 'he_IL',
       images: image ? [image] : undefined,
     },
   }
