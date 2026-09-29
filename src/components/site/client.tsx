@@ -70,6 +70,74 @@ export function RevealObserver() {
   return null
 }
 
+/**
+ * Links to a section further down the page (#register, #faq, /ar#contact…) must land on it.
+ * perf.css lets the browser skip the layout of far-away sections (`content-visibility: auto`) and
+ * count them as 640px placeholders; the real sections are taller, so the jump stopped short of
+ * the target (the «سجّل اهتمامك» button showed the gallery instead of the form). Just before the
+ * jump, the sections above the target are laid out for real so the browser measures the right spot.
+ */
+export function HashScroll() {
+  useEffect(() => {
+    /** Lays out every skipped section before (or containing) the target. */
+    const prepare = (id: string) => {
+      const target = id ? document.getElementById(id) : null
+      if (!target) return null
+      document.querySelectorAll<HTMLElement>('main > section, .footer').forEach((s) => {
+        const before = s.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING
+        if (before || s.contains(target)) s.style.contentVisibility = 'visible'
+      })
+      return target
+    }
+    const idOf = (hash: string) => {
+      try {
+        return decodeURIComponent(hash.slice(1))
+      } catch {
+        return ''
+      }
+    }
+    // Opened with an address that has #…: the browser already started its (smooth) jump to the
+    // spot it measured with the placeholders — correct it a few times while the page settles,
+    // until the visitor scrolls or taps themselves.
+    let touched = false
+    const onTouch = () => {
+      touched = true
+    }
+    const fixLoadJump = () => {
+      if (touched) return
+      const target = prepare(idOf(location.hash))
+      if (!target) return
+      const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0
+      if (Math.abs(target.getBoundingClientRect().top - margin) > 2)
+        target.scrollIntoView({ behavior: 'instant' })
+    }
+    const inputs = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
+    const timers: number[] = []
+    if (location.hash.length > 1) {
+      inputs.forEach((t) => window.addEventListener(t, onTouch, { once: true, passive: true }))
+      fixLoadJump()
+      for (const ms of [100, 300, 700, 1200, 2000]) timers.push(window.setTimeout(fixLoadJump, ms))
+      if (document.readyState !== 'complete') window.addEventListener('load', fixLoadJump)
+    }
+    // A click on a link to a section of this same page: prepare, then let the browser jump
+    // (keeps its smooth scrolling, history entry and keyboard focus).
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.('a[href*="#"]')
+      if (!(a instanceof HTMLAnchorElement)) return
+      if (a.origin !== location.origin || a.pathname !== location.pathname) return
+      prepare(idOf(a.hash))
+    }
+    document.addEventListener('click', onClick, true)
+    return () => {
+      document.removeEventListener('click', onClick, true)
+      window.removeEventListener('load', fixLoadJump)
+      timers.forEach((t) => clearTimeout(t))
+      inputs.forEach((t) => window.removeEventListener(t, onTouch))
+    }
+  }, [])
+  return null
+}
+
 type MenuLink = { href: string; label: string }
 
 export function HeaderMenu({

@@ -4,7 +4,7 @@ import React from 'react'
 
 import { Analytics } from '@/components/site/analytics'
 import { Footer, Header, MobileBar } from '@/components/site/chrome'
-import { RevealObserver } from '@/components/site/client'
+import { HashScroll, RevealObserver } from '@/components/site/client'
 import { getShared, isDraft, isLocale, localeParams, mediaUrl } from '@/components/site/data'
 import { JsonLd, organizationData } from '@/components/site/structured-data'
 import { serverURL } from '@/lib/preview'
@@ -92,6 +92,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         {/* Tells Google who the college is (name, address, phones, hours) — structured-data.tsx */}
         <JsonLd data={organizationData(shared, locale)} />
         <RevealObserver />
+        <HashScroll />
         <Analytics locale={locale} />
         {draft && <RefreshRouteOnSave serverURL={serverURL()} />}
       </body>

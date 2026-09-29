@@ -2194,6 +2194,8 @@ textarea.field {
   background: #07371b;
   color: rgba(255, 255, 255, 0.85);
   border-top: 4px solid #88bb3c;
+  /* #contact links: the sticky header must not cover the top of the footer */
+  scroll-margin-top: 90px;
 }
 .footer-grid {
   max-width: 1200px;
