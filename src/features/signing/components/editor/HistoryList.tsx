@@ -62,7 +62,7 @@ export function HistoryList({ events }: { events: HistoryEvent[] }) {
             <div className="min-w-0 flex-1">
               <div className="text-sm font-semibold">
                 {t(e.event)}
-                {name && <span className="font-normal text-slate-600"> · {name}</span>}
+                {name && <span className="font-normal text-slate-600"> · <bdi>{name}</bdi></span>}
               </div>
               <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted">
                 <span>{fmt.dateTime(e.created_at)}</span>

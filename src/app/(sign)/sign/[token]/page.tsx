@@ -23,11 +23,22 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
     deviceId: jar.get(DEVICE_COOKIE)?.value,
   });
 
-  if (resolved && view.state === "verify") {
-    const client = await requestInfo();
+  const client = await requestInfo();
+  if (resolved && view.state === "verify" && !isLinkPreview(client.userAgent)) {
     const first = await rateLimit(`opened:${resolved.tokenHash.slice(0, 24)}:${client.ip ?? "?"}`, 60 * 60, 1);
     await logOpened(db, resolved, client, first);
   }
 
   return <SignFlow token={token} view={view} />;
+}
+
+/**
+ * WhatsApp/Telegram/etc. fetch the link once to draw a preview when the admin sends it.
+ * That isn't the client opening it — don't put "link opened" in the history for it.
+ */
+function isLinkPreview(userAgent: string | null): boolean {
+  return (
+    !!userAgent &&
+    /whatsapp\/|facebookexternalhit|facebot|telegrambot|twitterbot|slackbot|discordbot|skypeuripreview|linkedinbot|googlebot|bingbot/i.test(userAgent)
+  );
 }

@@ -171,9 +171,10 @@ export function DocumentDetail({
 
       {/* Keep the editor mounted while viewing history so unsaved moves aren't lost. */}
       <div hidden={tab !== "editor"}>
-        {/* key: remount from server data when finalized ↔ unlocked. */}
+        {/* key: remount from server data when finalized ↔ unlocked — but not on pending ↔ signed
+            (a client signing while the admin drags would otherwise drop unsaved moves). */}
         <PlacementEditor
-          key={doc.status}
+          key={finalized ? "final" : "edit"}
           documentId={doc.id}
           signatures={signatures}
           initialPlacements={placements}
