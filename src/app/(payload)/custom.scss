@@ -470,6 +470,8 @@ h3 {
 .cards-view select:focus-visible {
   outline: var(--accessibility-outline) !important;
   outline-offset: 2px;
+}
+
 // ───────── الموبايل: القائمة درج فوق الصفحة ─────────
 // Payload بيحط القائمة كعمود جنب الصفحة. على شاشة الجوال (RTL) كانت تطلع برّا الشاشة والصفحة
 // تنضغط لعرض صفر. هون بتصير درج من اليمين فوق الصفحة، مع خلفية معتمة بتسكّرها (NavLinks).
