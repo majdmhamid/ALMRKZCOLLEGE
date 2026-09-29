@@ -7,20 +7,14 @@ import type {
 import { APIError } from 'payload'
 
 import { adminOrSelf, isAdmin, isAdminField, isAdminUser } from '@/access'
+import { emailIsSetUp, NO_EMAIL_MESSAGE } from '@/lib/email'
 import { serverURL } from '@/lib/preview'
 
 /**
  * «نسيت كلمة السر» بدون إيميل مركّب (SMTP_HOST فاضي) على الموقع الحقيقي: Payload كان بيقول
- * «تفقّد بريدك» وما بيبعت إشي. هون بنوقّف الطلب برسالة واضحة. محلياً (npm run dev) الرابط
- * بينطبع بسجل السيرفر، فبنخليه يشتغل.
+ * «تفقّد بريدك» وما بيبعت إشي. هون بنوقّف الطلب برسالة واضحة (والصفحة نفسها بتحكيها:
+ * src/admin/forgot). محلياً (npm run dev) الرابط بينطبع بسجل السيرفر، فبنخليه يشتغل.
  */
-export const emailIsSetUp = () => Boolean(process.env.SMTP_HOST) || process.env.NODE_ENV !== 'production'
-
-export const NO_EMAIL_MESSAGE = {
-  ar: 'إرسال الإيميلات لسا مش مفعّل بالموقع، فما بنقدر نبعتلك رابط لتغيير كلمة السر. اطلب من مدير اللوحة يغيّرها إلك من «المستخدمون».',
-  he: 'שליחת מיילים עדיין לא מופעלת באתר, ולכן אי אפשר לשלוח קישור לאיפוס הסיסמה. בקשו ממנהל הלוח לשנות אותה עבורכם ב«משתמשים».',
-}
-
 const blockResetWithoutEmail: CollectionBeforeOperationHook = ({ args, operation, req }) => {
   if (operation === 'forgotPassword' && !emailIsSetUp()) {
     throw new APIError(req.i18n?.language === 'he' ? NO_EMAIL_MESSAGE.he : NO_EMAIL_MESSAGE.ar, 503, undefined, true)

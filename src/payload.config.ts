@@ -8,7 +8,7 @@ import { ar } from '@payloadcms/translations/languages/ar'
 import { he } from '@payloadcms/translations/languages/he'
 import crypto from 'crypto'
 import path from 'path'
-import { buildConfig } from 'payload'
+import { APIError, buildConfig, type EmailAdapter } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
@@ -70,7 +70,7 @@ const useS3 = !useBlob && Boolean(process.env.S3_BUCKET)
  */
 const smtpPort = Number(process.env.SMTP_PORT || 587)
 const smtpOnThisComputer = /^(localhost|127.0.0.1)$/.test(process.env.SMTP_HOST || '')
-const email = process.env.SMTP_HOST
+const smtpEmail = process.env.SMTP_HOST
   ? nodemailerAdapter({
       defaultFromAddress: process.env.EMAIL_FROM_ADDRESS || 'no-reply@almrkz.net',
       defaultFromName: process.env.EMAIL_FROM_NAME || 'كلية المركز — الموقع',
@@ -91,6 +91,34 @@ const email = process.env.SMTP_HOST
     })
   : undefined
 
+/**
+ * A failed send (wrong SMTP password, provider down) reached «نسيت كلمة السر» as Payload's
+ * English «Something went wrong». Same adapter, but the failure is logged and shown in Arabic.
+ * (New-lead emails catch their own errors — the lead is always saved.)
+ */
+const email = smtpEmail?.then(
+  (adapter): EmailAdapter =>
+    (args) => {
+      const initialized = adapter(args)
+      return {
+        ...initialized,
+        sendEmail: async (message) => {
+          try {
+            return await initialized.sendEmail(message)
+          } catch (err) {
+            args.payload.logger.error({ err, msg: 'Sending email failed' })
+            throw new APIError(
+              'ما قدرنا نبعت الإيميل هلأ. جرّب كمان شوي، وإذا ضلّت المشكلة احكي مع المسؤول عن الموقع.',
+              502,
+              undefined,
+              true,
+            )
+          }
+        },
+      }
+    },
+)
+
 export default buildConfig({
   serverURL: serverURL(),
   admin: {
@@ -104,6 +132,8 @@ export default buildConfig({
       Nav: '@/admin/nav/Nav#Nav',
       views: {
         dashboard: { Component: '@/admin/dashboard/Dashboard#Dashboard' },
+        // «نسيت كلمة السر» بتحكي الحقيقة لما الإيميل مش مركّب أو الإرسال فشل
+        forgot: { Component: '@/admin/forgot/ForgotPassword#ForgotPassword' },
         // التوقيع الإلكتروني — نفس اللوحة ونفس الدخول (src/admin/signing, src/features/signing)
         signingDocuments: { Component: '@/admin/signing/views#SigningDocumentsView', path: '/documents', exact: true },
         signingDocument: { Component: '@/admin/signing/views#SigningDocumentView', path: '/documents/:id', exact: true },

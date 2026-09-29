@@ -33,6 +33,7 @@ import { Nav as Nav_469f2a9a499fd691cc96b63d9aec4764 } from '@/admin/nav/Nav'
 import { Icon as Icon_e7bd77da3186b43b37d9ef658548455c } from '@/admin/Logo'
 import { Logo as Logo_e7bd77da3186b43b37d9ef658548455c } from '@/admin/Logo'
 import { Dashboard as Dashboard_0d6625b7f13ee764fd23a0cf2428adda } from '@/admin/dashboard/Dashboard'
+import { ForgotPassword as ForgotPassword_ecae0a58feb8fb0b02ca151486611346 } from '@/admin/forgot/ForgotPassword'
 import { SigningDocumentsView as SigningDocumentsView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
 import { SigningDocumentView as SigningDocumentView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
 import { SigningSignedView as SigningSignedView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
@@ -78,6 +79,7 @@ export const importMap = {
   "@/admin/Logo#Icon": Icon_e7bd77da3186b43b37d9ef658548455c,
   "@/admin/Logo#Logo": Logo_e7bd77da3186b43b37d9ef658548455c,
   "@/admin/dashboard/Dashboard#Dashboard": Dashboard_0d6625b7f13ee764fd23a0cf2428adda,
+  "@/admin/forgot/ForgotPassword#ForgotPassword": ForgotPassword_ecae0a58feb8fb0b02ca151486611346,
   "@/admin/signing/views#SigningDocumentsView": SigningDocumentsView_8e57767051dfb3807dd5be25f895b474,
   "@/admin/signing/views#SigningDocumentView": SigningDocumentView_8e57767051dfb3807dd5be25f895b474,
   "@/admin/signing/views#SigningSignedView": SigningSignedView_8e57767051dfb3807dd5be25f895b474,
