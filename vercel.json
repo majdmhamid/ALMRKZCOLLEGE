@@ -4,5 +4,8 @@
   "buildCommand": "npm run ci",
   "regions": ["fra1"],
   "ignoreCommand": "node -e \"process.exit(process.env.VERCEL_ENV === 'production' ? 1 : 0)\"",
-  "crons": [{ "path": "/api/payload-jobs/run", "schedule": "0 3 * * *" }]
+  "crons": [
+    { "path": "/api/payload-jobs/run", "schedule": "0 3 * * *" },
+    { "path": "/api/privacy/purge-leads", "schedule": "30 3 * * *" }
+  ]
 }

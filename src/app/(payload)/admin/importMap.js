@@ -26,6 +26,7 @@ import { RichTextNote as RichTextNote_4582579267af33113e813b8b4378e852 } from '@
 import { RulesNote as RulesNote_18aa454a3e45d8e4473f803e4d7db7f0 } from '@/admin/RulesNote'
 import { CardsListView as CardsListView_bf0a937740c9c99f0bdf4fece3c1e00f } from '@/admin/cards/CardsListView'
 import { ExportLeads as ExportLeads_cbd296615833fff0a3f221b20984b47f } from '@/admin/leads/ExportLeads'
+import { PurgeLeads as PurgeLeads_43ce9f8187ed57193bfb1ffad312924b } from '@/admin/leads/PurgeLeads'
 import { LeadContact as LeadContact_db1e6eb44c47c4c67acbd0a91138efcd } from '@/admin/leads/LeadContact'
 import { SectionRowLabel as SectionRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
 import { LabelRowLabel as LabelRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
@@ -73,6 +74,7 @@ export const importMap = {
   "@/admin/RulesNote#RulesNote": RulesNote_18aa454a3e45d8e4473f803e4d7db7f0,
   "@/admin/cards/CardsListView#CardsListView": CardsListView_bf0a937740c9c99f0bdf4fece3c1e00f,
   "@/admin/leads/ExportLeads#ExportLeads": ExportLeads_cbd296615833fff0a3f221b20984b47f,
+  "@/admin/leads/PurgeLeads#PurgeLeads": PurgeLeads_43ce9f8187ed57193bfb1ffad312924b,
   "@/admin/leads/LeadContact#LeadContact": LeadContact_db1e6eb44c47c4c67acbd0a91138efcd,
   "@/admin/RowLabel#SectionRowLabel": SectionRowLabel_1fef74805715afb85b23a4276c03c83c,
   "@/admin/RowLabel#LabelRowLabel": LabelRowLabel_1fef74805715afb85b23a4276c03c83c,
