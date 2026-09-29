@@ -152,6 +152,12 @@ export default buildConfig({
       icons: [{ rel: 'icon', type: 'image/png', url: '/admin-icon.png' }],
     },
     dateFormat: 'dd/MM/yyyy HH:mm',
+    // «جدولة النشر» كانت تطلب «المنطقة الزمنية» من قائمة فاضية. الكلية بإسرائيل — وحدة بس.
+    // (ما في ولا خانة تاريخ مع `timezone` — فهاد ما بيغيّر القاعدة.)
+    timezones: {
+      defaultTimezone: 'Asia/Jerusalem',
+      supportedTimezones: [{ label: 'توقيت إسرائيل / فلسطين (Asia/Jerusalem)', value: 'Asia/Jerusalem' }],
+    },
     livePreview: {
       url: ({ data, collectionConfig, globalConfig, locale }) => {
         if (globalConfig) return previewPath({ global: globalConfig.slug, locale: locale?.code })

@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone, isStaff } from '@/access'
 import { orderField } from '@/fields/order'
+import { duplicateSlug } from '@/fields/slug'
 
 export const Partners: CollectionConfig = {
   slug: 'partners',
@@ -28,7 +29,14 @@ export const Partners: CollectionConfig = {
       admin: { description: 'PNG شفّاف أو SVG، مقصوص بدون فراغ حوله.' },
     },
     { name: 'url', label: 'موقعهم (اختياري)', type: 'text' },
-    { name: 'slug', type: 'text', unique: true, index: true, admin: { hidden: true } },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: { hidden: true },
+      hooks: { beforeDuplicate: [duplicateSlug] },
+    },
     orderField,
   ],
 }

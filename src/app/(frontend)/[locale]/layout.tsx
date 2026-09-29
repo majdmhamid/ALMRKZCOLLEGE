@@ -9,7 +9,7 @@ import { getShared, isDraft, isLocale, localeParams, mediaUrl } from '@/componen
 import { JsonLd, organizationData } from '@/components/site/structured-data'
 import { serverURL } from '@/lib/preview'
 import type { SiteLocale } from '@/lib/rules'
-import { RefreshRouteOnSave } from '../refresh-on-save'
+import { PreviewBanner, RefreshRouteOnSave } from '../refresh-on-save'
 import '@/components/site/site.css'
 import '../fonts.css'
 import '../perf.css'
@@ -96,6 +96,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <HashScroll />
         <Analytics locale={locale} />
         {draft && <RefreshRouteOnSave serverURL={serverURL()} />}
+        {draft && <PreviewBanner locale={locale} />}
       </body>
     </html>
   )

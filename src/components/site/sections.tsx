@@ -2,6 +2,7 @@ import React from 'react'
 
 import type { Course, CourseGroup, Homepage, Media, News, SuccessStory } from '@/payload-types'
 import { VOUCHER_TEXT, type SiteLocale } from '@/lib/rules'
+import { youtubeId } from '@/lib/youtube'
 
 import { submitLead } from './actions'
 import {
@@ -565,8 +566,7 @@ function StaffSection({
   )
 }
 
-export const youtubeId = (url?: string | null) =>
-  url?.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)?.[1] ?? undefined
+export { youtubeId }
 
 function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'videos' }> } & Ctx) {
   const promo = b.promo

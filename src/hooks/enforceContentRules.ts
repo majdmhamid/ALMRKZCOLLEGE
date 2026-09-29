@@ -76,7 +76,7 @@ function flatten(fields: Field[]): Field[] {
  * The Arabic label of the field at `path` (e.g. «وصف مختصر (للبطاقة)»), so the
  * editor sees which box to fix — not «shortDescription».
  */
-function labelFor(fields: Field[] | undefined, path: string): string | undefined {
+export function labelFor(fields: Field[] | undefined, path: string): string | undefined {
   let current: Field[] | undefined = fields
   let label: string | undefined
   for (const segment of path.split('.')) {

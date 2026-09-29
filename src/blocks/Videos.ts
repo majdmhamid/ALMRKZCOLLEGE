@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { validateYoutubeUrl } from '@/lib/youtube'
+
 import {
   imageField,
   kickerField,
@@ -30,7 +32,12 @@ export const VideosBlock: Block = {
           'ملف الفيديو',
           'يُفضّل دقيقة واحدة تقريباً، MP4 مضغوط، أقل من 40 ميغابايت.',
         ),
-        { name: 'youtubeUrl', label: 'أو رابط يوتيوب (بدل الملف)', type: 'text' },
+        {
+          name: 'youtubeUrl',
+          label: 'أو رابط يوتيوب (بدل الملف)',
+          type: 'text',
+          validate: validateYoutubeUrl,
+        },
         imageField('poster', 'صورة الغلاف', 'تظهر قبل الضغط على «تشغيل».'),
         {
           type: 'row',

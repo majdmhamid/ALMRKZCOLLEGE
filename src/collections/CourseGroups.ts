@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { APIError } from 'payload'
 
 import { isStaff, publishedOrStaff } from '@/access'
 import { orderField } from '@/fields/order'
@@ -83,8 +84,50 @@ export const CourseGroups: CollectionConfig = {
       admin: { description: 'الدورة بتنضاف للمجال من صفحة الدورة نفسها (خانة «المجال»).' },
     },
     seoField,
+    {
+      // «ظاهر بالموقع» / «مخفي: …» — بدون عمود بالقاعدة (خانة عرض بس)
+      name: 'siteState',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/admin/GroupSiteState#GroupSiteState' },
+      },
+    },
     slugField('name'),
     orderField,
   ],
-  hooks: { beforeValidate: [enforceContentRules] },
+  hooks: {
+    beforeValidate: [enforceContentRules],
+    // حذف مجال فيه دورات كان يخلّي الدورات بدون مجال (بتختفي من صفحات المجالات، وما بتنحفظ
+    // بعدها لأن «المجال» إجباري). لازم تنقلها لمجال ثاني أول.
+    beforeDelete: [
+      async ({ id, req }) => {
+        // المنشور والمسودة الأخيرة — الاثنين لازم ما يأشّروا على هالمجال
+        const found = new Map<number, string>()
+        for (const draft of [false, true]) {
+          const { docs } = await req.payload.find({
+            collection: 'courses',
+            where: { group: { equals: id } },
+            draft,
+            depth: 0,
+            limit: 100,
+            pagination: false,
+            locale: 'ar',
+            req,
+            overrideAccess: true,
+          })
+          for (const c of docs) found.set(c.id, c.name || 'دورة بدون اسم')
+        }
+        if (!found.size) return
+        const names = [...found.values()].slice(0, 5).map((n) => `«${n}»`).join('، ')
+        throw new APIError(
+          `ما بنقدر نحذف المجال — فيه ${found.size === 1 ? 'دورة' : `${found.size} دورات`}: ${names}${found.size > 5 ? '…' : ''}. ` +
+            'افتح كل دورة وغيّر خانة «المجال» لمجال ثاني (أو احذف الدورة)، وبعدين احذف المجال.',
+          400,
+          undefined,
+          true,
+        )
+      },
+    ],
+  },
 }

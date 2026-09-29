@@ -96,6 +96,24 @@ let adminLanguage = ''
 
 function fix(root: ParentNode) {
   const lang: Lang = (adminLanguage || document.documentElement.lang) === 'he' ? 'he' : 'ar'
+  // «جدولة النشر» (الأخبار): خيار اللغة مكتوب «All» جوّا Payload (مش بملفات الترجمة)
+  root.querySelectorAll?.('.schedule-publish .rs__single-value, .schedule-publish .rs__option').forEach((el) => {
+    const node = el.firstChild
+    if (node?.nodeType === Node.TEXT_NODE && node.nodeValue === 'All')
+      node.nodeValue = lang === 'he' ? 'כל השפות' : 'كل اللغات'
+  })
+  // المعاينة الحيّة: حجم «Responsive» (بعرض اللوحة) مكتوب جوّا Payload
+  root.querySelectorAll?.('.live-preview-toolbar-controls *, .popup__content button').forEach((el) => {
+    const node = el.firstChild
+    if (node?.nodeType === Node.TEXT_NODE && node.nodeValue === 'Responsive' && el.childNodes.length === 1)
+      node.nodeValue = lang === 'he' ? 'לפי רוחב המסך' : 'حسب عرض الشاشة'
+  })
+  // عنوان عمود الساعات بمنتقي التاريخ مكتوب «Time»
+  root.querySelectorAll?.('.react-datepicker-time__header').forEach((el) => {
+    const node = el.firstChild
+    if (node?.nodeType === Node.TEXT_NODE && node.nodeValue === 'Time')
+      node.nodeValue = lang === 'he' ? 'שעה' : 'الساعة'
+  })
   root.querySelectorAll?.('[data-sonner-toast]').forEach((toast) => {
     // «في خانة لازم تصلّحها: <span>email</span>» — اسم الخانة التقني بعنصر لحاله
     toast.querySelectorAll('[data-testid="field-error"]').forEach((el) => {

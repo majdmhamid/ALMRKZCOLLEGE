@@ -15,6 +15,8 @@ export const arTranslationFixes = {
     allLocales: 'كل اللغات',
     noResults: 'لسا ما في {{label}}.',
     fallbackToDefaultLocale: 'استعمل النص العربي',
+    // «جدولة النشر» (الأخبار): الترجمة الجاهزة ترجمت {{title}} نفسها فطلع «{{العنوان}}» بالعنوان
+    schedulePublishFor: 'جدولة النشر: «{{title}}»',
   },
   fields: {
     toggleBlock: 'افتح / سكّر',
@@ -31,6 +33,8 @@ export const arTranslationFixes = {
     publishAllLocales: 'نشر بكل اللغات',
     aboutToUnpublish: 'رح يختفي من الموقع (بس بضل محفوظ هون وبتقدر ترجع تنشره). متأكد؟',
     currentlyViewing: 'النسخة اللي قدامك',
+    // «جدول النشر» = جدول (table) — الصح «جدولة النشر»
+    schedulePublish: 'جدولة النشر',
   },
   error: {
     // «عليك أن تقوم بتسجيل الدخول» كانت تطلع حتى لـ«محرّر» داخل، و«لا يسمح لك» كانت تطلع لما
@@ -47,10 +51,14 @@ export const arTranslationFixes = {
   },
 }
 
-/** نفس الفكرة للعبري: بدون اسم «Payload»، و«שפה» فوق هي لغة المحتوى مش لغة اللوحة. */
+/** نفس الفكرة للعبري: بدون اسم «Payload»، «שפה» فوق هي لغة المحتوى مش لغة اللوحة، والترجمة ترجمت اسم المتغيّر نفسه. */
 export const heTranslationFixes = {
   general: {
     payloadSettings: 'הגדרות',
     locale: 'שפת התוכן',
+    schedulePublishFor: 'תזמון פרסום: «{{title}}»',
+  },
+  version: {
+    noRowsSelected: 'לא נבחר {{label}}',
   },
 }

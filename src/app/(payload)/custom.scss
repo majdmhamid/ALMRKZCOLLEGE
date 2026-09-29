@@ -498,3 +498,25 @@ h3 {
   background: rgb(15 23 42 / 0.45);
   cursor: pointer;
 }
+
+// ───────── الموبايل: ما في شي يطلع برّا الشاشة ─────────
+// Tailwind تبع التوقيع الإلكتروني بيولّد `.table { display: table }` (الكلمة موجودة بالكود)،
+// وهاد بيغلب على Payload وبيلغي التمرير الأفقي للجدول: على الموبايل كل صفحة جدول
+// (مكتبة الصور، «عرض كجدول») صارت أعرض من الشاشة والعنوان والأزرار طلعوا برّا.
+div.table {
+  display: block;
+}
+// عنوان طويل بالشريط الفوقاني (مثلاً عنوان خبر) كان يدفش «لغة المحتوى» وحسابك برّا الشاشة.
+.app-header__step-nav-wrapper {
+  min-width: 0;
+  overflow: hidden;
+}
+// Payload بيمدّ الجدول لحواف الشاشة على الموبايل بـ `left` — بالعربي (من اليمين لليسار) هاد بيدفشه برّا الشاشة.
+@media (max-width: 1024px) {
+  .collection-list div.table {
+    left: auto;
+    inset-inline-start: calc(var(--gutter-h) * -1);
+    padding-left: 0;
+    padding-inline-start: var(--gutter-h);
+  }
+}
