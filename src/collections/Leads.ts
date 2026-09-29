@@ -1,7 +1,7 @@
 import type { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 
-import { anyone, isAdmin, isAdminField } from '@/access'
+import { isAdmin, isAdminField, isAdminUser } from '@/access'
 import { serverURL } from '@/lib/preview'
 import type { Lead } from '@/payload-types'
 
@@ -111,8 +111,11 @@ export const Leads: CollectionConfig = {
   },
   defaultSort: '-createdAt',
   access: {
-    // The public form on the website can create; only admins can see or change leads.
-    create: anyone,
+    // Visitors create leads only through the website form (a server action → Local API), which
+    // has the spam checks (rate limit per IP, timing, honeypot). The public REST/GraphQL API
+    // (/api/leads, /api/graphql) would skip them — and every lead sends an email — so it is closed
+    // to everyone except admins. Only admins can see or change leads.
+    create: ({ req }) => req.payloadAPI === 'local' || isAdminUser(req),
     read: isAdmin,
     update: isAdmin,
     delete: isAdmin,

@@ -10,7 +10,27 @@ const dirname = path.dirname(__filename)
 /** نصوص التوقيع الإلكتروني (عربي/عبري) — next-intl بدون توجيه باللغة */
 const withNextIntl = createNextIntlPlugin('./src/features/signing/i18n/request.ts')
 
+const SECURITY_HEADERS = [
+  // The site may only be shown in a frame on itself (admin live preview) — no clickjacking.
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  // Only rules that can't break a script, style, image or embed: no <base> hijacking, no plugins,
+  // no framing by other sites. (A full script allow-list would need nonces on every page.)
+  {
+    key: 'Content-Security-Policy',
+    value: "frame-ancestors 'self'; base-uri 'self'; object-src 'none'",
+  },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  // Nothing on the site uses these. Autoplay / fullscreen / encrypted-media stay allowed (YouTube).
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()',
+  },
+]
+
 const nextConfig: NextConfig = {
+  // No "X-Powered-By: Next.js" (tells attackers which framework to try).
+  poweredByHeader: false,
   // Keep our own CLAUDE.md untouched (next dev would append its own block).
   agentRules: false,
   // PGlite: قاعدة بيانات التوقيع بوضع التجربة على الجهاز
@@ -29,17 +49,28 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      // Basic browser protections on every address (site, admin, signing). Framing is allowed
-      // only from the site itself (the admin panel's live preview shows the site in a frame).
-      // Camera/microphone/location are never used, so no page (or embedded map/video) may ask.
+      // Security headers on every response. Kept deliberately small so nothing the site uses
+      // breaks: YouTube / Google Maps frames, GA and the Meta pixel, the admin's live preview
+      // (a same-site frame), the pdf.js worker and Supabase files are all still allowed.
       {
         source: '/:path*',
+        headers: SECURITY_HEADERS,
+      },
+      // Signing links carry a secret token in the address: never send it on as a Referer, and
+      // keep them out of search engines (the pages also say noindex).
+      {
+        source: '/sign/:path*',
         headers: [
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
         ],
+      },
+      { source: '/admin/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      // Uploaded images (/api/media/file/…) stay indexable: robots.txt lets Google fetch them for
+      // image search and the logo / course images in the structured data.
+      {
+        source: '/api/:path((?!media/file/).*)',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
       // Fonts never change under the same name → the browser keeps them for a year.
       {
