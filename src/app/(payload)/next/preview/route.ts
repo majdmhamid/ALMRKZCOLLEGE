@@ -3,6 +3,8 @@ import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
+import { isSitePath } from '@/lib/preview'
+
 /**
  * Opened by the «معاينة» button and the live-preview panel in /admin.
  * Turns on Next.js draft mode for logged-in staff, then shows the page.
@@ -13,7 +15,7 @@ export async function GET(request: Request) {
   const path = url.searchParams.get('path') || '/'
 
   // Only same-site paths (no open redirect).
-  if (!path.startsWith('/') || path.startsWith('//')) {
+  if (!isSitePath(path)) {
     return new Response('Invalid path', { status: 400 })
   }
 

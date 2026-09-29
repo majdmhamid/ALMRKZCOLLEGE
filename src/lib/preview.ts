@@ -57,6 +57,20 @@ export const serverURL = () =>
   ).replace(/\/$/, '')
 
 /**
+ * A path on this site only (for redirects): «/ar/news». Rejects «//evil.com», «/\evil.com»
+ * (browsers read a backslash as a slash) and anything that would leave the site.
+ */
+export function isSitePath(path: string): boolean {
+  if (!path.startsWith('/') || /[\\\u0000-\u001f]/.test(path)) return false
+  try {
+    const url = new URL(path, 'http://site.invalid')
+    return url.origin === 'http://site.invalid'
+  } catch {
+    return false
+  }
+}
+
+/**
  * Link that turns on Next.js draft mode (so unpublished changes are visible)
  * and then opens the page. Only works for someone logged in to /admin.
  * Handled by src/app/(payload)/next/preview/route.ts.

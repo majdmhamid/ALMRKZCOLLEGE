@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-import { anyone, isStaff } from '@/access'
+import { isStaff, publishedOrStaff } from '@/access'
 import { homepageBlocks } from '@/blocks'
 import { enforceContentRulesGlobal } from '@/hooks/enforceContentRules'
 import { previewPath } from '@/lib/preview'
@@ -16,7 +16,9 @@ export const Homepage: GlobalConfig = {
     description:
       'أقسام الصفحة الرئيسية من الأعلى للأسفل. اسحب القسم (⋮⋮) لتغيير ترتيبه، أو علّم «إخفاء هذا القسم مؤقتاً»، أو أضف قسماً جديداً من الزر في الأسفل.',
   },
-  access: { read: anyone, update: isStaff },
+  // Visitors: only the published homepage. `?draft=true` on /api/globals/homepage used to hand
+  // anyone the unpublished draft (autosaved while typing).
+  access: { read: publishedOrStaff, update: isStaff },
   versions: { drafts: { autosave: { interval: 800 } }, max: 30 },
   fields: [
     {
