@@ -65,3 +65,23 @@ export function previewPath(target: PreviewTarget): string {
   const params = new URLSearchParams({ path: sitePath(target) })
   return `${serverURL()}/next/preview?${params.toString()}`
 }
+
+/**
+ * A path on this site to open after turning preview on/off — or null when the value could lead to
+ * another site. Browsers read `/\evil.com` (and `/<tab>/evil.com`) as `//evil.com`, so a backslash
+ * or a control character anywhere is refused, not only `//` at the start.
+ */
+export function safeRedirectPath(value: string | null | undefined): string | null {
+  const path = value || '/'
+  if (!path.startsWith('/') || path.startsWith('//')) return null
+  // eslint-disable-next-line no-control-regex
+  if (/[\\\u0000-\u001f\u007f]/.test(path)) return null
+  try {
+    // Resolved against a placeholder origin: anything that ends up on another host is refused.
+    const url = new URL(path, 'http://site.invalid')
+    if (url.origin !== 'http://site.invalid') return null
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
+    return null
+  }
+}
