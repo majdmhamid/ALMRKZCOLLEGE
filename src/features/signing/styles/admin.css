@@ -95,3 +95,11 @@
     unicode-bidi: isolate;
   }
 }
+
+/* accessibility: keyboard focus is always visible on the signing pages. Outside the layers on
+   purpose — Tailwind's `outline-none` (utilities layer) would otherwise win over it. */
+.signing-scope :focus-visible,
+.signing-scope dialog :focus-visible {
+  outline: 3px solid var(--color-brand-700);
+  outline-offset: 2px;
+}

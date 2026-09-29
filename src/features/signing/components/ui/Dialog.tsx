@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 
 /**
  * Native <dialog> (focus trap, Esc, backdrop for free). Controlled by `open`.
@@ -25,6 +25,7 @@ export function Dialog({
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const t = useTranslations("common");
+  const titleId = useId();
 
   useEffect(() => {
     const el = ref.current;
@@ -38,6 +39,7 @@ export function Dialog({
   return (
     <dialog
       ref={ref}
+      aria-labelledby={titleId}
       onCancel={(e) => {
         e.preventDefault();
         onClose();
@@ -50,7 +52,9 @@ export function Dialog({
       {open && (
         <div className="flex max-h-[92dvh] flex-col">
           <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
-            <h2 className="text-lg font-bold">{title}</h2>
+            <h2 id={titleId} className="text-lg font-bold">
+              {title}
+            </h2>
             <button
               type="button"
               onClick={onClose}

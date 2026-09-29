@@ -77,6 +77,8 @@ export const SignaturePad = forwardRef<
       <canvas
         ref={canvasRef}
         data-testid="signature-canvas"
+        role="img"
+        aria-label={hint}
         style={{ height, touchAction: "none" }}
         className="block w-full cursor-crosshair rounded-2xl border-2 border-dashed border-slate-300 bg-white"
       />
