@@ -27,6 +27,16 @@ export const publishedOrStaff: Access = ({ req }) => {
   return { _status: { equals: 'published' } }
 }
 
+/**
+ * Same rule for a global with drafts (the homepage). `read: anyone` would let a visitor ask
+ * /api/globals/homepage?draft=true and see unpublished edits. The published document (or one
+ * saved before drafts existed, with no status) stays public; a draft is never returned.
+ */
+export const publishedGlobalOrStaff: Access = ({ req }) => {
+  if (req.user) return true
+  return { or: [{ _status: { equals: 'published' } }, { _status: { exists: false } }] }
+}
+
 /** Admins manage every user; editors may only read/update themselves. */
 export const adminOrSelf: Access = ({ req }) => {
   if (isAdminUser(req)) return true
