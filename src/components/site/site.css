@@ -385,7 +385,9 @@ textarea:focus {
   html {
     scroll-behavior: auto;
   }
-  * {
+  *,
+  *::before,
+  *::after {
     animation: none !important;
     transition: none !important;
   }
@@ -393,6 +395,21 @@ textarea:focus {
     opacity: 1 !important;
     transform: none !important;
   }
+}
+/* «stop motion» button in the header (client.tsx): same effect as the device's setting above —
+   the hero video is not loaded, the strips, orbs and rings stand still, nothing rotates by itself */
+html.motion-off {
+  scroll-behavior: auto;
+}
+html.motion-off *,
+html.motion-off *::before,
+html.motion-off *::after {
+  animation: none !important;
+  transition: none !important;
+}
+html.motion-off [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 /* page frame */
@@ -1373,6 +1390,15 @@ textarea:focus {
   transition:
     width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     background 0.35s;
+}
+/* accessibility: the dots are 24px — an invisible margin makes them easier to hit on a phone */
+.story-tabs button {
+  position: relative;
+}
+.story-tabs button::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
 }
 .story-tabs button[aria-current='true'] {
   width: 34px;

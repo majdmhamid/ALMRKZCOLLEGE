@@ -95,11 +95,13 @@ export function BilingualField(props: Props) {
   const label = typeof field.label === 'string' ? field.label : ((field.label as Record<string, string> | undefined)?.ar ?? field.name)
   const mainFilled = useFormFields(([fields]) => Boolean(String(fields[path]?.value ?? '').trim()))
   const missing = loaded && mainFilled && !value.trim()
+  // نفس المعرّف اللي بيعطيه Payload للخانة (field-<المسار>) حتى تكون التسمية مربوطة فيها لقارئ الشاشة
+  const otherId = `field-${`${path}__${other}`.replace(/\./g, '__')}`
   const Label = (
-    <span className="field-label">
+    <label className="field-label" htmlFor={otherId}>
       {label}
       <span className="localized"> — {NAMES[other]}</span>
-    </span>
+    </label>
   )
   const common = {
     path: `${path}__${other}`,

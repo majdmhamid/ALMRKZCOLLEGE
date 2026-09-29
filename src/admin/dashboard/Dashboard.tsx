@@ -83,7 +83,7 @@ export async function Dashboard(props: ServerProps) {
   ]
 
   return (
-    <div className="almrkz-dash gutter--left gutter--right">
+    <main className="almrkz-dash gutter--left gutter--right">
       <section className="almrkz-dash__hero">
         <div>
           <p className="almrkz-dash__eyebrow">كلية المركز للتأهيل المهني</p>
@@ -167,6 +167,6 @@ export async function Dashboard(props: ServerProps) {
           </Link>
         </aside>
       </div>
-    </div>
+    </main>
   )
 }

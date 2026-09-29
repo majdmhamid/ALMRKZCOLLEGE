@@ -50,13 +50,13 @@ html[data-theme='light'] {
   --brand-300: #a6d27d;
   --brand-400: #88bb3c;
   --brand-500: #5dac32;
-  --brand-600: #158942;
+  --brand-600: #127f3d; // نص أبيض عليه 5.1:1 (#158942 كان 4.48 — أقل من AA)
   --brand-700: #0f6b33;
   --brand-800: #0b5027;
   --brand-900: #07371b;
   --ink: #1f2a26;
   --ink-soft: #4b5c61;
-  --ink-muted: #6b7a7f;
+  --ink-muted: #5d6c70; // 4.8:1 على الخلفيات الفاتحة (#6b7a7f كان 3.9-4.4)
   --surface: #f6f8f4;
   --surface-2: #edf3e8;
   --line: #e3e8e0;
@@ -75,7 +75,7 @@ html[data-theme='light'] {
   --color-base-350: #9ea99a;
   --color-base-400: #8b9788;
   --color-base-450: #7b8779;
-  --color-base-500: #6b7a7f;
+  --color-base-500: #5d6c70;
   --color-base-550: #5d6c70;
   --color-base-600: #4b5c61;
   --color-base-650: #3f4f4f;
@@ -99,7 +99,7 @@ html[data-theme='light'] {
   --color-success-450: #72b337;
   --color-success-500: #5dac32;
   --color-success-550: #399a3a;
-  --color-success-600: #158942;
+  --color-success-600: #127f3d;
   --color-success-650: #127a3b;
   --color-success-700: #0f6b33;
   --color-success-750: #0d5d2d;
@@ -115,7 +115,7 @@ html[data-theme='light'] {
   --theme-bg: var(--surface);
   --theme-input-bg: #ffffff;
   --theme-text: var(--ink);
-  --accessibility-outline: 3px solid var(--brand-400);
+  --accessibility-outline: 3px solid var(--brand-700); // إطار التركيز بالكيبورد واضح على الأبيض (brand-400 كان 2.3:1)
 }
 
 // اللوحة دايماً فاتحة (حتى لو المتصفح أو الإعدادات القديمة طالبة الوضع الغامق)
@@ -428,4 +428,17 @@ h3 {
       text-decoration: underline;
     }
   }
+}
+
+// وصولية: إطار التركيز بالكيبورد على روابط وأزرار القائمة والرئيسية والبطاقات (Payload بيحطّه بس على عناصره)
+.almrkz-nav a:focus-visible,
+.almrkz-nav button:focus-visible,
+.almrkz-dash a:focus-visible,
+.cards-view a:focus-visible,
+.cards-view button:focus-visible,
+.cards-view input:focus-visible,
+.cards-view textarea:focus-visible,
+.cards-view select:focus-visible {
+  outline: var(--accessibility-outline) !important;
+  outline-offset: 2px;
 }

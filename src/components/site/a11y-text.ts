@@ -19,6 +19,9 @@ export const A11Y: Record<
     courses: string
     contact: string
     newTab: string
+    /** Header button that stops every moving thing on the site (video, strips, auto-rotation). */
+    pauseMotion: string
+    resumeMotion: string
   }
 > = {
   ar: {
@@ -34,6 +37,8 @@ export const A11Y: Record<
     courses: 'الدورات',
     contact: 'تواصل سريع',
     newTab: 'يفتح في نافذة جديدة',
+    pauseMotion: 'إيقاف الحركة والفيديو في الموقع',
+    resumeMotion: 'تشغيل الحركة والفيديو في الموقع',
   },
   he: {
     skip: 'דלג לתוכן',
@@ -48,8 +53,17 @@ export const A11Y: Record<
     courses: 'הקורסים',
     contact: 'יצירת קשר מהירה',
     newTab: 'נפתח בחלון חדש',
+    pauseMotion: 'עצירת התנועה והווידאו באתר',
+    resumeMotion: 'הפעלת התנועה והווידאו באתר',
   },
 }
+
+/**
+ * «Stop motion» choice (header button, client.tsx): the key it is saved under on the device, and
+ * the one-line script the header runs before the page paints so nothing moves first.
+ */
+export const MOTION_STORAGE_KEY = 'almrkz:motion'
+export const MOTION_BOOT_SCRIPT = `try{if(localStorage.getItem('${MOTION_STORAGE_KEY}')==='1')document.documentElement.classList.add('motion-off')}catch(e){}`
 
 /** Proper names of the social networks (the admin stores them lower-case). */
 export const SOCIAL_NAMES: Record<string, string> = {

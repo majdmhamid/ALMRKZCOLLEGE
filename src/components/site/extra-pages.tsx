@@ -8,7 +8,7 @@ import { type Shared, type getHomeData, mediaUrl, telHref, whatsappHref } from '
 import { MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from './icons'
 import { PAGE_TEXT } from './page-text'
 import { PageHero } from './pages'
-import { HomeSections, NewsCard, RegisterForm } from './sections'
+import { HomeSections, NewTab, NewsCard, RegisterForm } from './sections'
 
 type Home = Awaited<ReturnType<typeof getHomeData>>
 
@@ -72,6 +72,7 @@ export function ContactPage({ shared, locale }: { shared: Shared; locale: SiteLo
                     {link && (
                       <a href={link} target="_blank" rel="noopener" className="more">
                         {t.openMap}
+                        <NewTab locale={locale} />
                       </a>
                     )}
                   </div>
@@ -95,6 +96,7 @@ export function ContactPage({ shared, locale }: { shared: Shared; locale: SiteLo
                     <span>{t.whatsapp}</span>
                     <a href={whatsappHref(shared)} target="_blank" rel="noopener">
                       <b>{ui.common?.whatsappLong || t.whatsapp}</b>
+                      <NewTab locale={locale} />
                     </a>
                   </div>
                 </li>
@@ -141,6 +143,7 @@ export function ContactPage({ shared, locale }: { shared: Shared; locale: SiteLo
           >
             <WhatsAppIcon />
             {ui.common?.whatsappLong}
+            <NewTab locale={locale} />
           </a>
           <section className="card glass" id="register">
             <h2>{ui.common?.registerInterest || t.writeUs}</h2>
@@ -233,6 +236,8 @@ export function NewsListPage({
         title={shared.ui.nav?.news || t.news}
       />
       <div className="wrap" style={{ padding: '40px 20px 56px' }}>
+        {/* Heading for screen readers: the news cards below are h3. */}
+        <h2 className="sr-only">{t.allNews}</h2>
         {news.length ? (
           <div className="news-grid">
             {news.map((x, i) => (

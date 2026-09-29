@@ -125,7 +125,7 @@ export function CardsGrid(props: Props) {
   }
 
   return (
-    <div className="cards-view gutter--left gutter--right">
+    <main className="cards-view gutter--left gutter--right">
       <header className="cards-view__head">
         <div>
           <h1>{props.title}</h1>
@@ -188,6 +188,8 @@ export function CardsGrid(props: Props) {
           <span>هيك بتظهر على الموقع</span>
         </div>
         <div className="site-scope cards-frame__body" dir="rtl" lang={locale}>
+          {/* عنوان لقارئ الشاشة: عناوين البطاقات تحت h3 (زي الموقع) */}
+          <h2 className="sr-only">{props.title}</h2>
           <div className={`cards-grid cards-grid--${kind}`}>
             {cards.map((c) => (
               <div
@@ -236,7 +238,7 @@ export function CardsGrid(props: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 
@@ -623,9 +625,9 @@ function SaveBadge({ state }: { state: SaveState }) {
 /** خانة كتابة بشكل نص البطاقة نفسه */
 function InlineInput({ value, onChange, placeholder, className = '', multiline, dir }: { value: string; onChange: (v: string) => void; placeholder: string; className?: string; multiline?: boolean; dir?: 'ltr' | 'rtl' }) {
   return multiline ? (
-    <textarea className={`inline-edit ${className}`} value={value} placeholder={placeholder} rows={2} dir={dir} onChange={(e) => onChange(e.target.value)} />
+    <textarea className={`inline-edit ${className}`} value={value} placeholder={placeholder} aria-label={placeholder} rows={2} dir={dir} onChange={(e) => onChange(e.target.value)} />
   ) : (
-    <input className={`inline-edit ${className}`} value={value} placeholder={placeholder} dir={dir} onChange={(e) => onChange(e.target.value)} />
+    <input className={`inline-edit ${className}`} value={value} placeholder={placeholder} aria-label={placeholder} dir={dir} onChange={(e) => onChange(e.target.value)} />
   )
 }
 

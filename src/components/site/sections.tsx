@@ -44,6 +44,11 @@ const delay = (i: number, step: number) =>
   ({ ['--d' as string]: `${i * step}ms` }) as React.CSSProperties
 const nn = (i: number) => String(i + 1).padStart(2, '0')
 
+/** «(opens in a new window)» — read out by screen readers after a link with target="_blank". */
+export const NewTab = ({ locale }: { locale: SiteLocale }) => (
+  <span className="sr-only"> ({A11Y[locale].newTab})</span>
+)
+
 export function Kicker({
   n,
   label,
@@ -145,8 +150,10 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
   const video = mediaUrl(b.video)
   const logo = mediaUrl(shared.settings.logoDark)
   const loop = [...shared.groups, ...shared.groups, ...shared.groups, ...shared.groups]
+  // «top» is the <main> itself (skip link, home tab): the hero gets its own id, never a duplicate.
+  const id = b.anchor && b.anchor !== 'top' ? b.anchor : 'hero'
   return (
-    <section id={b.anchor || 'top'} className="hero">
+    <section id={id} className="hero">
       <div className="hero-bg" aria-hidden="true">
         {poster && (
           <img src={poster} alt="" className="cover poster" fetchPriority="high" decoding="async" />
@@ -186,6 +193,7 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
             >
               <WhatsAppIcon />
               {b.whatsappButton}
+              <NewTab locale={locale} />
             </a>
             <a href="#register" className="btn btn-glass">
               {b.registerButton}
@@ -652,6 +660,7 @@ function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'vi
                     className="reel-link"
                   >
                     {shared.ui.common?.viewCourse}
+                    <NewTab locale={locale} />
                     <ArrowIcon />
                   </a>
                 </div>
@@ -742,7 +751,11 @@ function NewsSection({
   )
 }
 
-function Partners({ b, home }: { b: Extract<Section, { blockType: 'partners' }> } & Ctx) {
+function Partners({
+  b,
+  home,
+  locale,
+}: { b: Extract<Section, { blockType: 'partners' }> } & Ctx) {
   const chosen = (b.partners ?? []).map((p) => asDoc(p)).filter(Boolean) as typeof home.partners
   const partners = chosen.length ? chosen : home.partners
   if (!partners.length) return null
@@ -781,6 +794,7 @@ function Partners({ b, home }: { b: Extract<Section, { blockType: 'partners' }> 
                     style={{ height: '100%', display: 'flex' }}
                   >
                     {img}
+                    <NewTab locale={locale} />
                   </a>
                 ) : (
                   img
@@ -794,7 +808,12 @@ function Partners({ b, home }: { b: Extract<Section, { blockType: 'partners' }> 
   )
 }
 
-function Employers({ b, shared, n }: { b: Extract<Section, { blockType: 'employers' }> } & Ctx) {
+function Employers({
+  b,
+  shared,
+  locale,
+  n,
+}: { b: Extract<Section, { blockType: 'employers' }> } & Ctx) {
   return (
     <section id={b.anchor || 'employers'} className="sec" style={{ padding: '0 20px 56px' }}>
       <div data-reveal="" className="emp">
@@ -815,6 +834,7 @@ function Employers({ b, shared, n }: { b: Extract<Section, { blockType: 'employe
                 >
                   <WhatsAppIcon size={20} color="#25d366" />
                   {b.whatsappButton}
+                  <NewTab locale={locale} />
                 </a>
               )}
               {b.hiringButton && (

@@ -110,6 +110,7 @@ function LinkRow({ info, link, onChanged }: { info: ShareInfo; link: ShareLink; 
               readOnly
               value={link.url}
               dir="ltr"
+              aria-label={`${t("title")} — ${link.name ?? t("sharedLink")}`}
               onFocus={(e) => e.target.select()}
               className="mb-3 h-9 w-full truncate rounded-lg border border-line bg-slate-50 px-3 font-mono text-xs text-slate-600"
             />

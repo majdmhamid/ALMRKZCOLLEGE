@@ -3,8 +3,8 @@ import React from 'react'
 import { ANALYTICS_ENABLED } from '@/lib/analytics'
 import type { SiteLocale } from '@/lib/rules'
 
-import { A11Y, SOCIAL_NAMES } from './a11y-text'
-import { HeaderMenu, LangSwitch } from './client'
+import { A11Y, MOTION_BOOT_SCRIPT, SOCIAL_NAMES } from './a11y-text'
+import { HeaderMenu, LangSwitch, MotionToggle } from './client'
 import { CookieSettingsButton } from './consent'
 import {
   type Shared,
@@ -47,11 +47,13 @@ export function Header({ shared, locale }: Props) {
   const a11y = A11Y[locale]
   return (
     <>
-      {/* First thing a keyboard user reaches; appears only when it gets focus. */}
-      <a href="#top" className="skip-link">
-        {a11y.skip}
-      </a>
+      {/* Visitor pressed «stop motion» on an earlier visit: apply it before anything moves. */}
+      <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT_SCRIPT }} />
       <header className="header">
+        {/* First thing a keyboard user reaches; appears only when it gets focus. */}
+        <a href="#top" className="skip-link">
+          {a11y.skip}
+        </a>
         <div className="glass header-bar">
           <a href={`/${locale}`} className="header-logo">
             {logo ? (
@@ -68,6 +70,8 @@ export function Header({ shared, locale }: Props) {
             ))}
           </nav>
           <div className="header-actions">
+            {/* Accessibility (WCAG 2.2.2): one button stops the video, the strips and the rotation. */}
+            <MotionToggle pauseLabel={a11y.pauseMotion} resumeLabel={a11y.resumeMotion} />
             <LangSwitch locale={locale} label={ui.otherLang} />
             {cta?.show !== false && (
               <a href={ctaHref} className="btn btn-green header-cta show-desktop">
@@ -82,6 +86,7 @@ export function Header({ shared, locale }: Props) {
               whatsappLabel={ui.common?.whatsapp ?? ''}
               menuLabel={ui.nav?.menu ?? ''}
               navLabel={a11y.mainNav}
+              newTabLabel={a11y.newTab}
             />
           </div>
         </div>
@@ -160,6 +165,9 @@ export function Footer({ shared, locale }: Props) {
                       {...(isExternal(href) ? { target: '_blank', rel: 'noopener' } : {})}
                     >
                       {l.label}
+                      {isExternal(href) && (
+                        <span className="sr-only"> ({A11Y[locale].newTab})</span>
+                      )}
                     </a>
                   </li>
                 )
@@ -247,6 +255,7 @@ export function MobileBar({ shared, locale }: Props) {
         <a href={whatsappHref(shared)} target="_blank" rel="noopener">
           <WhatsAppIcon size={24} color="#25d366" />
           {ui.common?.whatsapp}
+          <span className="sr-only"> ({A11Y[locale].newTab})</span>
         </a>
         <a href={telHref(phone)}>
           <PhoneIcon size={22} color="#158942" />

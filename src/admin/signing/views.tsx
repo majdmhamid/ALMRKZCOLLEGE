@@ -42,9 +42,9 @@ function Frame({ props, children }: { props: AdminViewServerProps; children: Rea
       <NextIntlClientProvider>
         <ToastProvider>
           <LiveUpdates />
-          <div className="signing-scope gutter--left gutter--right" dir="rtl" style={{ paddingTop: 24, paddingBottom: 60 }}>
+          <main className="signing-scope gutter--left gutter--right" dir="rtl" style={{ paddingTop: 24, paddingBottom: 60 }}>
             {children}
-          </div>
+          </main>
         </ToastProvider>
       </NextIntlClientProvider>
     </DefaultTemplate>
