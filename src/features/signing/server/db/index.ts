@@ -28,13 +28,27 @@ export function getDb(): Promise<Db> {
   return g.__signingDb;
 }
 
+/** A query that takes longer than this means a dead connection, not a slow query (ours all take milliseconds). */
+const QUERY_TIMEOUT_MS = 20_000;
+
+/**
+ * One query at a time per connection. postgres.js otherwise pipelines extra queries onto a busy
+ * connection when more than `max` run at once (the documents page runs 6 in parallel), and
+ * Supabase's transaction pooler never answers pipelined queries: the page hung until Vercel's
+ * 5-minute timeout, and every later query on that server instance queued behind it.
+ * (A real postgres.js option that its type definitions leave out.)
+ */
+const NO_PIPELINING = { max_pipeline: 1 } as object;
+
 function openPostgres(): Db {
   const url = process.env.SUPABASE_DB_URL;
   if (!url) throw new Error("SUPABASE_DB_URL is not set (see .env.example)");
   const sql = postgres(url, {
+    ...NO_PIPELINING,
     prepare: false, // required by Supabase's transaction pooler
     max: 5,
     idle_timeout: 20,
+    connect_timeout: 10,
     ssl: /localhost|127\.0\.0\.1/.test(url) ? false : "require",
     onnotice: () => {},
     types: {
@@ -42,18 +56,39 @@ function openPostgres(): Db {
       bigint: { to: 20, from: [20], serialize: (v: number) => String(v), parse: (v: string) => Number(v) },
     },
   });
-  return wrapPostgres(sql);
+  // Safety net: if a query ever hangs anyway, fail it and throw the whole pool away, so the next
+  // request opens fresh connections instead of waiting behind the stuck one.
+  const reset = () => {
+    const cached = g.__signingDb;
+    void cached?.then((current) => {
+      if (current === db && g.__signingDb === cached) g.__signingDb = undefined;
+    });
+    void sql.end({ timeout: 0 }).catch(() => {});
+  };
+  const db = wrapPostgres(sql, reset);
+  return db;
 }
 
-function wrapPostgres(sql: postgres.Sql | postgres.TransactionSql): Db {
+function withTimeout<T>(work: Promise<T>, onTimeout: () => void): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      onTimeout();
+      reject(new Error(`signing database query timed out after ${QUERY_TIMEOUT_MS / 1000}s`));
+    }, QUERY_TIMEOUT_MS);
+  });
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
+
+function wrapPostgres(sql: postgres.Sql | postgres.TransactionSql, reset: () => void): Db {
   return {
     async query<T>(text: string, params: readonly unknown[] = []) {
-      const rows = await sql.unsafe<Row[]>(text, params as postgres.ParameterOrJSON<never>[]);
+      const rows = await withTimeout(sql.unsafe<Row[]>(text, params as postgres.ParameterOrJSON<never>[]), reset);
       return rows.map((r) => normalizeRow<T>(r));
     },
     async tx<T>(fn: (db: Db) => Promise<T>) {
-      if ("savepoint" in sql) return fn(wrapPostgres(sql)); // already inside a transaction
-      return (await (sql as postgres.Sql).begin((t) => fn(wrapPostgres(t)))) as T;
+      if ("savepoint" in sql) return fn(wrapPostgres(sql, reset)); // already inside a transaction
+      return (await (sql as postgres.Sql).begin((t) => fn(wrapPostgres(t, reset)))) as T;
     },
   };
 }
