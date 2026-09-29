@@ -81,7 +81,7 @@ function LinkRow({ info, link, onChanged }: { info: ShareInfo; link: ShareLink; 
   return (
     <div data-testid="share-row" className="rounded-2xl border border-line p-3 sm:p-4">
       <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="font-semibold">{link.name ?? t("sharedLink")}</span>
+        <bdi className="font-semibold">{link.name ?? t("sharedLink")}</bdi>
         {link.phone ? (
           <span dir="ltr" className="text-sm text-muted">
             {formatPhone(link.phone)}
