@@ -130,6 +130,8 @@ export default buildConfig({
     components: {
       graphics: { Logo: '@/admin/Logo#Logo', Icon: '@/admin/Logo#Icon' },
       Nav: '@/admin/nav/Nav#Nav',
+      // «هاي الصورة مستعملة بـ …، متأكد؟» قبل مسح صورة مستعملة بالموقع
+      providers: ['@/admin/MediaDeleteGuard#MediaDeleteGuard'],
       views: {
         dashboard: { Component: '@/admin/dashboard/Dashboard#Dashboard' },
         // «نسيت كلمة السر» بتحكي الحقيقة لما الإيميل مش مركّب أو الإرسال فشل

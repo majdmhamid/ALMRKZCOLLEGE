@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from '@payloadcms/ui'
 import { useEffect } from 'react'
 
 /**
@@ -90,8 +91,11 @@ function translate(el: Element, lang: Lang) {
   }
 }
 
+/** Admin language (Payload's, kept current by the hook below) */
+let adminLanguage = ''
+
 function fix(root: ParentNode) {
-  const lang: Lang = document.documentElement.lang === 'he' ? 'he' : 'ar'
+  const lang: Lang = (adminLanguage || document.documentElement.lang) === 'he' ? 'he' : 'ar'
   root.querySelectorAll?.('[data-sonner-toast]').forEach((toast) => {
     // «في خانة لازم تصلّحها: <span>email</span>» — اسم الخانة التقني بعنصر لحاله
     toast.querySelectorAll('[data-testid="field-error"]').forEach((el) => {
@@ -108,6 +112,10 @@ function fix(root: ParentNode) {
 }
 
 export function useArabicToasts() {
+  const { i18n } = useTranslation()
+  useEffect(() => {
+    adminLanguage = i18n.language
+  }, [i18n.language])
   useEffect(() => {
     const observer = new MutationObserver(() => fix(document))
     observer.observe(document.body, { childList: true, subtree: true, characterData: true })

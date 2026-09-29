@@ -4,7 +4,7 @@ import { text } from 'payload/shared'
 
 import { anyone, isStaff } from '@/access'
 import { enforceContentRules } from '@/hooks/enforceContentRules'
-import { refuseDeletingUsedMedia } from '@/hooks/mediaInUse'
+import { mediaInUseEndpoint, refuseDeletingUsedMedia } from '@/hooks/mediaInUse'
 
 /** Above this size a video makes the site slow on phones. */
 export const MAX_VIDEO_MB = 40
@@ -81,8 +81,10 @@ export const Media: CollectionConfig = {
       localized: true,
     },
   ],
+  // «هاي الصورة مستعملة بـ …، متأكد؟» before deleting (src/admin/MediaDeleteGuard.tsx)
+  endpoints: [mediaInUseEndpoint],
   hooks: {
-    // A picture still shown somewhere on the site can't be deleted (it vanished silently before)
+    // A picture still shown on the site is deleted only after that «yes» (it vanished silently before)
     beforeDelete: [refuseDeletingUsedMedia],
     beforeValidate: [enforceContentRules],
     beforeChange: [
