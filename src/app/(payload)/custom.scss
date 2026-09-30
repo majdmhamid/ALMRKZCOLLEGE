@@ -401,6 +401,14 @@ h3 {
     }
   }
 }
+// «عدّل الموقع» — أول رابط وبارز
+.almrkz-nav__link--cta {
+  margin-bottom: 6px;
+  border: 1.5px solid var(--brand-500);
+  background: var(--brand-50);
+  color: var(--brand-800);
+  font-weight: 800;
+}
 .almrkz-nav__icon {
   flex-shrink: 0;
   width: 18px;

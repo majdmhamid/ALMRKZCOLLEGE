@@ -137,6 +137,8 @@ export default buildConfig({
         dashboard: { Component: '@/admin/dashboard/Dashboard#Dashboard' },
         // «نسيت كلمة السر» بتحكي الحقيقة لما الإيميل مش مركّب أو الإرسال فشل
         forgot: { Component: '@/admin/forgot/ForgotPassword#ForgotPassword' },
+        // «عدّل الموقع»: الموقع الحقيقي جوّا اللوحة — كبسة على نص/صورة/فيديو وبتعدّله بمكانه (src/admin/edit-site)
+        editSite: { Component: '@/admin/edit-site/EditSiteView#EditSiteView', path: '/edit-site', exact: true },
         // التوقيع الإلكتروني — نفس اللوحة ونفس الدخول (src/admin/signing, src/features/signing)
         signingDocuments: { Component: '@/admin/signing/views#SigningDocumentsView', path: '/documents', exact: true },
         signingDocument: { Component: '@/admin/signing/views#SigningDocumentView', path: '/documents/:id', exact: true },

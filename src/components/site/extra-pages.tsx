@@ -5,6 +5,7 @@ import type { SiteLocale } from '@/lib/rules'
 
 import { MapEmbed } from './client'
 import { type Shared, type getHomeData, mediaUrl, telHref, whatsappHref } from './data'
+import { txt } from './edit-marks'
 import { MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from './icons'
 import { PAGE_TEXT } from './page-text'
 import { PageHero } from './pages'
@@ -58,6 +59,7 @@ export function ContactPage({ shared, locale }: { shared: Shared; locale: SiteLo
         crumbs={[{ href: `/${locale}`, label: ui.nav?.home }]}
         title={ui.nav?.contact || t.contact}
         sub={shared.settings.tagline}
+        edit={{ sub: txt('site-settings', 'tagline', 'جملة التعريف القصيرة — معلومات الكلية') }}
       />
       <div className="detail">
         <div>
@@ -68,7 +70,7 @@ export function ContactPage({ shared, locale }: { shared: Shared; locale: SiteLo
                   <PinIcon color="#158942" />
                   <div>
                     <span>{t.address}</span>
-                    <b>{c.address}</b>
+                    <b {...txt('site-settings', 'contact.address', 'العنوان — معلومات الكلية', true)}>{c.address}</b>
                     {link && (
                       <a href={link} target="_blank" rel="noopener" className="more">
                         {t.openMap}
@@ -120,8 +122,8 @@ export function ContactPage({ shared, locale }: { shared: Shared; locale: SiteLo
               <ul className="facts-list">
                 {c.openingHours.map((h) => (
                   <li key={h.id ?? h.days}>
-                    <span>{h.days}</span>
-                    <b>{h.hours}</b>
+                    <span {...txt('site-settings', `contact.openingHours.#${h.id}.days`, 'أيام الدوام')}>{h.days}</span>
+                    <b {...txt('site-settings', `contact.openingHours.#${h.id}.hours`, 'ساعات الدوام')}>{h.hours}</b>
                   </li>
                 ))}
               </ul>
@@ -185,11 +187,19 @@ export function AboutPage({
         crumbs={[{ href: `/${locale}`, label: shared.ui.nav?.home }]}
         title={shared.ui.nav?.about || t.about}
         sub={s.accreditation || s.tagline}
+        edit={{
+          sub: txt('site-settings', s.accreditation ? 'accreditation' : 'tagline', 'سطر الاعتماد — معلومات الكلية'),
+        }}
       />
       <div className="wrap" style={{ padding: '40px 20px 8px' }}>
         <section className="card glass about-intro">
-          <h2>{s.siteName}</h2>
-          {about && <p className="prose">{about}</p>}
+          <h2 {...txt('site-settings', 'siteName', 'اسم الكلية — معلومات الكلية')}>{s.siteName}</h2>
+          {about && (
+            <p className="prose" {...txt('navigation', 'footer.about', 'نبذة عن الكلية (نفس اللي بالتذييل)', true)}>
+              {about}
+            </p>
+          )}
+
           {s.foundedYear && (
             <p className="note" style={{ marginTop: 14 }}>
               {t.founded} <span dir="ltr">{s.foundedYear}</span>
