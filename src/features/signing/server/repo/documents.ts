@@ -17,8 +17,7 @@ const SIGNERS_JSON = `
   coalesce((
     select json_agg(json_build_object(
       'id', s.id, 'name', s.name, 'status', s.status, 'is_admin', s.is_admin,
-      'phone', s.phone, 'id_last3', s.id_number_last3, 'locked', s.locked,
-      'failed_attempts', s.failed_attempts, 'signed_at', s.signed_at,
+      'phone', s.phone, 'signed_at', s.signed_at,
       'signature_method', s.signature_method, 'has_link', s.token_hash is not null
     ) order by s.is_admin, s.created_at)
     from public.signers s where s.document_id = d.id

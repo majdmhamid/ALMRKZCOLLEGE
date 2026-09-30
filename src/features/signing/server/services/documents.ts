@@ -4,8 +4,7 @@ import { z } from "zod";
 import { MAX_UPLOAD_BYTES } from "@/features/signing/lib/domain";
 import { serverEnv } from "@/features/signing/lib/env";
 import { normalizePhone } from "@/features/signing/lib/phone";
-import { hashIdNumber, mintToken } from "@/features/signing/lib/security/crypto";
-import { idLast3, isValidIsraeliId, normalizeIsraeliId } from "@/features/signing/lib/security/israeli-id";
+import { mintToken } from "@/features/signing/lib/security/crypto";
 import type { AdminUser } from "@/features/signing/server/auth";
 import type { Db } from "@/features/signing/server/db";
 import { inspectPdf, PdfError, type PdfProblem } from "@/features/signing/server/pdf";
@@ -85,7 +84,6 @@ const optionalText = (max: number) =>
 
 const signerSchema = z.object({
   name: z.string().trim().min(1).max(120),
-  idNumber: z.string().trim().min(1).max(20),
   phone: z.string().trim().max(30).optional().default(""),
 });
 
@@ -107,8 +105,6 @@ export type CompleteError =
   | "not_draft"
   | "file_missing"
   | "no_signers"
-  | "bad_id"
-  | "duplicate_id"
   | "bad_phone"
   | PdfProblem;
 
@@ -122,18 +118,14 @@ export async function completeDocument(ctx: Ctx, input: CompleteInput): Promise<
   const env = serverEnv();
 
   // Signers are validated before touching storage so the admin gets quick feedback.
-  const signers: { name: string; idHash: string; last3: string; phone: string | null }[] = [];
+  // No ID number: the personal link itself identifies the signer.
+  const signers: { name: string; phone: string | null }[] = [];
   if (data.linkMode === "per_signer") {
     if (data.signers.length === 0) return { ok: false, error: "no_signers" };
-    const seen = new Set<string>();
     for (const [index, s] of data.signers.entries()) {
-      if (!isValidIsraeliId(s.idNumber)) return { ok: false, error: "bad_id", index };
-      const normalized = normalizeIsraeliId(s.idNumber)!;
-      if (seen.has(normalized)) return { ok: false, error: "duplicate_id", index };
-      seen.add(normalized);
       const phone = s.phone ? normalizePhone(s.phone) : null;
       if (s.phone && !phone) return { ok: false, error: "bad_phone", index };
-      signers.push({ name: s.name, idHash: hashIdNumber(normalized, env.ID_HMAC_SECRET), last3: idLast3(normalized)!, phone });
+      signers.push({ name: s.name, phone });
     }
   }
 
@@ -176,9 +168,9 @@ export async function completeDocument(ctx: Ctx, input: CompleteInput): Promise<
     for (const s of signers) {
       const token = mintToken(env.TOKEN_ENC_KEY);
       await db.query(
-        `insert into public.signers (document_id, name, id_number_hash, id_number_last3, phone, token_hash, token_enc)
-         values ($1, $2, $3, $4, $5, $6, $7)`,
-        [doc.id, s.name, s.idHash, s.last3, s.phone, token.hash, token.enc],
+        `insert into public.signers (document_id, name, phone, token_hash, token_enc)
+         values ($1, $2, $3, $4, $5)`,
+        [doc.id, s.name, s.phone, token.hash, token.enc],
       );
     }
     if (data.adminSigns) {

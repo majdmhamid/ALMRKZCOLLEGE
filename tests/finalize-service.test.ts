@@ -9,7 +9,7 @@ import { completeDocument, startUpload } from "@/features/signing/server/service
 import { savePlacements } from "@/features/signing/server/services/editor";
 import { finalizeDocument, moveDocuments, unlockDocument } from "@/features/signing/server/services/finalize";
 import { getShareInfo } from "@/features/signing/server/services/links";
-import { resolveToken, submitSignature, verifyId } from "@/features/signing/server/services/signing";
+import { resolveToken, submitSignature } from "@/features/signing/server/services/signing";
 import { fileStore, paths } from "@/features/signing/server/storage";
 import { testBackend } from "./helpers";
 
@@ -29,19 +29,13 @@ async function signedDoc(opts: { signBoth?: boolean } = {}) {
     title: "Doc",
     linkMode: "per_signer",
     adminSigns: false,
-    signers: [
-      { name: "A", idNumber: "123456782" },
-      { name: "B", idNumber: "000000018" },
-    ],
+    signers: [{ name: "A" }, { name: "B" }],
   });
   const info = (await getShareInfo(backend.ctx, started.documentId))!;
-  const ids = ["123456782", "000000018"];
   const signerIds: string[] = [];
   for (let i = 0; i < (opts.signBoth === false ? 1 : 2); i++) {
     const resolved = await resolveToken(backend.db, info.links[i].url!.split("/sign/")[1]);
-    const v = await verifyId(backend.db, resolved, { idNumber: ids[i] }, { ip: null, userAgent: null, deviceId: "d" });
-    if (!v.ok) throw new Error(v.error);
-    await submitSignature(backend.db, resolved, v.session, { method: "draw", png: await sampleSignaturePng(i), readConfirmed: true }, { ip: null, userAgent: null });
+    await submitSignature(backend.db, resolved, null, { method: "draw", png: await sampleSignaturePng(i), readConfirmed: true }, { ip: null, userAgent: null });
     signerIds.push(info.links[i].signerId!);
   }
   return { id: started.documentId, pdf, signerIds };

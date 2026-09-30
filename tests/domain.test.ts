@@ -7,7 +7,7 @@ import {
   nextStatus,
   sharedLinkOpen,
 } from "@/features/signing/lib/domain";
-import { formatPhone, normalizePhone } from "@/features/signing/lib/phone";
+import { formatPhone, normalizePhone, toAsciiDigits } from "@/features/signing/lib/phone";
 
 type S = { status: "pending" | "signed"; is_admin: boolean };
 const client = (signed = false): S => ({ status: signed ? "signed" : "pending", is_admin: false });
@@ -108,5 +108,11 @@ describe("phone numbers for WhatsApp", () => {
     expect(normalizePhone("")).toBeNull();
     expect(formatPhone("972525551234")).toBe("052-555-1234");
     expect(formatPhone("12125550100")).toBe("+12125550100");
+  });
+
+  it("accepts Arabic-Indic and Persian digits", () => {
+    expect(toAsciiDigits("٠٥٠-١٢٣")).toBe("050-123");
+    expect(toAsciiDigits("۰۵۲")).toBe("052");
+    expect(normalizePhone("٠٥٢٥٥٥١٢٣٤")).toBe("972525551234");
   });
 });

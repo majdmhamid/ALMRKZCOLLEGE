@@ -1,12 +1,11 @@
 import "server-only";
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import sharp, { type Sharp } from "sharp";
 import { z } from "zod";
 import type { DocumentRow, SignerRow } from "@/features/signing/lib/database.types";
-import { MAX_ID_ATTEMPTS, sharedLinkOpen, type SignatureMethod } from "@/features/signing/lib/domain";
+import { sharedLinkOpen, type SignatureMethod } from "@/features/signing/lib/domain";
 import { serverEnv } from "@/features/signing/lib/env";
-import { hashIdNumber, hashToken, isWellFormedToken, safeEqualHex, sha256Hex } from "@/features/signing/lib/security/crypto";
-import { idLast3, isValidIsraeliId, normalizeIsraeliId } from "@/features/signing/lib/security/israeli-id";
+import { hashToken, isWellFormedToken, sha256Hex } from "@/features/signing/lib/security/crypto";
 import { signPayload, verifyPayload } from "@/features/signing/lib/security/session";
 import type { Db } from "@/features/signing/server/db";
 import { getDocumentRow, logEvent, refreshStatus } from "@/features/signing/server/repo/documents";
@@ -16,8 +15,10 @@ import { fileStore, paths } from "@/features/signing/server/storage";
 
 /**
  * Everything the public signing page needs. Nothing here trusts the browser:
- * the token is looked up by hash, the ID is compared as an HMAC, and the
- * "verified" state lives in an HMAC-signed, expiring cookie.
+ * the link token (256 random bits) is the signer's credential and is looked up
+ * by hash. No ID number is asked for. A personal link opens the document
+ * directly; a shared link first asks for the signer's full name, kept in an
+ * HMAC-signed, expiring cookie until they sign.
  */
 
 export type ClientInfo = { ip: string | null; userAgent: string | null };
@@ -48,15 +49,14 @@ export async function resolveToken(db: Db, token: string): Promise<Resolved | nu
 
 export const SESSION_TTL_SECONDS = 2 * 60 * 60;
 
-/** What the "ID verified" cookie proves. Shared mode carries the typed name + ID hash. */
-export type SignSession = { t: string; s?: string; n?: string; h?: string; l?: string };
+/** Shared link: the name this browser gave before signing (`t` = the link's token hash). */
+export type SignSession = { t: string; n?: string };
 
 export const cookieNames = (tokenHash: string) => ({
   session: `sgn_s_${tokenHash.slice(0, 16)}`,
   /** Shared mode: this browser already signed (so reopening shows "already signed"). */
   done: `sgn_d_${tokenHash.slice(0, 16)}`,
 });
-export const DEVICE_COOKIE = "sgn_device";
 
 export function sealSession(session: SignSession): string {
   return signPayload(session, serverEnv().SESSION_SECRET, SESSION_TTL_SECONDS);
@@ -76,15 +76,6 @@ export function openDone(value: string | undefined, tokenHash: string): string |
   return s && s.t === tokenHash ? s.s : null;
 }
 
-export function newDeviceId(): string {
-  return randomBytes(16).toString("base64url");
-}
-
-/** Per-document device key, so one device id can't be correlated across documents in the DB. */
-export function deviceKey(deviceId: string, documentId: string): string {
-  return sha256Hex(`${documentId}:${deviceId}`);
-}
-
 // ---------------------------------------------------------------------------
 // What the page shows
 // ---------------------------------------------------------------------------
@@ -92,9 +83,9 @@ export function deviceKey(deviceId: string, documentId: string): string {
 export type SignView =
   | { state: "invalid" }
   | { state: "closed"; title: string }
-  | { state: "locked"; title: string }
   | { state: "already_signed"; title: string; canSignAnother: boolean }
-  | { state: "verify"; mode: "per_signer" | "shared"; title: string; description: string | null; signerName: string | null }
+  /** Shared link only: ask for the signer's full name first. */
+  | { state: "name"; mode: "shared"; title: string; description: string | null; signerName: null }
   | {
       state: "sign";
       mode: "per_signer" | "shared";
@@ -119,39 +110,23 @@ export async function sharedIsOpen(db: Db, doc: DocumentRow): Promise<boolean> {
 export async function viewFor(
   db: Db,
   resolved: Resolved | null,
-  cookies: { session?: string; done?: string; deviceId?: string },
+  cookies: { session?: string; done?: string },
 ): Promise<SignView> {
   if (!resolved) return { state: "invalid" };
   const { doc } = resolved;
   const base = { title: doc.title };
 
+  let signerName: string;
   if (resolved.mode === "per_signer") {
     if (resolved.signer.status === "signed") return { state: "already_signed", ...base, canSignAnother: false };
     if (doc.status === "finalized") return { state: "closed", ...base };
-    if (resolved.signer.locked) return { state: "locked", ...base };
+    signerName = resolved.signer.name;
   } else {
     if (openDone(cookies.done, resolved.tokenHash)) return { state: "already_signed", ...base, canSignAnother: true };
     if (doc.status === "finalized" || !(await sharedIsOpen(db, doc))) return { state: "closed", ...base };
-    if (cookies.deviceId) {
-      const [attempt] = await db.query<{ locked: boolean }>(
-        `select locked from public.shared_link_attempts where document_id = $1 and device_key = $2`,
-        [doc.id, deviceKey(cookies.deviceId, doc.id)],
-      );
-      if (attempt?.locked) return { state: "locked", ...base };
-    }
-  }
-
-  const session = openSession(cookies.session, resolved.tokenHash);
-  const sessionValid =
-    session && (resolved.mode === "shared" ? !!(session.n && session.h) : session.s === resolved.signer.id);
-  if (!sessionValid) {
-    return {
-      state: "verify",
-      mode: resolved.mode,
-      ...base,
-      description: doc.description,
-      signerName: resolved.mode === "per_signer" ? resolved.signer.name : null,
-    };
+    const session = openSession(cookies.session, resolved.tokenHash);
+    if (!session?.n) return { state: "name", mode: "shared", ...base, description: doc.description, signerName: null };
+    signerName = session.n;
   }
 
   const settings = await getSettings(db);
@@ -160,97 +135,51 @@ export async function viewFor(
     mode: resolved.mode,
     ...base,
     description: doc.description,
-    signerName: resolved.mode === "per_signer" ? resolved.signer.name : session.n!,
+    signerName,
     pageCount: doc.page_count ?? 1,
     methods: { typed: settings.allow_typed_signature, checkbox: settings.allow_checkbox_signature },
   };
 }
 
+/** May this link see the original PDF now? Personal link: not signed yet. Shared link: gave a name. */
+export function canViewDocument(resolved: Resolved, session: SignSession | null): boolean {
+  if (resolved.doc.status === "finalized") return false;
+  return resolved.mode === "per_signer" ? resolved.signer.status === "pending" : !!session?.n;
+}
+
 // ---------------------------------------------------------------------------
-// ID check
+// Shared link: the signer's name
 // ---------------------------------------------------------------------------
 
-export type VerifyError = "invalid" | "invalid_link" | "bad_id" | "wrong_id" | "locked" | "already_signed" | "closed";
-export type VerifyResult =
-  | { ok: true; session: SignSession }
-  | { ok: false; error: VerifyError; attemptsLeft?: number };
+export type StartError = "bad_name" | "invalid_link" | "closed";
+export type StartResult = { ok: true; session: SignSession } | { ok: false; error: StartError };
 
-const verifySchema = z.object({
-  idNumber: z.string().trim().min(1).max(20),
-  name: z.string().trim().max(120).optional(),
-});
-
-export async function verifyId(
-  db: Db,
-  resolved: Resolved | null,
-  input: z.input<typeof verifySchema>,
-  client: ClientInfo & { deviceId: string },
-): Promise<VerifyResult> {
-  if (!resolved) return { ok: false, error: "invalid_link" };
-  const parsed = verifySchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "invalid" };
-  const { doc } = resolved;
-  const secret = serverEnv().ID_HMAC_SECRET;
-  const log = (event: "id_failed" | "id_locked" | "id_verified", signerId: string | null, details = {}) =>
-    logEvent(db, { documentId: doc.id, signerId, event, details, ip: client.ip, userAgent: client.userAgent });
-
-  if (resolved.mode === "per_signer") {
-    const { signer } = resolved;
-    if (signer.status === "signed") return { ok: false, error: "already_signed" };
-    if (doc.status === "finalized") return { ok: false, error: "closed" };
-    if (signer.locked) return { ok: false, error: "locked" };
-    // A malformed number can't be the right one; say so without counting it.
-    if (!isValidIsraeliId(parsed.data.idNumber)) return { ok: false, error: "bad_id" };
-
-    const given = hashIdNumber(parsed.data.idNumber, secret);
-    if (!signer.id_number_hash || !safeEqualHex(given, signer.id_number_hash)) {
-      const [state] = await db.query<{ failed_attempts: number; locked: boolean }>(
-        `select * from public.signer_register_failure($1, $2)`,
-        [signer.id, MAX_ID_ATTEMPTS],
-      );
-      await log(state.locked ? "id_locked" : "id_failed", signer.id, { attempts: state.failed_attempts });
-      if (state.locked) return { ok: false, error: "locked" };
-      return { ok: false, error: "wrong_id", attemptsLeft: MAX_ID_ATTEMPTS - state.failed_attempts };
-    }
-    await db.query(`update public.signers set failed_attempts = 0 where id = $1`, [signer.id]);
-    await log("id_verified", signer.id);
-    return { ok: true, session: { t: resolved.tokenHash, s: signer.id } };
-  }
-
-  // Shared link: name + a valid ID that hasn't signed this document yet.
-  if (doc.status === "finalized" || !(await sharedIsOpen(db, doc))) return { ok: false, error: "closed" };
-  const key = deviceKey(client.deviceId, doc.id);
-  const [attempt] = await db.query<{ locked: boolean }>(
-    `select locked from public.shared_link_attempts where document_id = $1 and device_key = $2`,
-    [doc.id, key],
+/** Letters (any script), spaces and the usual name punctuation; at least two letters. */
+export const signerNameSchema = z
+  .string()
+  .max(400)
+  .transform((v) => v.normalize("NFC").replace(/\s+/g, " ").trim())
+  .pipe(
+    z
+      .string()
+      .min(2)
+      .max(120)
+      .regex(/^\p{L}[\p{L}\p{M} .'’‘`׳״\-]*$/u)
+      .refine((v) => (v.match(/\p{L}/gu) ?? []).length >= 2),
   );
-  if (attempt?.locked) return { ok: false, error: "locked" };
-  const name = parsed.data.name?.replace(/\s+/g, " ").trim() ?? "";
-  if (name.length < 2) return { ok: false, error: "invalid" };
 
-  const fail = async (error: "bad_id" | "already_signed") => {
-    const [state] = await db.query<{ failed_attempts: number; locked: boolean }>(
-      `select * from public.shared_register_failure($1, $2, $3)`,
-      [doc.id, key, MAX_ID_ATTEMPTS],
-    );
-    await log(state.locked ? "id_locked" : "id_failed", null, { attempts: state.failed_attempts, reason: error });
-    if (state.locked) return { ok: false as const, error: "locked" as const };
-    return { ok: false as const, error, attemptsLeft: MAX_ID_ATTEMPTS - state.failed_attempts };
-  };
-
-  if (!isValidIsraeliId(parsed.data.idNumber)) return fail("bad_id");
-  const idHash = hashIdNumber(parsed.data.idNumber, secret);
-  const [existing] = await db.query(`select 1 from public.signers where document_id = $1 and id_number_hash = $2`, [
-    doc.id,
-    idHash,
-  ]);
-  if (existing) return fail("already_signed");
-
-  await log("id_verified", null, { name });
-  return {
-    ok: true,
-    session: { t: resolved.tokenHash, n: name, h: idHash, l: idLast3(normalizeIsraeliId(parsed.data.idNumber)!)! },
-  };
+/**
+ * Shared link: the signer types their full name, which goes on the signature and
+ * in the audit trail. The same name may sign more than once (two students can
+ * share a name) — each signature is its own row with its own time, IP and device.
+ */
+export async function startShared(db: Db, resolved: Resolved | null, input: { name: string }): Promise<StartResult> {
+  if (!resolved || resolved.mode !== "shared") return { ok: false, error: "invalid_link" };
+  const name = signerNameSchema.safeParse(input?.name ?? "");
+  if (!name.success) return { ok: false, error: "bad_name" };
+  const { doc } = resolved;
+  if (doc.status === "finalized" || !(await sharedIsOpen(db, doc))) return { ok: false, error: "closed" };
+  return { ok: true, session: { t: resolved.tokenHash, n: name.data } };
 }
 
 // ---------------------------------------------------------------------------
@@ -322,7 +251,9 @@ export async function submitSignature(
   client: ClientInfo,
 ): Promise<SubmitResult> {
   if (!resolved) return { ok: false, error: "invalid_link" };
-  if (!session) return { ok: false, error: "session" };
+  // Personal link: the token is the credential. Shared link: the name step must have happened.
+  const sharedName = resolved.mode === "shared" ? session?.n : undefined;
+  if (resolved.mode === "shared" && !sharedName) return { ok: false, error: "session" };
   if (!input.readConfirmed) return { ok: false, error: "invalid" };
 
   const settings = await getSettings(db);
@@ -341,8 +272,6 @@ export async function submitSignature(
 
   const { doc } = resolved;
   const signerId = resolved.mode === "per_signer" ? resolved.signer.id : randomUUID();
-  if (resolved.mode === "per_signer" && session.s !== signerId) return { ok: false, error: "session" };
-  if (resolved.mode === "shared" && !(session.n && session.h)) return { ok: false, error: "session" };
 
   const objectPath = paths.signature(doc.id, signerId, Date.now());
   await fileStore().upload("signatures", objectPath, png, "image/png");
@@ -365,16 +294,11 @@ export async function submitSignature(
       } else {
         if (current.shared_token_hash !== resolved.tokenHash) return { ok: false, error: "invalid_link" };
         if (!(await sharedIsOpen(tx, current))) return { ok: false, error: "closed" };
-        const dup = await tx.query(`select 1 from public.signers where document_id = $1 and id_number_hash = $2`, [
-          doc.id,
-          session.h,
-        ]);
-        if (dup.length) return { ok: false, error: "already_signed" };
         await tx.query(
-          `insert into public.signers (id, document_id, name, id_number_hash, id_number_last3, status,
+          `insert into public.signers (id, document_id, name, status,
              signature_path, signature_method, signed_at, signed_ip, signed_user_agent)
-           values ($1, $2, $3, $4, $5, 'signed', $6, $7, now(), $8::inet, $9)`,
-          [signerId, doc.id, session.n, session.h, session.l ?? null, objectPath, input.method, client.ip, client.userAgent],
+           values ($1, $2, $3, 'signed', $4, $5, now(), $6::inet, $7)`,
+          [signerId, doc.id, sharedName, objectPath, input.method, client.ip, client.userAgent],
         );
       }
 
@@ -385,6 +309,8 @@ export async function submitSignature(
         event: "signed",
         details: {
           method: input.method,
+          // What identified the signer: their personal link, or a shared link + the name they typed.
+          link_mode: resolved.mode,
           signature_sha256: sha256Hex(png),
           read_confirmed: true,
           esign_consent: Boolean(input.esignConsent),
@@ -399,10 +325,6 @@ export async function submitSignature(
     return result;
   } catch (err) {
     await fileStore().remove("signatures", [objectPath]).catch(() => {});
-    // Unique (document, ID) index: someone with the same ID won the race.
-    if (err instanceof Error && /signers_document_id_number_uniq|duplicate key/i.test(err.message)) {
-      return { ok: false, error: "already_signed" };
-    }
     throw err;
   }
 }

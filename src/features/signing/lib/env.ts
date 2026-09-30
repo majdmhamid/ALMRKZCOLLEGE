@@ -22,7 +22,6 @@ const schema = z.object({
   NEXT_PUBLIC_APP_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
-  ID_HMAC_SECRET: z.string().min(32),
   TOKEN_ENC_KEY: b64Key,
   SESSION_SECRET: z.string().min(32),
 });
@@ -32,7 +31,6 @@ const MOCK_DEFAULTS = {
   NEXT_PUBLIC_APP_URL: `http://localhost:${process.env.PORT || 3000}`,
   NEXT_PUBLIC_SUPABASE_URL: "http://mock.invalid",
   SUPABASE_SERVICE_ROLE_KEY: "mock-service-role-key-not-real",
-  ID_HMAC_SECRET: "mock-id-hmac-secret-000000000000000000",
   TOKEN_ENC_KEY: Buffer.alloc(32, 7).toString("base64"),
   SESSION_SECRET: "mock-session-secret-0000000000000000000",
 } satisfies z.input<typeof schema>;

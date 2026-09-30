@@ -39,6 +39,7 @@
 - **التحديث الحي:** سؤال كل 3 ثواني لـ `/api/admin/live` (بدل Supabase Realtime اللي كان بدو دخول Supabase).
 - **اللغة:** `src/proxy.ts` بيعلّم `/admin` و`/sign`؛ اللوحة عربي، والعميل حسب جواله (كوكي `admin_locale` بس للاختبارات بالعبري).
 - **الأنماط:** أصناف Tailwind للتوقيع بدون إعادة ضبط عامة داخل اللوحة (`styles/admin.css`، محصورة بـ `.signing-scope`)؛ صفحة العميل فيها Tailwind كامل (`styles/public.css`).
+- **بدون رقم هوية (30.9.2026، قرار حسين):** لا المدير ولا الموقّع بيكتبوا رقم هوية. الرابط (token عشوائي 256 bit، محفوظ كـ hash) هو اللي بيعرّف الموقّع: الرابط الشخصي بيفتح المستند مباشرة (`viewFor` ← `sign`، `canViewDocument`، `submitSignature` بدون جلسة)؛ الرابط المشترك بيطلب الاسم الكامل بس (`startShared` + `signerNameSchema`، كوكي موقّع لساعتين). نفس الاسم مسموح يوقّع أكثر من مرة (طالبين بنفس الاسم) — كل توقيع صف لحاله مع وقت/IP/جهاز. أعمدة `id_number_hash`/`id_number_last3` و`failed_attempts`/`locked` وجدول `shared_link_attempts` ضلّوا بالقاعدة (بدون migration) للمستندات القديمة، بس الكود ما عاد يكتبهم ولا بيقفل روابط.
 - **وضع التجربة:** بدون `NEXT_PUBLIC_SUPABASE_URL` (ومش على Vercel) → PGlite وملفات بـ `.mock-data` (لـ `npm run dev` و`start-windows.bat`).
 
 ## قاعدة بيانات وتخزين — مشروع Supabase واحد

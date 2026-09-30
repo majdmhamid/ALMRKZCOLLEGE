@@ -6,7 +6,7 @@ import { getSettings } from "@/features/signing/server/repo/settings";
 import { adminSign, deleteProfileSignature, getSavedSignature, saveProfileSignature, saveSettings } from "@/features/signing/server/services/admin";
 import { completeDocument, startUpload } from "@/features/signing/server/services/documents";
 import { getShareInfo } from "@/features/signing/server/services/links";
-import { resolveToken, submitSignature, verifyId } from "@/features/signing/server/services/signing";
+import { resolveToken, submitSignature } from "@/features/signing/server/services/signing";
 import { fileStore, paths } from "@/features/signing/server/storage";
 import { testBackend } from "./helpers";
 
@@ -18,7 +18,7 @@ beforeAll(async () => {
 });
 afterAll(async () => backend?.cleanup());
 
-async function doc(adminSigns: boolean, signers = [{ name: "A", idNumber: "123456782" }]) {
+async function doc(adminSigns: boolean, signers = [{ name: "A" }]) {
   const pdf = await samplePdf("Doc", 1);
   const started = await startUpload(backend.ctx, { fileName: "d.pdf", size: pdf.byteLength, linkMode: "per_signer" });
   if (!started.ok) throw new Error(started.error);
@@ -56,9 +56,7 @@ describe("admin signs too", () => {
     const id = await doc(true);
     const info = (await getShareInfo(backend.ctx, id))!;
     const resolved = await resolveToken(backend.db, info.links[0].url!.split("/sign/")[1]);
-    const v = await verifyId(backend.db, resolved, { idNumber: "123456782" }, { ip: null, userAgent: null, deviceId: "d" });
-    if (!v.ok) throw new Error(v.error);
-    await submitSignature(backend.db, resolved, v.session, { method: "draw", png: await sampleSignaturePng(2), readConfirmed: true }, { ip: null, userAgent: null });
+    await submitSignature(backend.db, resolved, null, { method: "draw", png: await sampleSignaturePng(2), readConfirmed: true }, { ip: null, userAgent: null });
     expect((await getDocumentRow(backend.db, id))!.status).toBe("pending");
     await adminSign(backend.ctx, { documentId: id, useSaved: false, dataUrl });
     expect((await getDocumentRow(backend.db, id))!.status).toBe("signed");
@@ -95,11 +93,9 @@ describe("settings", () => {
     const info = (await getShareInfo(backend.ctx, id))!;
     expect(info.links[0].message?.startsWith("שלום,\nמצורף מסמך\n\n")).toBe(true);
     const resolved = await resolveToken(backend.db, info.links[0].url!.split("/sign/")[1]);
-    const v = await verifyId(backend.db, resolved, { idNumber: "123456782" }, { ip: null, userAgent: null, deviceId: "d" });
-    if (!v.ok) throw new Error(v.error);
     const png = await sampleSignaturePng(7);
-    expect(await submitSignature(backend.db, resolved, v.session, { method: "checkbox", png, readConfirmed: true }, { ip: null, userAgent: null })).toEqual({ ok: false, error: "method" });
-    expect((await submitSignature(backend.db, resolved, v.session, { method: "typed", png, readConfirmed: true }, { ip: null, userAgent: null })).ok).toBe(true);
+    expect(await submitSignature(backend.db, resolved, null, { method: "checkbox", png, readConfirmed: true }, { ip: null, userAgent: null })).toEqual({ ok: false, error: "method" });
+    expect((await submitSignature(backend.db, resolved, null, { method: "typed", png, readConfirmed: true }, { ip: null, userAgent: null })).ok).toBe(true);
 
     expect(await saveSettings(backend.ctx, { allow_typed_signature: true, allow_checkbox_signature: false, default_link_mode: "nope" as never, message_template: "" })).toEqual({ ok: false, error: "invalid" });
   });

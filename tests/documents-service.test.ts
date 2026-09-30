@@ -1,12 +1,12 @@
 /**
  * The create-document flow end to end on PGlite + local mock storage:
- * start upload → file lands in storage → complete (validation, hashing, tokens,
- * audit) → edit → delete.
+ * start upload → file lands in storage → complete (validation, tokens, audit)
+ * → edit → delete. No ID numbers anywhere.
  */
 import { PDFDocument } from "pdf-lib";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { serverEnv } from "@/features/signing/lib/env";
-import { decryptToken, hashIdNumber, hashToken, sha256Hex } from "@/features/signing/lib/security/crypto";
+import { decryptToken, hashToken, sha256Hex } from "@/features/signing/lib/security/crypto";
 import { documentStats, getDocumentItem, getDocumentRow, listDocuments } from "@/features/signing/server/repo/documents";
 import { fileStore, paths } from "@/features/signing/server/storage";
 import {
@@ -47,7 +47,7 @@ const base = (documentId: string): CompleteInput => ({
   description: "Please sign",
   linkMode: "per_signer",
   adminSigns: false,
-  signers: [{ name: "Signer One", idNumber: "123456782", phone: "052-555-1234" }],
+  signers: [{ name: "Signer One", phone: "052-555-1234" }],
 });
 
 describe("startUpload", () => {
@@ -73,32 +73,18 @@ describe("startUpload", () => {
 describe("completeDocument", () => {
   it("validates signers before anything else", async () => {
     const id = await uploadDraft();
-    const bad = await completeDocument(backend.ctx, {
-      ...base(id),
-      signers: [
-        { name: "A", idNumber: "123456782" },
-        { name: "B", idNumber: "123456789" },
-      ],
+    expect(await completeDocument(backend.ctx, { ...base(id), signers: [{ name: " ", phone: "" }] })).toMatchObject({
+      ok: false,
+      error: "invalid",
     });
-    expect(bad).toMatchObject({ ok: false, error: "bad_id", index: 1 });
-
-    const dup = await completeDocument(backend.ctx, {
-      ...base(id),
-      signers: [
-        { name: "A", idNumber: "123456782" },
-        { name: "B", idNumber: "123-456-782" },
-      ],
-    });
-    expect(dup).toMatchObject({ ok: false, error: "duplicate_id", index: 1 });
-
     expect(await completeDocument(backend.ctx, { ...base(id), signers: [] })).toMatchObject({ error: "no_signers" });
     expect(
-      await completeDocument(backend.ctx, { ...base(id), signers: [{ name: "A", idNumber: "123456782", phone: "12" }] }),
-    ).toMatchObject({ error: "bad_phone" });
+      await completeDocument(backend.ctx, { ...base(id), signers: [{ name: "A" }, { name: "B", phone: "12" }] }),
+    ).toMatchObject({ error: "bad_phone", index: 1 });
     expect((await getDocumentRow(backend.db, id))?.status).toBe("draft");
   });
 
-  it("stores hashes, never the plain ID, and mints decryptable per-signer links", async () => {
+  it("stores no ID data and mints decryptable per-signer links", async () => {
     const id = await uploadDraft();
     const result = await completeDocument(backend.ctx, { ...base(id), adminSigns: true });
     expect(result).toEqual({ ok: true, documentId: id });
@@ -112,10 +98,8 @@ describe("completeDocument", () => {
     );
     expect(signers).toHaveLength(2);
     const [client, admin] = signers;
-    expect(client.id_number_hash).toBe(hashIdNumber("123456782", serverEnv().ID_HMAC_SECRET));
-    expect(client.id_number_last3).toBe("782");
+    expect(client).toMatchObject({ name: "Signer One", id_number_hash: null, id_number_last3: null });
     expect(client.phone).toBe("972525551234");
-    expect(JSON.stringify(signers)).not.toContain("123456782");
     const token = decryptToken(client.token_enc as string, serverEnv().TOKEN_ENC_KEY);
     expect(hashToken(token)).toBe(client.token_hash);
     expect(admin).toMatchObject({ is_admin: true, token_hash: null, id_number_hash: null });

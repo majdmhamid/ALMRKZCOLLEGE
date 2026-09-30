@@ -14,8 +14,8 @@ export const LEGAL_SLUGS: LegalSlug[] = ['accessibility', 'privacy', 'terms']
  */
 export const LEGAL_UPDATED: Record<LegalSlug, string> = {
   accessibility: '2026-09-29',
-  privacy: '2026-09-29',
-  terms: '2026-09-29',
+  privacy: '2026-09-30',
+  terms: '2026-09-30',
 }
 
 export const legalHref = (locale: string, slug: LegalSlug) => `/${locale}/${slug}`

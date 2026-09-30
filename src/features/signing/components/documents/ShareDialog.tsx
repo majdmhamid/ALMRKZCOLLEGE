@@ -1,13 +1,12 @@
 "use client";
 
-import { ClipboardCopy, KeyRound, Link2Off, Lock, MessageCircle, RefreshCw, Unlock } from "lucide-react";
+import { ClipboardCopy, KeyRound, Link2Off, Lock, MessageCircle, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import {
   getShareInfoAction,
   recordLinkCopiedAction,
   regenerateLinkAction,
-  resetLockAction,
   revokeLinkAction,
 } from "@/features/signing/actions/documents";
 import { Dialog } from "@/features/signing/components/ui/Dialog";
@@ -92,14 +91,11 @@ function LinkRow({ info, link, onChanged }: { info: ShareInfo; link: ShareLink; 
         {link.status && (
           <span
             className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-              signed ? "bg-green-50 text-signed" : link.locked ? "bg-red-50 text-red-600" : "bg-orange-50 text-waiting"
+              signed ? "bg-green-50 text-signed" : "bg-orange-50 text-waiting"
             }`}
           >
-            {signed ? t("signed") : link.locked ? t("locked", { n: link.failedAttempts }) : t("pending")}
+            {signed ? t("signed") : t("pending")}
           </span>
-        )}
-        {!signed && !link.locked && link.failedAttempts > 0 && (
-          <span className="text-xs text-red-600">{t("attempts", { n: link.failedAttempts })}</span>
         )}
       </div>
 
@@ -148,11 +144,6 @@ function LinkRow({ info, link, onChanged }: { info: ShareInfo; link: ShareLink; 
               </>
             )}
             <span className="ms-auto flex flex-wrap gap-2">
-              {(link.locked || (!link.signerId && info.lockedDevices > 0)) && (
-                <SmallButton icon={Unlock} disabled={pending} onClick={() => run(resetLockAction, t("unlocked"))}>
-                  {link.signerId ? t("unlock") : t("unlockDevices", { n: info.lockedDevices })}
-                </SmallButton>
-              )}
               <SmallButton icon={link.url ? RefreshCw : KeyRound} disabled={pending} onClick={() => run(regenerateLinkAction, t("regenerated"))}>
                 {t("regenerate")}
               </SmallButton>

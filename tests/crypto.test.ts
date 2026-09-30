@@ -3,11 +3,9 @@ import {
   decryptToken,
   encryptToken,
   generateToken,
-  hashIdNumber,
   hashToken,
   isWellFormedToken,
   mintToken,
-  safeEqualHex,
 } from "@/features/signing/lib/security/crypto";
 import { signPayload, verifyPayload } from "@/features/signing/lib/security/session";
 
@@ -53,32 +51,6 @@ describe("tokens", () => {
 
   it("refuses a key that is not 32 bytes", () => {
     expect(() => encryptToken("t", Buffer.alloc(16).toString("base64"))).toThrow(/32 bytes/);
-  });
-});
-
-describe("ID number HMAC", () => {
-  it("is stable across formatting and never contains the ID", () => {
-    const a = hashIdNumber("123456782", SECRET);
-    expect(a).toMatch(/^[0-9a-f]{64}$/);
-    expect(hashIdNumber(" 123-456-782", SECRET)).toBe(a);
-    expect(hashIdNumber("18", SECRET)).toBe(hashIdNumber("000000018", SECRET));
-    expect(a).not.toContain("123456782");
-  });
-
-  it("depends on the secret", () => {
-    expect(hashIdNumber("123456782", SECRET)).not.toBe(hashIdNumber("123456782", "y".repeat(40)));
-  });
-
-  it("throws on malformed input or weak secret", () => {
-    expect(() => hashIdNumber("abc", SECRET)).toThrow();
-    expect(() => hashIdNumber("123456782", "short")).toThrow();
-  });
-
-  it("safeEqualHex compares correctly", () => {
-    const a = hashIdNumber("123456782", SECRET);
-    expect(safeEqualHex(a, a)).toBe(true);
-    expect(safeEqualHex(a, hashIdNumber("000000018", SECRET))).toBe(false);
-    expect(safeEqualHex(a, "zz")).toBe(false);
   });
 });
 

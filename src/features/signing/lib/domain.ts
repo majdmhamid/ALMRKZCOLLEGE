@@ -1,6 +1,6 @@
 /**
  * Shapes shared by server and client, plus pure rules about document status.
- * Nothing secret ever goes in these types (no token hashes, no ID hashes).
+ * Nothing secret ever goes in these types (no token hashes).
  */
 import type { AuditEventType, DocumentStatus, LinkMode, SignatureMethod, SignerStatus } from "./database.types";
 
@@ -12,9 +12,6 @@ export type SignerSummary = {
   status: SignerStatus;
   is_admin: boolean;
   phone: string | null;
-  id_last3: string | null;
-  locked: boolean;
-  failed_attempts: number;
   signed_at: string | null;
   signature_method: SignatureMethod | null;
   /** Per-signer mode: a live link exists (not revoked). */
@@ -62,7 +59,6 @@ export type SettingsDto = {
 };
 
 export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
-export const MAX_ID_ATTEMPTS = 5;
 
 // ---------------------------------------------------------------------------
 // Status rules

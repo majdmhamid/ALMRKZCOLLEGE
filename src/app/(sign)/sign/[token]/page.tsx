@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { getDb } from "@/features/signing/server/db";
 import { rateLimit } from "@/features/signing/server/rate-limit";
 import { requestInfo } from "@/features/signing/server/request-info";
-import { cookieNames, DEVICE_COOKIE, logOpened, resolveToken, viewFor } from "@/features/signing/server/services/signing";
+import { cookieNames, logOpened, resolveToken, viewFor } from "@/features/signing/server/services/signing";
 import { SignFlow } from "./SignFlow";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,11 +20,10 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
   const view = await viewFor(db, resolved, {
     session: names ? jar.get(names.session)?.value : undefined,
     done: names ? jar.get(names.done)?.value : undefined,
-    deviceId: jar.get(DEVICE_COOKIE)?.value,
   });
 
   const client = await requestInfo();
-  if (resolved && view.state === "verify" && !isLinkPreview(client.userAgent)) {
+  if (resolved && (view.state === "name" || view.state === "sign") && !isLinkPreview(client.userAgent)) {
     const first = await rateLimit(`opened:${resolved.tokenHash.slice(0, 24)}:${client.ip ?? "?"}`, 60 * 60, 1);
     await logOpened(db, resolved, client, first);
   }

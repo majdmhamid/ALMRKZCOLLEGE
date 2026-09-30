@@ -6,7 +6,7 @@ import { listPlacements } from "@/features/signing/server/repo/placements";
 import { completeDocument, startUpload } from "@/features/signing/server/services/documents";
 import { loadEditor, savePlacements } from "@/features/signing/server/services/editor";
 import { getShareInfo } from "@/features/signing/server/services/links";
-import { resolveToken, submitSignature, verifyId } from "@/features/signing/server/services/signing";
+import { resolveToken, submitSignature } from "@/features/signing/server/services/signing";
 import { fileStore, paths } from "@/features/signing/server/storage";
 import { testBackend } from "./helpers";
 
@@ -27,16 +27,11 @@ async function docWithOneSignature() {
     title: "Doc",
     linkMode: "per_signer",
     adminSigns: false,
-    signers: [
-      { name: "A", idNumber: "123456782" },
-      { name: "B", idNumber: "000000018" },
-    ],
+    signers: [{ name: "A" }, { name: "B" }],
   });
   const info = (await getShareInfo(backend.ctx, started.documentId))!;
   const resolved = await resolveToken(backend.db, info.links[0].url!.split("/sign/")[1]);
-  const v = await verifyId(backend.db, resolved, { idNumber: "123456782" }, { ip: null, userAgent: null, deviceId: "d" });
-  if (!v.ok) throw new Error(v.error);
-  await submitSignature(backend.db, resolved, v.session, { method: "draw", png: await sampleSignaturePng(1), readConfirmed: true }, { ip: null, userAgent: null });
+  await submitSignature(backend.db, resolved, null, { method: "draw", png: await sampleSignaturePng(1), readConfirmed: true }, { ip: null, userAgent: null });
   return { id: started.documentId, signedId: info.links[0].signerId!, pendingId: info.links[1].signerId! };
 }
 

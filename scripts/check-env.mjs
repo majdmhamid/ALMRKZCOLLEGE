@@ -56,10 +56,9 @@ export function checkEnv(env, db = {}) {
   if (!payloadSecret) missing("PAYLOAD_SECRET", "انسخه من ملف .env.local (npm run secrets).");
   else if (payloadSecret.length < 32) errors.push("PAYLOAD_SECRET قصير — لازم 32 حرف على الأقل (npm run secrets).");
 
-  for (const k of ["ID_HMAC_SECRET", "SESSION_SECRET"]) {
-    if (!val(k)) missing(k, "مفتاح التوقيع — انسخه من ملف .env.local (npm run secrets).");
-    else if (val(k).length < 32) errors.push(`${k} قصير — لازم 32 حرف على الأقل. انسخه كامل من .env.local.`);
-  }
+  const sessionSecret = val("SESSION_SECRET");
+  if (!sessionSecret) missing("SESSION_SECRET", "مفتاح التوقيع — انسخه من ملف .env.local (npm run secrets).");
+  else if (sessionSecret.length < 32) errors.push("SESSION_SECRET قصير — لازم 32 حرف على الأقل. انسخه كامل من .env.local.");
   const tokenKey = val("TOKEN_ENC_KEY");
   if (!tokenKey) missing("TOKEN_ENC_KEY", "مفتاح التوقيع — انسخه من ملف .env.local (npm run secrets).");
   else if (!/^[A-Za-z0-9+/]+={0,2}$/.test(tokenKey) || Buffer.from(tokenKey, "base64").length !== 32) {

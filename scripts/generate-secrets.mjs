@@ -1,5 +1,5 @@
 /**
- * Fills PAYLOAD_SECRET, ID_HMAC_SECRET, TOKEN_ENC_KEY, SESSION_SECRET and CRON_SECRET in
+ * Fills PAYLOAD_SECRET, TOKEN_ENC_KEY, SESSION_SECRET and CRON_SECRET in
  * .env.local — only the ones that are empty or missing. Never overwrites an
  * existing value — also one already set in .env (a new one in .env.local would hide it).
  * Usage: npm run secrets
@@ -25,7 +25,6 @@ if (!existsSync(file)) {
 
 const generators = {
   PAYLOAD_SECRET: () => randomBytes(32).toString("hex"),
-  ID_HMAC_SECRET: () => randomBytes(48).toString("base64url"),
   TOKEN_ENC_KEY: () => randomBytes(32).toString("base64"),
   SESSION_SECRET: () => randomBytes(48).toString("base64url"),
   // Vercel Cron → /api/payload-jobs/run (news «schedule publish»). Can be changed any time.

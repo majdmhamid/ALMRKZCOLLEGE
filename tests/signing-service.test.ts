@@ -1,7 +1,7 @@
 /**
- * The public signing flow on PGlite + mock storage: link resolution, the ID
- * check with its 5-attempt lockout, the signature image checks, submit, and
- * the admin's link controls (revoke / regenerate / reset).
+ * The public signing flow on PGlite + mock storage: link resolution (the link is
+ * the credential — no ID number), the shared link's name step, the signature
+ * image checks, submit, and the admin's link controls (revoke / regenerate).
  */
 import sharp from "sharp";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -10,15 +10,16 @@ import { samplePdf, sampleSignaturePng } from "@/features/signing/server/db/seed
 import { getDocumentRow } from "@/features/signing/server/repo/documents";
 import { unreadCount } from "@/features/signing/server/repo/notifications";
 import { completeDocument, startUpload } from "@/features/signing/server/services/documents";
-import { getShareInfo, regenerateLink, resetLock, revokeLink } from "@/features/signing/server/services/links";
+import { getShareInfo, regenerateLink, revokeLink } from "@/features/signing/server/services/links";
 import {
+  canViewDocument,
   cleanSignaturePng,
-  newDeviceId,
+  openSession,
   resolveToken,
   sealSession,
-  openSession,
+  signerNameSchema,
+  startShared,
   submitSignature,
-  verifyId,
   viewFor,
 } from "@/features/signing/server/services/signing";
 import { fileStore, paths } from "@/features/signing/server/storage";
@@ -34,7 +35,7 @@ beforeAll(async () => {
 });
 afterAll(async () => backend?.cleanup());
 
-async function createDoc(opts: { mode: "per_signer" | "shared"; maxSigners?: number; adminSigns?: boolean; signers?: { name: string; idNumber: string }[] }) {
+async function createDoc(opts: { mode: "per_signer" | "shared"; maxSigners?: number; adminSigns?: boolean; signers?: { name: string; phone?: string }[] }) {
   const pdf = await samplePdf("Doc", 2);
   const started = await startUpload(backend.ctx, { fileName: "doc.pdf", size: pdf.byteLength, linkMode: opts.mode });
   if (!started.ok) throw new Error(started.error);
@@ -59,77 +60,41 @@ const view = async (token: string, cookies: Parameters<typeof viewFor>[2] = {}) 
 describe("per-signer links", () => {
   it("builds share messages from the template and description", async () => {
     await backend.db.query(`update public.settings set message_template = 'שלום, מצורף מסמך לחתימה'`);
-    const { info, tokens } = await createDoc({ mode: "per_signer", signers: [{ name: "Ahmad", idNumber: "123456782" }] });
+    const { info, tokens } = await createDoc({ mode: "per_signer", signers: [{ name: "Ahmad" }] });
     expect(info.links[0].url).toBe(signingUrl("http://localhost:3000", tokens[0]));
     expect(info.links[0].message).toBe(`שלום, מצורף מסמך לחתימה\n\n${info.links[0].url}`);
     await backend.db.query(`update public.settings set message_template = ''`);
   });
 
-  it("locks after 5 wrong IDs, ignores malformed ones, and the admin can reset", async () => {
-    const { id, tokens, info } = await createDoc({ mode: "per_signer", signers: [{ name: "Ahmad", idNumber: "123456782" }] });
-    const token = tokens[0];
-    const r = () => resolveToken(backend.db, token);
-    const device = { ...client, deviceId: newDeviceId() };
-
-    expect(await view(token)).toMatchObject({ state: "verify", signerName: "Ahmad" });
-    expect(await verifyId(backend.db, await r(), { idNumber: "123456789" }, device)).toMatchObject({ ok: false, error: "bad_id" });
-
-    const wrong = "000000018"; // valid check digit, not this signer
-    for (let left = 4; left >= 1; left--) {
-      expect(await verifyId(backend.db, await r(), { idNumber: wrong }, device)).toEqual({ ok: false, error: "wrong_id", attemptsLeft: left });
-    }
-    expect(await verifyId(backend.db, await r(), { idNumber: wrong }, device)).toEqual({ ok: false, error: "locked" });
-    // Even the right ID is refused while locked.
-    expect(await verifyId(backend.db, await r(), { idNumber: "123456782" }, device)).toEqual({ ok: false, error: "locked" });
-    expect(await view(token)).toMatchObject({ state: "locked" });
-
-    expect(await resetLock(backend.ctx, { documentId: id, signerId: info.links[0].signerId })).toEqual({ ok: true });
-    const ok = await verifyId(backend.db, await r(), { idNumber: "123-456-782" }, device);
-    expect(ok.ok).toBe(true);
-
-    const events = await backend.db.query<{ event: string }>(
-      `select event from public.audit_events where document_id = $1 order by id`,
+  it("stores no ID data and opens the document straight from the link", async () => {
+    const { id, tokens } = await createDoc({ mode: "per_signer", signers: [{ name: "Ahmad", phone: "052-555-1234" }] });
+    const [row] = await backend.db.query<{ id_number_hash: string | null; id_number_last3: string | null }>(
+      `select id_number_hash, id_number_last3 from public.signers where document_id = $1`,
       [id],
     );
-    expect(events.map((e) => e.event)).toEqual([
-      "created",
-      "id_failed",
-      "id_failed",
-      "id_failed",
-      "id_failed",
-      "id_locked",
-      "link_reset",
-      "id_verified",
-    ]);
+    expect(row).toEqual({ id_number_hash: null, id_number_last3: null });
+
+    const resolved = await resolveToken(backend.db, tokens[0]);
+    // No cookie needed: the personal link is the credential.
+    expect(await view(tokens[0])).toMatchObject({ state: "sign", mode: "per_signer", signerName: "Ahmad", pageCount: 2 });
+    expect(canViewDocument(resolved!, null)).toBe(true);
   });
 
   it("signs once; the second submit is refused and the first image stays", async () => {
     const { id, tokens } = await createDoc({
       mode: "per_signer",
       adminSigns: true,
-      signers: [
-        { name: "A", idNumber: "123456782" },
-        { name: "B", idNumber: "000000018" },
-      ],
+      signers: [{ name: "A" }, { name: "B" }],
     });
     const resolved = await resolveToken(backend.db, tokens[0]);
-    const verified = await verifyId(backend.db, resolved, { idNumber: "123456782" }, { ...client, deviceId: "d" });
-    if (!verified.ok) throw new Error(verified.error);
-
-    // The cookie round-trips and is bound to this link.
-    const cookie = sealSession(verified.session);
-    expect(openSession(cookie, resolved!.tokenHash)).toMatchObject({ s: verified.session.s });
-    expect(openSession(cookie, "f".repeat(64))).toBeNull();
-    expect(await view(tokens[0], { session: cookie })).toMatchObject({ state: "sign", signerName: "A", pageCount: 2 });
-    // Another signer's link doesn't accept A's session.
-    expect(await view(tokens[1], { session: cookie })).toMatchObject({ state: "verify" });
+    expect(await view(tokens[1])).toMatchObject({ state: "sign", signerName: "B" });
 
     const unreadBefore = await unreadCount(backend.db);
     const submit = (png: Uint8Array, readConfirmed = true) =>
-      submitSignature(backend.db, resolved, verified.session, { method: "draw", png, readConfirmed }, client);
+      submitSignature(backend.db, resolved, null, { method: "draw", png, readConfirmed, esignConsent: true }, client);
 
     expect(await submit(signature, false)).toEqual({ ok: false, error: "invalid" });
-    expect(await submitSignature(backend.db, resolved, verified.session, { method: "typed", png: signature, readConfirmed: true }, client)).toEqual({
+    expect(await submitSignature(backend.db, resolved, null, { method: "typed", png: signature, readConfirmed: true }, client)).toEqual({
       ok: false,
       error: "method",
     });
@@ -137,53 +102,101 @@ describe("per-signer links", () => {
     expect(first.ok).toBe(true);
     expect(await unreadCount(backend.db)).toBe(unreadBefore + 1);
 
-    const [row] = await backend.db.query<{ signature_path: string; status: string; signed_ip: string }>(
-      `select signature_path, status, signed_ip from public.signers where token_hash = $1`,
+    const [row] = await backend.db.query<{ signature_path: string; status: string; signed_ip: string; signed_user_agent: string }>(
+      `select signature_path, status, signed_ip, signed_user_agent from public.signers where token_hash = $1`,
       [resolved!.tokenHash],
     );
-    expect(row).toMatchObject({ status: "signed", signed_ip: "10.9.8.7" });
+    expect(row).toMatchObject({ status: "signed", signed_ip: "10.9.8.7", signed_user_agent: "phone" });
+    const [signed] = await backend.db.query<{ details: Record<string, unknown>; ip: string; created_at: unknown }>(
+      `select details, ip, created_at from public.audit_events where document_id = $1 and event = 'signed'`,
+      [id],
+    );
+    expect(signed.details).toMatchObject({ method: "draw", link_mode: "per_signer", read_confirmed: true, esign_consent: true });
+    expect(signed).toMatchObject({ ip: "10.9.8.7" });
+    expect(signed.created_at).toBeTruthy();
     const stored = await fileStore().download("signatures", row.signature_path);
 
     expect(await submit(await sampleSignaturePng(9))).toEqual({ ok: false, error: "already_signed" });
     expect(Buffer.from(await fileStore().download("signatures", row.signature_path)).equals(Buffer.from(stored))).toBe(true);
-    expect(await view(tokens[0], { session: cookie })).toMatchObject({ state: "already_signed" });
+    expect(await view(tokens[0])).toMatchObject({ state: "already_signed" });
+    // Signed: the link no longer shows the PDF.
+    expect(canViewDocument((await resolveToken(backend.db, tokens[0]))!, null)).toBe(false);
 
     // B and the admin are still missing.
     expect((await getDocumentRow(backend.db, id))?.status).toBe("pending");
   });
+
+  it("a signer created with an ID number before the change (even locked) still signs by link alone", async () => {
+    const { id, tokens } = await createDoc({ mode: "per_signer", signers: [{ name: "Old" }] });
+    const HEX = "a".repeat(64);
+    await backend.db.query(
+      `update public.signers set id_number_hash = $2, id_number_last3 = '782', failed_attempts = 5, locked = true where document_id = $1`,
+      [id, HEX],
+    );
+    expect(await view(tokens[0])).toMatchObject({ state: "sign", signerName: "Old" });
+    const resolved = await resolveToken(backend.db, tokens[0]);
+    expect(await submitSignature(backend.db, resolved, null, { method: "draw", png: signature, readConfirmed: true }, client)).toMatchObject({
+      ok: true,
+    });
+    // The old data stays as it was.
+    const [row] = await backend.db.query<{ id_number_hash: string; id_number_last3: string; status: string }>(
+      `select id_number_hash, id_number_last3, status from public.signers where document_id = $1`,
+      [id],
+    );
+    expect(row).toEqual({ id_number_hash: HEX, id_number_last3: "782", status: "signed" });
+  });
 });
 
 describe("shared link", () => {
-  it("takes up to max signers, one signature per ID, locks one device only", async () => {
-    const { id, tokens, info } = await createDoc({ mode: "shared", maxSigners: 2 });
+  it("validates the full name", () => {
+    const ok = (v: string) => signerNameSchema.safeParse(v);
+    expect(ok("  رنا   حسن ")).toMatchObject({ success: true, data: "رنا حسن" });
+    expect(ok("סמר ג'בארין").success).toBe(true);
+    expect(ok("ג׳מאל אגבאריה").success).toBe(true);
+    expect(ok("Anne-Marie O'Neil").success).toBe(true);
+    expect(ok("مُحَمَّد").success).toBe(true);
+    for (const bad of ["", " ", "A", "123456782", "<script>", "a1", "-- x", "x".repeat(121)]) {
+      expect(ok(bad).success, bad).toBe(false);
+    }
+  });
+
+  it("asks only for a name, takes up to max signers, and allows the same name twice", async () => {
+    const { id, tokens, info } = await createDoc({ mode: "shared", maxSigners: 3 });
     const token = tokens[0];
     const r = () => resolveToken(backend.db, token);
-    const phoneA = { ...client, deviceId: newDeviceId() };
-    const phoneB = { ...client, deviceId: newDeviceId() };
 
-    expect(await view(token)).toMatchObject({ state: "verify", mode: "shared", signerName: null });
-    expect(await verifyId(backend.db, await r(), { idNumber: "123456782", name: "" }, phoneA)).toMatchObject({ error: "invalid" });
+    expect(await view(token)).toMatchObject({ state: "name", mode: "shared", signerName: null });
+    expect(canViewDocument((await r())!, null)).toBe(false);
+    expect(await startShared(backend.db, await r(), { name: "" })).toEqual({ ok: false, error: "bad_name" });
+    expect(await startShared(backend.db, await r(), { name: "123456782" })).toEqual({ ok: false, error: "bad_name" });
+    // Without the name step, submitting is refused.
+    expect(await submitSignature(backend.db, await r(), null, { method: "draw", png: signature, readConfirmed: true }, client)).toEqual({
+      ok: false,
+      error: "session",
+    });
 
-    const sign = async (name: string, idNumber: string, device = phoneA) => {
-      const v = await verifyId(backend.db, await r(), { idNumber, name }, device);
+    const started = await startShared(backend.db, await r(), { name: "  Sami   Agbaria " });
+    if (!started.ok) throw new Error(started.error);
+    expect(started.session).toEqual({ t: (await r())!.tokenHash, n: "Sami Agbaria" });
+    // The name cookie round-trips and is bound to this link.
+    const cookie = sealSession(started.session);
+    expect(openSession(cookie, "f".repeat(64))).toBeNull();
+    expect(await view(token, { session: cookie })).toMatchObject({ state: "sign", mode: "shared", signerName: "Sami Agbaria" });
+    expect(canViewDocument((await r())!, openSession(cookie, (await r())!.tokenHash))).toBe(true);
+
+    const sign = async (name: string) => {
+      const v = await startShared(backend.db, await r(), { name });
       if (!v.ok) return v;
       return submitSignature(backend.db, await r(), v.session, { method: "draw", png: signature, readConfirmed: true }, client);
     };
+    expect(await sign("Sami Agbaria")).toMatchObject({ ok: true });
+    // Two students can share a name: the same name signs again as its own row.
+    expect(await sign("Sami Agbaria")).toMatchObject({ ok: true });
 
-    expect(await sign("Sami Agbaria", "123456782")).toMatchObject({ ok: true });
-    // Same ID again: refused, and it counts as a wrong attempt on that device.
-    expect(await sign("Sami again", "123-456-782")).toMatchObject({ ok: false, error: "already_signed", attemptsLeft: 4 });
-
-    // Phone B gets locked by 5 bad IDs; phone A is unaffected.
-    for (let i = 0; i < 4; i++) await verifyId(backend.db, await r(), { idNumber: "111111111", name: "Guest Two" }, phoneB);
-    expect(await verifyId(backend.db, await r(), { idNumber: "111111111", name: "Guest Two" }, phoneB)).toEqual({ ok: false, error: "locked" });
-    expect(await view(token, { deviceId: phoneB.deviceId })).toMatchObject({ state: "locked" });
-    expect(await view(token, { deviceId: phoneA.deviceId })).toMatchObject({ state: "verify" });
-
-    // Both sessions verified before the last slot is taken: only one wins.
-    const v1 = await verifyId(backend.db, await r(), { idNumber: "000000018", name: "Rana" }, phoneA);
-    const v2 = await verifyId(backend.db, await r(), { idNumber: "039337423", name: "Hadi" }, phoneA);
-    if (!v1.ok || !v2.ok) throw new Error("verify failed");
+    // Both got past the name step before the last slot is taken: only one wins.
+    const v1 = await startShared(backend.db, await r(), { name: "Rana" });
+    const v2 = await startShared(backend.db, await r(), { name: "Hadi" });
+    if (!v1.ok || !v2.ok) throw new Error("name step failed");
     const results = await Promise.all(
       [v1, v2].map(async (v) =>
         submitSignature(backend.db, await r(), v.session, { method: "draw", png: signature, readConfirmed: true }, client),
@@ -194,18 +207,29 @@ describe("shared link", () => {
 
     expect((await getDocumentRow(backend.db, id))?.status).toBe("signed");
     expect(await view(token)).toMatchObject({ state: "closed" });
-    const [{ n }] = await backend.db.query<{ n: number }>(`select count(*)::int as n from public.signers where document_id = $1`, [id]);
-    expect(n).toBe(2);
-
-    // Admin reset clears every locked device on the link.
-    expect(await resetLock(backend.ctx, { documentId: id, signerId: null })).toEqual({ ok: true });
+    expect(await startShared(backend.db, await r(), { name: "Late Comer" })).toEqual({ ok: false, error: "closed" });
+    const rows = await backend.db.query<{ name: string; id_number_hash: string | null; signed_ip: string }>(
+      `select name, id_number_hash, signed_ip from public.signers where document_id = $1 order by signed_at`,
+      [id],
+    );
+    expect(rows).toHaveLength(3);
+    expect(rows.every((x) => x.id_number_hash === null && x.signed_ip === "10.9.8.7")).toBe(true);
+    expect(rows.filter((x) => x.name === "Sami Agbaria")).toHaveLength(2);
     expect(info.linkMode).toBe("shared");
+  });
+
+  it("a per-signer link can't be used for the name step", async () => {
+    const { tokens } = await createDoc({ mode: "per_signer", signers: [{ name: "A" }] });
+    expect(await startShared(backend.db, await resolveToken(backend.db, tokens[0]), { name: "Someone Else" })).toEqual({
+      ok: false,
+      error: "invalid_link",
+    });
   });
 });
 
 describe("revoke and regenerate", () => {
   it("revoked links stop working; a new link works", async () => {
-    const { id, tokens, info } = await createDoc({ mode: "per_signer", signers: [{ name: "A", idNumber: "123456782" }] });
+    const { id, tokens, info } = await createDoc({ mode: "per_signer", signers: [{ name: "A" }] });
     const ref = { documentId: id, signerId: info.links[0].signerId };
     expect(await revokeLink(backend.ctx, ref)).toEqual({ ok: true });
     expect(await resolveToken(backend.db, tokens[0])).toBeNull();
@@ -214,7 +238,7 @@ describe("revoke and regenerate", () => {
     expect(await regenerateLink(backend.ctx, ref)).toEqual({ ok: true });
     const fresh = (await getShareInfo(backend.ctx, id))!.links[0].url!.split("/sign/")[1];
     expect(fresh).not.toBe(tokens[0]);
-    expect(await view(fresh)).toMatchObject({ state: "verify" });
+    expect(await view(fresh)).toMatchObject({ state: "sign" });
     expect(await view(tokens[0])).toEqual({ state: "invalid" });
     expect(await view("not-a-token")).toEqual({ state: "invalid" });
   });

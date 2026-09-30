@@ -1,5 +1,4 @@
-import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { normalizeIsraeliId } from "./israeli-id";
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 
 /** 32 random bytes, base64url (43 chars). */
 export function generateToken(): string {
@@ -25,22 +24,6 @@ function decodeKey(b64: string, name: string): Buffer {
   const key = Buffer.from(b64, "base64");
   if (key.length !== 32) throw new Error(`${name} must be 32 bytes, base64-encoded`);
   return key;
-}
-
-/**
- * HMAC of the normalized 9-digit ID. Throws on malformed input — callers must
- * validate first so an invalid ID never becomes a lookup key.
- */
-export function hashIdNumber(id: string, secret: string): string {
-  const normalized = normalizeIsraeliId(id);
-  if (!normalized) throw new Error("Malformed ID number");
-  if (!secret || secret.length < 32) throw new Error("ID_HMAC_SECRET is missing or too short");
-  return createHmac("sha256", secret).update(`il-id:${normalized}`).digest("hex");
-}
-
-export function safeEqualHex(a: string, b: string): boolean {
-  if (a.length !== b.length || !/^[0-9a-f]*$/.test(a) || !/^[0-9a-f]*$/.test(b)) return false;
-  return timingSafeEqual(Buffer.from(a, "hex"), Buffer.from(b, "hex"));
 }
 
 /**

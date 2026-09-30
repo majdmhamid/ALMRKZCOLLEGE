@@ -7,23 +7,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { degrees, PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import sharp from "sharp";
-import { hashIdNumber, mintToken, sha256Hex } from "@/features/signing/lib/security/crypto";
-import { idLast3 } from "@/features/signing/lib/security/israeli-id";
+import { mintToken, sha256Hex } from "@/features/signing/lib/security/crypto";
 import { serverEnv } from "@/features/signing/lib/env";
 import { MOCK_ADMIN_ID } from "@/features/signing/server/admin-id";
 import { mockFilePath } from "@/features/signing/server/storage";
 import type { Db } from "./types";
-
-/** Appends the check digit to 8 digits → a valid (fake) Israeli ID. */
-export function makeValidId(first8: string): string {
-  let sum = 0;
-  for (let i = 0; i < 8; i++) {
-    let n = Number(first8[i]) * ((i % 2) + 1);
-    if (n > 9) n -= 9;
-    sum += n;
-  }
-  return first8 + String((10 - (sum % 10)) % 10);
-}
 
 /** A few pages that look like a contract; page 3 is landscape, page 4 has /Rotate 90. */
 export async function samplePdf(title: string, pages = 2, opts: { landscape?: boolean; rotated?: boolean } = {}) {
@@ -81,7 +69,7 @@ async function put(bucket: string, objectPath: string, bytes: Uint8Array) {
   await writeFile(file, bytes);
 }
 
-type SeedSigner = { name: string; id?: string; phone?: string; signed?: number; admin?: boolean };
+type SeedSigner = { name: string; phone?: string; signed?: number; admin?: boolean };
 type SeedDoc = {
   title: string;
   category: string;
@@ -110,8 +98,8 @@ const DOCS: SeedDoc[] = [
     landscape: true,
     rotated: true,
     signers: [
-      { name: "אחמד מחאמיד", id: "03933742", phone: "0521234567", signed: 0.02 },
-      { name: "סמר ג'בארין", id: "20456781", phone: "0539876543" },
+      { name: "אחמד מחאמיד", phone: "0521234567", signed: 0.02 },
+      { name: "סמר ג'בארין", phone: "0539876543" },
     ],
   },
   {
@@ -119,7 +107,7 @@ const DOCS: SeedDoc[] = [
     category: "ייפוי כוח",
     daysAgo: 0.2,
     mode: "per_signer",
-    signers: [{ name: "מוחמד אגבאריה", id: "31415926", phone: "0501112233" }],
+    signers: [{ name: "מוחמד אגבאריה", phone: "0501112233" }],
   },
   {
     title: "טופס הרשמה — קורס ריתוך",
@@ -129,9 +117,9 @@ const DOCS: SeedDoc[] = [
     mode: "shared",
     maxSigners: 10,
     signers: [
-      { name: "יוסף מחאמיד", id: "12312312", signed: 0.9 },
-      { name: "עלי ג'בארין", id: "45645645", signed: 0.8 },
-      { name: "ראמי אגבאריה", id: "78978978", signed: 0.5 },
+      { name: "יוסף מחאמיד", signed: 0.9 },
+      { name: "עלי ג'בארין", signed: 0.8 },
+      { name: "ראמי אגבאריה", signed: 0.5 },
     ],
   },
   {
@@ -141,7 +129,7 @@ const DOCS: SeedDoc[] = [
     mode: "per_signer",
     adminSigns: true,
     signers: [
-      { name: "נור חסן", id: "11122233", phone: "0547654321", signed: 2.5 },
+      { name: "נור חסן", phone: "0547654321", signed: 2.5 },
       { name: "מנהל", admin: true, signed: 2.4 },
     ],
   },
@@ -151,7 +139,7 @@ const DOCS: SeedDoc[] = [
     daysAgo: 5,
     mode: "per_signer",
     adminSigns: true,
-    signers: [{ name: "חאלד עבד", id: "22233344" }],
+    signers: [{ name: "חאלד עבד" }],
   },
   {
     title: "הצהרת בריאות — סדנת בטיחות",
@@ -159,8 +147,8 @@ const DOCS: SeedDoc[] = [
     daysAgo: 12,
     mode: "shared",
     signers: [
-      { name: "מאיסה מחאמיד", id: "33344455", signed: 11 },
-      { name: "טארק אבו שקרה", id: "44455566", signed: 10.5 },
+      { name: "מאיסה מחאמיד", signed: 11 },
+      { name: "טארק אבו שקרה", signed: 10.5 },
     ],
     finalized: true,
   },
@@ -169,7 +157,7 @@ const DOCS: SeedDoc[] = [
     category: "חוזה",
     daysAgo: 34,
     mode: "per_signer",
-    signers: [{ name: "ראאד מחאג'נה", id: "55566677", phone: "0523334444", signed: 33 }],
+    signers: [{ name: "ראאד מחאג'נה", phone: "0523334444", signed: 33 }],
     finalized: true,
     inSigned: true,
   },
@@ -178,7 +166,7 @@ const DOCS: SeedDoc[] = [
     category: "ייפוי כוח",
     daysAgo: 40,
     mode: "per_signer",
-    signers: [{ name: "פאדי ג'בארין", id: "66677788", signed: 39 }],
+    signers: [{ name: "פאדי ג'בארין", signed: 39 }],
     inSigned: true,
   },
 ];
@@ -247,7 +235,6 @@ export async function seedMockData(db: Db): Promise<void> {
     if (spec.adminSigns && !signers.some((s) => s.admin)) signers.push({ name: "מנהל הדגמה", admin: true });
     for (const s of signers) {
       const signerId = randomUUID();
-      const idNumber = s.id ? makeValidId(s.id) : null;
       const token = spec.mode === "per_signer" && !s.admin ? mintToken(env.TOKEN_ENC_KEY) : null;
       let signaturePath: string | null = null;
       if (s.signed !== undefined) {
@@ -255,15 +242,13 @@ export async function seedMockData(db: Db): Promise<void> {
         await put("signatures", signaturePath, await sampleSignaturePng(sigSeed++));
       }
       await db.query(
-        `insert into public.signers (id, document_id, name, id_number_hash, id_number_last3, phone, token_hash, token_enc,
+        `insert into public.signers (id, document_id, name, phone, token_hash, token_enc,
            is_admin, admin_user_id, status, signature_path, signature_method, signed_at, signed_ip, signed_user_agent, created_at)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
         [
           signerId,
           id,
           s.admin ? "מנהל הדגמה" : s.name,
-          idNumber ? hashIdNumber(idNumber, env.ID_HMAC_SECRET) : null,
-          idNumber ? idLast3(idNumber) : null,
           s.phone ? `972${s.phone.slice(1)}` : null,
           token?.hash ?? null,
           token?.enc ?? null,

@@ -9,7 +9,6 @@ const GOOD: Record<string, string> = {
   DATABASE_URL: DB,
   SUPABASE_DB_URL: DB,
   PAYLOAD_SECRET: "a".repeat(64),
-  ID_HMAC_SECRET: "b".repeat(64),
   SESSION_SECRET: "c".repeat(64),
   TOKEN_ENC_KEY: Buffer.alloc(32, 1).toString("base64"),
   CRON_SECRET: "d".repeat(64),
@@ -49,7 +48,7 @@ describe("check-env (Vercel preflight)", () => {
   it("checks the signing secrets are well-formed", () => {
     expect(run({ ...GOOD, TOKEN_ENC_KEY: "short" }).errors.join()).toMatch(/TOKEN_ENC_KEY/);
     expect(run({ ...GOOD, SESSION_SECRET: "" }).errors.join()).toMatch(/SESSION_SECRET/);
-    expect(run({ ...GOOD, ID_HMAC_SECRET: "tooshort" }).errors.join()).toMatch(/ID_HMAC_SECRET/);
+    expect(run({ ...GOOD, SESSION_SECRET: "tooshort" }).errors.join()).toMatch(/SESSION_SECRET/);
   });
 
   it("needs https and the same address for the site and the signing links", () => {

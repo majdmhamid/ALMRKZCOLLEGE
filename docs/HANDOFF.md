@@ -63,7 +63,7 @@ open redirect، `/api/leads` مسكّر للزوار، مسودات الرئيس
 |---|---|
 | 3 صفحات قانونية (عربي + عبري) بالفوتر: إعلان الوصولية، سياسة الخصوصية، شروط الاستخدام | `src/components/site/legal.tsx`, `legal-links.ts`, `src/app/(frontend)/[locale]/{accessibility,privacy,terms}` |
 | إشعار خصوصية (סעיף 11) + خانة رسائل تسويقية منفصلة تحت الاستمارة | `notice-text.ts`, `client.tsx` (LeadForm), `collections/Leads.ts` (`marketingConsent`) |
-| صفحة التوقيع: إشعار قبل رقم الهوية + موافقة صريحة على التوقيع الإلكتروني | `src/app/(sign)/sign/[token]/SignFlow.tsx`, `actions.ts`, `messages/{ar,he}.json` |
+| صفحة التوقيع: بدون رقم هوية (من 30.9.2026) — إشعار قبل الاسم بالرابط المشترك + موافقة صريحة على التوقيع الإلكتروني | `src/app/(sign)/sign/[token]/SignFlow.tsx`, `actions.ts`, `messages/{ar,he}.json` |
 | حذف تلقائي للطلبات القديمة (cron 03:30) + زر باللوحة + «نسخة للشخص» | `src/lib/leads-retention.ts`, `api/privacy/purge-leads`, `src/admin/leads/{PurgeLeads,LeadContact}.tsx`, `vercel.json` |
 | تبويب «الوصولية والخصوصية» بمعلومات الكلية (ممثّل الوصولية، المبنى، تاريخ الفحص، مدة الاحتفاظ) | `src/globals/SiteSettings.ts` + migration `20260929_210034_legal_privacy_fields` |
 | إجراء أمن المعلومات لمجد وحسين | `docs/أمن-المعلومات.md` |

@@ -3,14 +3,13 @@
 import { CheckCircle2, FileSignature, Link2Off, Lock, PenLine, ShieldCheck, Type, UserCheck } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { LanguageSwitch } from "@/features/signing/components/LanguageSwitch";
 import { PdfPage, useElementWidth, usePdfDocument } from "@/features/signing/components/pdf/PdfView";
 import { SignaturePad, textSignatureDataUrl, type SignaturePadHandle } from "@/features/signing/components/signature/SignaturePad";
 import type { SignatureMethod } from "@/features/signing/lib/domain";
-import { toAsciiDigits } from "@/features/signing/lib/security/israeli-id";
 import type { SignView } from "@/features/signing/server/services/signing";
-import { signAnotherAction, submitSignatureAction, verifyIdAction } from "./actions";
+import { signAnotherAction, startSharedAction, submitSignatureAction } from "./actions";
 
 export function SignFlow({ token, view }: { token: string; view: SignView }) {
   const t = useTranslations("sign");
@@ -37,16 +36,15 @@ export function SignFlow({ token, view }: { token: string; view: SignView }) {
           <Message icon={Link2Off} tone="slate" title={t("title")} body={t("invalidLink")} />
         ) : view.state === "closed" ? (
           <Message icon={Lock} tone="slate" title={t("closedTitle")} body={t("closed")} doc={view.title} />
-        ) : view.state === "locked" ? (
-          <Message icon={Lock} tone="red" title={t("lockedTitle")} body={t("locked")} doc={view.title} />
         ) : view.state === "already_signed" ? (
           <AlreadySigned token={token} title={view.title} canSignAnother={view.canSignAnother} />
         ) : (
           <>
             <DocIntro title={view.title} description={view.description} signerName={view.signerName} />
-            <Steps current={view.state === "verify" ? 0 : 1} />
-            {view.state === "verify" ? (
-              <VerifyStep token={token} mode={view.mode} />
+            {/* Personal link: read → sign. Shared link: name → read → sign. */}
+            <Steps withName={view.mode === "shared"} atName={view.state === "name"} />
+            {view.state === "name" ? (
+              <NameStep token={token} />
             ) : (
               <SignStep token={token} view={view} onDone={() => setDone(true)} />
             )}
@@ -73,9 +71,11 @@ function DocIntro({ title, description, signerName }: { title: string; descripti
   );
 }
 
-function Steps({ current }: { current: number }) {
+/** `atName`: still on the name step (shared link); otherwise the signer is reading + signing. */
+function Steps({ withName, atName }: { withName: boolean; atName: boolean }) {
   const t = useTranslations("sign");
-  const labels = [t("stepVerify"), t("stepRead"), t("stepSign")];
+  const labels = withName ? [t("stepName"), t("stepRead"), t("stepSign")] : [t("stepRead"), t("stepSign")];
+  const current = atName ? 0 : withName ? 1 : 0;
   return (
     <ol className="mb-5 flex items-center gap-2 text-xs font-semibold">
       {labels.map((label, i) => (
@@ -151,7 +151,7 @@ function AlreadySigned({ token, title, canSignAnother }: { token: string; title:
 }
 
 // ---------------------------------------------------------------------------
-// Step 1 — ID check
+// Shared link only — the signer's full name
 // ---------------------------------------------------------------------------
 
 const inputClass =
@@ -168,73 +168,48 @@ function PrivacyLink() {
   );
 }
 
-function VerifyStep({ token, mode }: { token: string; mode: "per_signer" | "shared" }) {
+function NameStep({ token }: { token: string }) {
   const t = useTranslations("sign");
   const router = useRouter();
   const [name, setName] = useState("");
-  const [idNumber, setIdNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const hintId = useId();
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
-      const result = await verifyIdAction(token, { idNumber, name: mode === "shared" ? name : undefined }).catch(() => ({
-        error: "generic" as const,
-        attemptsLeft: undefined,
-      }));
+      const result = await startSharedAction(token, { name }).catch(() => ({ error: "generic" as const }));
       if ("ok" in result && result.ok) {
         router.refresh();
         return;
       }
       const code = result.error ?? "generic";
-      if (code === "locked" || code === "closed" || (code === "already_signed" && mode === "per_signer")) router.refresh();
-      setError(t(`errors.${code}`, { n: result.attemptsLeft ?? 0 }));
+      if (code === "closed" || code === "invalid_link") router.refresh();
+      setError(t(`errors.${code}`, { n: 0 }));
     });
   };
 
   return (
     <form onSubmit={submit} className="rounded-2xl border border-line bg-card p-5 shadow-card">
-      <h2 className="text-lg font-bold">{t("verifyTitle")}</h2>
-      <p className="mt-1 mb-5 text-sm text-muted">{mode === "shared" ? t("verifyShared") : t("verifyPerSigner")}</p>
-      <div className="space-y-4">
-        {mode === "shared" && (
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium">{t("nameLabel")}</span>
-            <input
-              required
-              minLength={2}
-              maxLength={120}
-              autoComplete="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-        )}
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium">{t("idLabel")}</span>
-          <input
-            required
-            inputMode="numeric"
-            pattern="[0-9 \-]*"
-            maxLength={11}
-            autoComplete="off"
-            dir="ltr"
-            value={idNumber}
-            onChange={(e) => setIdNumber(toAsciiDigits(e.target.value).replace(/[^\d\- ]/g, ""))}
-            className={`${inputClass} text-end text-lg tracking-widest`}
-            aria-describedby={hintId}
-            aria-invalid={error ? true : undefined}
-          />
-          <span id={hintId} className="mt-1 block text-xs text-muted">{t("idHint")}</span>
-        </label>
-      </div>
-      {/* Privacy notice before the ID number (חוק הגנת הפרטיות, סעיף 11): why, where it goes, no duty. */}
+      <h2 className="text-lg font-bold">{t("nameTitle")}</h2>
+      <p className="mt-1 mb-5 text-sm text-muted">{t("nameIntro")}</p>
+      <label className="block">
+        <span className="mb-1.5 block text-sm font-medium">{t("nameLabel")}</span>
+        <input
+          required
+          minLength={2}
+          maxLength={120}
+          autoComplete="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={inputClass}
+          aria-invalid={error ? true : undefined}
+        />
+      </label>
+      {/* Privacy notice at collection (חוק הגנת הפרטיות, סעיף 11): what, why, no duty. */}
       <p className="mt-4 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
-        {t("idNotice")} <PrivacyLink />
+        {t("nameNotice")} <PrivacyLink />
       </p>
       {error && (
         <p role="alert" className="mt-4 rounded-xl bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">

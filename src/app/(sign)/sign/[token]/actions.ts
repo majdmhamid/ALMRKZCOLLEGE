@@ -8,45 +8,36 @@ import { rateLimit } from "@/features/signing/server/rate-limit";
 import { requestInfo } from "@/features/signing/server/request-info";
 import {
   cookieNames,
-  DEVICE_COOKIE,
   MAX_SIGNATURE_BYTES,
-  newDeviceId,
   openSession,
   resolveToken,
   sealDone,
   sealSession,
   SESSION_TTL_SECONDS,
+  startShared,
   submitSignature,
-  verifyId,
+  type StartError,
   type SubmitError,
-  type VerifyError,
 } from "@/features/signing/server/services/signing";
 
 const secure = process.env.NODE_ENV === "production";
 
-export type VerifyState = { ok?: boolean; error?: VerifyError | "rate_limited"; attemptsLeft?: number };
+export type StartState = { ok?: boolean; error?: StartError | "rate_limited" };
 
-export async function verifyIdAction(token: string, input: { idNumber: string; name?: string }): Promise<VerifyState> {
-  const { ip, userAgent } = await requestInfo();
-  const who = ip ?? "unknown";
-  // Generous per IP: a whole class may sign over the college Wi-Fi. The 5-attempt
-  // lockout per link/device is what actually stops guessing.
-  if (!(await rateLimit(`id:ip:${who}`, 10 * 60, 150)) || !(await rateLimit(`id:tok:${token.slice(0, 16)}`, 10 * 60, 300))) {
+/** Shared link: remember the signer's full name (signed cookie) and continue to the document. */
+export async function startSharedAction(token: string, input: { name: string }): Promise<StartState> {
+  const { ip } = await requestInfo();
+  // Generous per IP: a whole class may sign over the college Wi-Fi.
+  if (!(await rateLimit(`name:ip:${ip ?? "unknown"}`, 10 * 60, 150)) || !(await rateLimit(`name:tok:${token.slice(0, 16)}`, 10 * 60, 300))) {
     return { error: "rate_limited" };
-  }
-
-  const jar = await cookies();
-  let deviceId = jar.get(DEVICE_COOKIE)?.value;
-  if (!deviceId || !/^[A-Za-z0-9_-]{22}$/.test(deviceId)) {
-    deviceId = newDeviceId();
-    jar.set(DEVICE_COOKIE, deviceId, { httpOnly: true, sameSite: "lax", secure, path: "/", maxAge: 365 * 24 * 60 * 60 });
   }
 
   const db = await getDb();
   const resolved = await resolveToken(db, token);
-  const result = await verifyId(db, resolved, input, { ip, userAgent, deviceId });
-  if (!result.ok) return { error: result.error, attemptsLeft: result.attemptsLeft };
+  const result = await startShared(db, resolved, input);
+  if (!result.ok) return { error: result.error };
 
+  const jar = await cookies();
   jar.set(cookieNames(resolved!.tokenHash).session, sealSession(result.session), {
     httpOnly: true,
     sameSite: "lax",

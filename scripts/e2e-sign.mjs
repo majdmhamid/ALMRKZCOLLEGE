@@ -1,10 +1,13 @@
 /**
  * End-to-end check against the running mock app (npm run dev:mock):
- * admin opens the share dialog → a phone opens the link → wrong ID → right ID →
- * reads → draws a signature → submits → the admin page updates on its own.
+ * 1. Personal link: admin opens the share dialog → a phone opens the link → the
+ *    PDF is shown straight away (no ID number) → reads → draws → submits → the
+ *    admin page updates on its own; reopening the link says "already signed".
+ * 2. Shared link (Hebrew phone): full name only (a junk name is refused) → reads →
+ *    signs → "someone else wants to sign from this phone" asks for a name again.
  * Saves screenshots to screenshots/. Usage: node scripts/e2e-sign.mjs
  *
- * Uses the seeded document "ייפוי כוח — משפחת אגבאריה" (signer ID 31415926 + check digit).
+ * Uses the seeded documents "ייפוי כוח — משפחת אגבאריה" and "טופס הרשמה — קורס ריתוך".
  * Re-running needs fresh mock data: delete .mock-data first.
  */
 import { existsSync, mkdirSync } from "node:fs";
@@ -22,15 +25,33 @@ const executablePath = [
   "/usr/bin/google-chrome",
 ].find((p) => p && existsSync(p));
 
-function validId(first8) {
-  let sum = 0;
-  for (let i = 0; i < 8; i++) {
-    let n = Number(first8[i]) * ((i % 2) + 1);
-    if (n > 9) n -= 9;
-    sum += n;
+/** Draws a wavy line on the signature pad (signature_pad listens to pointer events). */
+async function draw(p) {
+  const canvas = p.locator('[data-testid="signature-canvas"]');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = await canvas.boundingBox();
+  await p.mouse.move(box.x + 40, box.y + 120);
+  await p.mouse.down();
+  for (let i = 0; i <= 30; i++) {
+    const x = box.x + 40 + i * ((box.width - 80) / 30);
+    const y = box.y + 100 + Math.sin(i / 3) * 40;
+    await p.mouse.move(x, y, { steps: 2 });
   }
-  return first8 + String((10 - (sum % 10)) % 10);
+  await p.mouse.up();
 }
+
+/** The admin's share dialog for a document row → the first link in it. */
+async function linkFor(a, rowText) {
+  const row = a.locator('[data-testid="document-row"]', { hasText: rowText });
+  await row.getByRole("button", { name: "העתקת קישור לחתימה" }).click();
+  const dialog = a.locator("dialog[open]");
+  await dialog.locator('[data-testid="share-row"] input').waitFor();
+  const link = await dialog.locator('[data-testid="share-row"] input').inputValue();
+  return { dialog, link };
+}
+
+const phoneContext = (locale) =>
+  browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, locale });
 
 const step = (msg) => console.log(`  • ${msg}`);
 const browser = await chromium.launch({ executablePath, headless: true });
@@ -51,10 +72,7 @@ try {
   const row = a.locator('[data-testid="document-row"]', { hasText: "משפחת אגבאריה" });
   const bellBefore = Number((await a.locator('[data-testid="bell-count"]').textContent().catch(() => "0")) || 0);
   step(`bell before: ${bellBefore}`);
-  await row.getByRole("button", { name: "העתקת קישור לחתימה" }).click();
-  const dialog = a.locator("dialog[open]");
-  await dialog.locator('[data-testid="share-row"] input').waitFor();
-  const link = await dialog.locator('[data-testid="share-row"] input').inputValue();
+  const { dialog, link } = await linkFor(a, "משפחת אגבאריה");
   step(`link: ${link.slice(0, 40)}…`);
   const wa = await dialog.getByRole("link", { name: "WhatsApp" }).getAttribute("href");
   if (!wa?.startsWith("https://wa.me/972501112233?text=")) throw new Error(`bad WhatsApp link: ${wa}`);
@@ -63,13 +81,7 @@ try {
   await dialog.getByRole("button", { name: "סגירה" }).click();
 
   // --- Client on a phone ---------------------------------------------------
-  const phone = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    deviceScaleFactor: 3,
-    isMobile: true,
-    hasTouch: true,
-    locale: "ar",
-  });
+  const phone = await phoneContext("ar");
   phone.setDefaultTimeout(120000);
   const p = await phone.newPage();
   const consoleErrors = [];
@@ -81,38 +93,15 @@ try {
   };
   await p.goto(link, { waitUntil: "networkidle" });
   await p.evaluate(() => document.fonts.ready);
-  await p.screenshot({ path: path.join(out, "sign-verify-phone-ar.png") });
-  step("client sees the ID step (Arabic, from the phone's language)");
-
-  await p.fill('input[inputmode="numeric"]', validId("12345678"));
-  await p.getByRole("button", { name: "متابعة" }).click();
-  await p.locator("form [role=alert]").waitFor();
-  const err = await p.locator("form [role=alert]").textContent();
-  if (!/[0-9]/.test(err ?? "")) throw new Error(`expected "N attempts left", got: ${err}`);
-  step(`wrong ID → "${err?.trim()}"`);
-  await p.screenshot({ path: path.join(out, "sign-wrong-id-phone-ar.png") });
-
-  await p.fill('input[inputmode="numeric"]', validId("31415926"));
-  await p.getByRole("button", { name: "متابعة" }).click();
+  if (await p.locator('input[inputmode="numeric"]').count()) throw new Error("the signer was asked for a number");
   await p.locator('[data-testid="pdf-viewer"] canvas').first().waitFor({ timeout: 60000 }); // first load compiles pdf.js in dev
   await p.waitForTimeout(1500);
   await p.screenshot({ path: path.join(out, "sign-read-phone-ar.png") });
-  step("right ID → the PDF is shown");
+  step("personal link → the PDF is shown straight away (Arabic, from the phone's language)");
 
   await p.locator('[data-testid="read-confirm"]').check();
   await p.locator('[data-testid="esign-consent"]').check();
-  const canvas = p.locator('[data-testid="signature-canvas"]');
-  await canvas.scrollIntoViewIfNeeded();
-  const box = await canvas.boundingBox();
-  // Draw with a mouse path (signature_pad listens to pointer events).
-  await p.mouse.move(box.x + 40, box.y + 120);
-  await p.mouse.down();
-  for (let i = 0; i <= 30; i++) {
-    const x = box.x + 40 + i * ((box.width - 80) / 30);
-    const y = box.y + 100 + Math.sin(i / 3) * 40;
-    await p.mouse.move(x, y, { steps: 2 });
-  }
-  await p.mouse.up();
+  await draw(p);
   await p.screenshot({ path: path.join(out, "sign-draw-phone-ar.png") });
   step("signature drawn");
 
@@ -135,6 +124,58 @@ try {
   const progress = await row.locator('[data-testid="progress"]').textContent();
   step(`admin updated live: bell ${await a.locator('[data-testid="bell-count"]').textContent()}, row status ${status}, "${progress}"`);
   await a.screenshot({ path: path.join(out, "admin-live-update-he.png") });
+
+  // --- Shared link: full name only (Hebrew phone) ---------------------------
+  await a.keyboard.press("Escape");
+  const shared = await linkFor(a, "קורס ריתוך");
+  const sharedRow = a.locator('[data-testid="document-row"]', { hasText: "קורס ריתוך" });
+  const sharedBefore = (await sharedRow.locator('[data-testid="progress"]').textContent())?.trim();
+  await shared.dialog.getByRole("button", { name: "סגירה" }).click();
+  const heCtx = await phoneContext("he");
+  heCtx.setDefaultTimeout(120000);
+  const h = await heCtx.newPage();
+  failureHook = async () => {
+    await h.screenshot({ path: path.join(out, "e2e-failure.png") }).catch(() => {});
+  };
+  await h.goto(shared.link, { waitUntil: "networkidle" });
+  await h.evaluate(() => document.fonts.ready);
+  if (await h.locator('input[inputmode="numeric"]').count()) throw new Error("the shared link asked for a number");
+  await h.screenshot({ path: path.join(out, "sign-name-phone-he.png") });
+  step("shared link → asks only for the full name (Hebrew)");
+
+  await h.fill('input[autocomplete="name"]', "12345");
+  await h.getByRole("button", { name: "המשך" }).click();
+  const nameErr = await h.locator("form [role=alert]").textContent();
+  step(`junk name → "${nameErr?.trim()}"`);
+
+  await h.fill('input[autocomplete="name"]', "  רנא   חסן ");
+  await h.getByRole("button", { name: "המשך" }).click();
+  await h.locator('[data-testid="pdf-viewer"] canvas').first().waitFor({ timeout: 60000 });
+  const hello = await h.getByText("שלום רנא חסן").count();
+  if (!hello) throw new Error("the typed name is not greeted on the sign step");
+  step("name accepted → the PDF is shown, greeted by name");
+  await h.locator('[data-testid="read-confirm"]').check();
+  await h.locator('[data-testid="esign-consent"]').check();
+  await draw(h);
+  await h.locator('[data-testid="submit-signature"]').click();
+  await h.locator('[data-testid="sign-message"]').waitFor({ timeout: 15000 });
+  await h.screenshot({ path: path.join(out, "sign-done-phone-he.png") });
+  step("shared signature submitted");
+
+  await h.reload({ waitUntil: "networkidle" });
+  await h.getByRole("button", { name: "אדם אחר רוצה לחתום מהטלפון הזה" }).click();
+  await h.locator('input[autocomplete="name"]').waitFor();
+  step("same phone, someone else → asked for a name again");
+
+  await a.waitForFunction(
+    ([text, before]) => {
+      const r = [...document.querySelectorAll('[data-testid="document-row"]')].find((el) => el.textContent.includes(text));
+      return r && r.querySelector('[data-testid="progress"]')?.textContent.trim() !== before;
+    },
+    ["קורס ריתוך", sharedBefore],
+    { timeout: 15000 },
+  );
+  step(`admin shared row: "${sharedBefore}" → "${(await sharedRow.locator('[data-testid="progress"]').textContent())?.trim()}"`);
   console.log("\n✓ end-to-end signing works\n");
 } catch (err) {
   await failureHook();

@@ -6,7 +6,7 @@ import { markAllRead } from "@/features/signing/server/repo/notifications";
 import { adminSign, getSavedSignature } from "@/features/signing/server/services/admin";
 import { savePlacements } from "@/features/signing/server/services/editor";
 import { finalizeDocument, moveDocuments, unlockDocument } from "@/features/signing/server/services/finalize";
-import { getShareInfo, recordLinkCopied, regenerateLink, resetLock, revokeLink } from "@/features/signing/server/services/links";
+import { getShareInfo, recordLinkCopied, regenerateLink, revokeLink } from "@/features/signing/server/services/links";
 import {
   completeDocument,
   deleteDocuments,
@@ -76,12 +76,6 @@ export async function revokeLinkAction(ref: LinkRef) {
 
 export async function regenerateLinkAction(ref: LinkRef) {
   const result = await regenerateLink(await adminContext(), ref);
-  revalidatePath("/admin", "layout");
-  return result;
-}
-
-export async function resetLockAction(ref: LinkRef) {
-  const result = await resetLock(await adminContext(), ref);
   revalidatePath("/admin", "layout");
   return result;
 }

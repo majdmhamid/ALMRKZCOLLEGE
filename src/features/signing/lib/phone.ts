@@ -1,4 +1,10 @@
-import { toAsciiDigits } from "./security/israeli-id";
+/**
+ * Arabic-Indic (٠-٩) and Persian (۰-۹) digits → 0-9. Arabic phone keyboards often type
+ * these in number fields.
+ */
+export function toAsciiDigits(input: string): string {
+  return input.replace(/[٠-٩۰-۹]/g, (d) => String((d.charCodeAt(0) & 0xf) % 10));
+}
 
 /**
  * Phone numbers for WhatsApp links. Stored as international digits without "+"

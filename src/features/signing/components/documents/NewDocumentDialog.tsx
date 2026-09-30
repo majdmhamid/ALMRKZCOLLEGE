@@ -14,7 +14,7 @@ import { useToast } from "@/features/signing/components/ui/Toast";
 import { MAX_UPLOAD_BYTES, type DocumentListItem, type LinkMode } from "@/features/signing/lib/domain";
 import { Field, inputClass } from "./fields";
 
-type SignerDraft = { key: number; name: string; idNumber: string; phone: string };
+type SignerDraft = { key: number; name: string; phone: string };
 type Upload =
   | { state: "idle" }
   | { state: "uploading"; pct: number; documentId?: string }
@@ -22,7 +22,7 @@ type Upload =
   | { state: "error"; error: string; documentId?: string };
 
 let signerKey = 0;
-const blankSigner = (): SignerDraft => ({ key: ++signerKey, name: "", idNumber: "", phone: "" });
+const blankSigner = (): SignerDraft => ({ key: ++signerKey, name: "", phone: "" });
 
 /** PUT with progress events (fetch has no upload progress). */
 function putWithProgress(url: string, file: File, onProgress: (pct: number) => void, signal?: AbortSignal): Promise<void> {
@@ -160,7 +160,7 @@ export function NewDocumentDialog({
       linkMode,
       maxSigners: linkMode === "shared" && maxSigners ? Number(maxSigners) : null,
       adminSigns,
-      signers: linkMode === "per_signer" ? signers.map(({ name, idNumber, phone }) => ({ name, idNumber, phone })) : [],
+      signers: linkMode === "per_signer" ? signers.map(({ name, phone }) => ({ name, phone })) : [],
     }).catch(() => ({ ok: false as const, error: "generic" as const, index: undefined }));
     setSaving(false);
     if (result.ok) {
@@ -296,7 +296,7 @@ export function NewDocumentDialog({
                 <div
                   key={s.key}
                   data-testid="signer-input"
-                  className={`grid grid-cols-2 gap-2 rounded-xl border p-2 sm:grid-cols-[1.4fr_1fr_1fr_auto] ${
+                  className={`grid grid-cols-[1fr_auto] gap-2 rounded-xl border p-2 sm:grid-cols-[1.4fr_1fr_auto] ${
                     error?.index === index ? "border-red-300 bg-red-50/50" : "border-line"
                   }`}
                 >
@@ -308,17 +308,6 @@ export function NewDocumentDialog({
                     maxLength={120}
                     onChange={(e) => updateSigner(s.key, { name: e.target.value })}
                     className={`${inputClass} col-span-2 sm:col-span-1`}
-                  />
-                  <input
-                    required
-                    inputMode="numeric"
-                    aria-label={t("newDoc.signerId")}
-                    placeholder={t("newDoc.signerId")}
-                    value={s.idNumber}
-                    maxLength={12}
-                    dir="ltr"
-                    onChange={(e) => updateSigner(s.key, { idNumber: e.target.value })}
-                    className={`${inputClass} text-end`}
                   />
                   <input
                     type="tel"
@@ -335,7 +324,7 @@ export function NewDocumentDialog({
                     disabled={signers.length === 1}
                     onClick={() => setSigners((all) => all.filter((x) => x.key !== s.key))}
                     aria-label={t("newDoc.removeSigner")}
-                    className="col-span-2 grid h-10 place-items-center rounded-lg text-muted hover:bg-red-50 hover:text-red-600 disabled:opacity-30 sm:col-span-1 sm:w-10"
+                    className="grid h-10 w-10 place-items-center rounded-lg text-muted hover:bg-red-50 hover:text-red-600 disabled:opacity-30"
                   >
                     <Trash2 className="size-4" />
                   </button>
