@@ -182,9 +182,6 @@
   }
 }
 
-.site-scope .mqwrap:hover .mqtrack {
-  animation-play-state: paused;
-}
 .site-scope .snap {
   display: flex;
   gap: 14px;
@@ -333,14 +330,12 @@
 .site-scope .hero-strip:hover .hero-strip-track,
 .site-scope .hero-strip:focus-within .hero-strip-track,
 .site-scope .partners-sec:hover .partners-track,
-.site-scope .partners-sec:focus-within .partners-track,
-.site-scope .mqwrap:focus-within .mqtrack {
+.site-scope .partners-sec:focus-within .partners-track {
   animation-play-state: paused;
 }
 /* keyboard: the strip goes back to its start and stays still, so the focused item is on screen */
 .site-scope .hero-strip:has(:focus-visible) .hero-strip-track,
-.site-scope .partners-sec:has(:focus-visible) .partners-track,
-.site-scope .mqwrap:has(:focus-visible) .mqtrack {
+.site-scope .partners-sec:has(:focus-visible) .partners-track {
   animation: none;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1483,16 +1478,52 @@
   background: linear-gradient(to bottom, #f6faf3, #eef6e8 50%, #f6faf3);
 }
 .site-scope .marquee {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
   padding: 6px 0 18px;
   mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
+.site-scope .marquee::-webkit-scrollbar {
+  display: none;
+}
+/* moved by client.tsx (StaffStrip): faster, stops on a click, swipe / arrows */
 .site-scope .staff-track {
   display: flex;
   gap: 18px;
   width: max-content;
   align-items: flex-start;
-  animation: mq 80s linear infinite;
+}
+.site-scope .staff-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.site-scope .staff-hint {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4b5c61;
+}
+.site-scope .staff-card {
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.site-scope .staff-card:hover {
+  border-color: rgba(21, 137, 66, 0.35);
+}
+.site-scope .staff-card.picked {
+  border-color: #158942;
+  box-shadow:
+    0 0 0 2px #158942,
+    0 22px 40px -26px rgba(11, 80, 39, 0.6);
 }
 .site-scope .staff-card {
   width: clamp(320px, 38vw, 480px);

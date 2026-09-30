@@ -13,6 +13,7 @@ import {
   PromoStage,
   Reel,
   StaffBio,
+  StaffStrip,
   Stories,
   type FormLabels,
   type StoryView,
@@ -526,12 +527,17 @@ function StaffSection({
   b,
   shared,
   home,
+  locale,
   n,
 }: { b: Extract<Section, { blockType: 'staff' }> } & Ctx) {
   const chosen = (b.members ?? []).map((s) => asDoc(s)).filter(Boolean) as typeof home.staff
   const staff = chosen.length ? chosen : home.staff
   if (!staff.length) return null
-  const loop = [...staff, ...staff]
+  // the moving strip needs at least 6 cards per copy to fill wide screens
+  const unit = Array.from({ length: Math.ceil(6 / staff.length) }, () => staff).flat()
+  const loop = [...unit, ...unit, ...unit]
+  // the middle copy's first round is the real one; the rest are hidden from screen readers
+  const real = (i: number) => i >= unit.length && i < unit.length + staff.length
   return (
     <section id={b.anchor || 'staff'} className="staff-sec">
       <div style={{ maxWidth: 1140, margin: '0 auto' }}>
@@ -541,14 +547,21 @@ function StaffSection({
           {b.subtitle && <p className="lead">{b.subtitle}</p>}
         </div>
       </div>
-      <div className="mqwrap marquee" dir="ltr">
-        <div className="mqtrack staff-track">
+      <StaffStrip
+        labels={{
+          prev: A11Y[locale].prev,
+          next: A11Y[locale].next,
+          pause: A11Y[locale].pauseStrip,
+          resume: A11Y[locale].resumeStrip,
+          hint: A11Y[locale].staffHint,
+        }}
+      >
           {loop.map((s, i) => (
             <article
               key={i}
               dir="rtl"
               className="staff-card"
-              aria-hidden={i >= staff.length || undefined}
+              aria-hidden={!real(i) || undefined}
             >
               <div className="staff-photo">
                 {mediaUrl(s.photo, 'card') && (
@@ -563,14 +576,13 @@ function StaffSection({
                     bio={s.bio}
                     more={shared.ui.common?.readMore ?? ''}
                     less={shared.ui.nav?.close ?? ''}
-                    tabIndex={i >= staff.length ? -1 : undefined}
+                    tabIndex={real(i) ? undefined : -1}
                   />
                 )}
               </div>
             </article>
           ))}
-        </div>
-      </div>
+      </StaffStrip>
     </section>
   )
 }

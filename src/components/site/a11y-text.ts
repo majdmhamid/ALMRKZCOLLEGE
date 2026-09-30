@@ -22,6 +22,10 @@ export const A11Y: Record<
     /** Header button that stops every moving thing on the site (video, strips, auto-rotation). */
     pauseMotion: string
     resumeMotion: string
+    /** Staff strip: its stop / start button and the short visible hint under it. */
+    pauseStrip: string
+    resumeStrip: string
+    staffHint: string
   }
 > = {
   ar: {
@@ -39,6 +43,9 @@ export const A11Y: Record<
     newTab: 'يفتح في نافذة جديدة',
     pauseMotion: 'إيقاف الحركة والفيديو في الموقع',
     resumeMotion: 'تشغيل الحركة والفيديو في الموقع',
+    pauseStrip: 'إيقاف حركة الطاقم',
+    resumeStrip: 'تشغيل حركة الطاقم',
+    staffHint: 'اضغط على أي بطاقة لإيقاف الحركة',
   },
   he: {
     skip: 'דלג לתוכן',
@@ -55,6 +62,9 @@ export const A11Y: Record<
     newTab: 'נפתח בחלון חדש',
     pauseMotion: 'עצירת התנועה והווידאו באתר',
     resumeMotion: 'הפעלת התנועה והווידאו באתר',
+    pauseStrip: 'עצירת תנועת הצוות',
+    resumeStrip: 'הפעלת תנועת הצוות',
+    staffHint: 'לחצו על כרטיס כדי לעצור את התנועה',
   },
 }
 

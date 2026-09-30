@@ -516,6 +516,210 @@ export function Stories({
   )
 }
 
+/** Seconds the moving staff strip takes to pass one card. */
+const STAFF_SECONDS_PER_CARD = 7
+/** After a swipe / arrow press, the strip waits this long before it moves again. */
+const STAFF_HOLD_MS = 2500
+
+/**
+ * The staff strip: moves by itself (the cards are rendered 3 times, the middle copy is the real
+ * one), and it is a real scroll box, so a finger / trackpad can swipe it. A click on a card stops
+ * it and marks that card; a click on the same card or anywhere outside the strip starts it again.
+ * The arrows move one card; the round button stops / starts. Nothing moves by itself for visitors
+ * who asked for less motion (device setting or the header button) — they use the arrows.
+ */
+export function StaffStrip({
+  children,
+  labels,
+}: {
+  children: React.ReactNode
+  labels: { prev: string; next: string; pause: string; resume: string; hint: string }
+}) {
+  const box = useRef<HTMLDivElement>(null)
+  const reduced = useSyncExternalStore(subscribeMotion, reducedMotion, () => false)
+  const [pausedByVisitor, setPaused] = useState(false)
+  const paused = pausedByVisitor || reduced
+  // read inside the animation loop without restarting it
+  const hold = useRef({ until: 0, focus: false })
+
+  const cards = () =>
+    Array.from(box.current?.querySelectorAll<HTMLElement>('.staff-card') ?? [])
+  /** Width of one copy of the list (card 0 of the middle copy minus card 0 of the first). */
+  const period = (list: HTMLElement[]) => {
+    const n = list.length / 3
+    return n >= 1 ? list[n].offsetLeft - list[0].offsetLeft : 0
+  }
+  const unpick = () =>
+    box.current?.querySelectorAll('.staff-card.picked').forEach((c) => c.classList.remove('picked'))
+
+  // start on the middle copy
+  useEffect(() => {
+    const el = box.current
+    if (el) el.scrollLeft = period(cards())
+  }, [])
+
+  // the movement: only while on screen, the tab is visible and nobody stopped it
+  useEffect(() => {
+    const el = box.current
+    if (!el || paused) return
+    let raf = 0
+    let last = 0
+    let pos = el.scrollLeft
+    let expected = el.scrollLeft
+    let visible = false
+    const tick = (now: number) => {
+      raf = requestAnimationFrame(tick)
+      const dt = last ? Math.min(now - last, 100) : 0
+      last = now
+      const list = cards()
+      const p = period(list)
+      if (!p || !visible || document.hidden) return
+      // the visitor scrolled it (finger, trackpad, arrow, keyboard focus): wait a little
+      if (Math.abs(el.scrollLeft - expected) > 2) {
+        pos = el.scrollLeft
+        expected = pos
+        hold.current.until = now + STAFF_HOLD_MS
+      }
+      if (hold.current.focus || now < hold.current.until) return
+      const step = list[1] ? list[1].offsetLeft - list[0].offsetLeft : p
+      pos += (step / STAFF_SECONDS_PER_CARD) * (dt / 1000)
+      // stay on the middle copy — the jump by one copy is invisible
+      if (pos >= 2 * p) pos -= p
+      if (pos < p) pos += p
+      el.scrollLeft = pos
+      expected = el.scrollLeft
+    }
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting
+    })
+    io.observe(el)
+    raf = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(raf)
+      io.disconnect()
+    }
+  }, [paused])
+
+  // after a swipe ends near the edge of the copies, jump back to the middle copy (invisible)
+  useEffect(() => {
+    const el = box.current
+    if (!el) return
+    let t = 0
+    const onScroll = () => {
+      clearTimeout(t)
+      t = window.setTimeout(() => {
+        const p = period(cards())
+        if (!p) return
+        const max = el.scrollWidth - el.clientWidth
+        if (el.scrollLeft < p * 0.5) el.scrollLeft += p
+        else if (el.scrollLeft > max - p * 0.5) el.scrollLeft -= p
+      }, 180)
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      clearTimeout(t)
+      el.removeEventListener('scroll', onScroll)
+    }
+  }, [])
+
+  // a click anywhere outside the strip starts it again
+  useEffect(() => {
+    if (!pausedByVisitor) return
+    const onDown = (e: PointerEvent) => {
+      const root = box.current?.parentElement
+      if (root && !root.contains(e.target as Node)) {
+        unpick()
+        setPaused(false)
+      }
+    }
+    document.addEventListener('pointerdown', onDown)
+    return () => document.removeEventListener('pointerdown', onDown)
+  }, [pausedByVisitor])
+
+  const onCardClick = (e: React.MouseEvent) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>('.staff-card')
+    if (!card) return
+    const onButton = !!(e.target as HTMLElement).closest('button')
+    // the same card again (not its «read more» button): start moving again
+    if (card.classList.contains('picked') && !onButton) {
+      unpick()
+      setPaused(false)
+      return
+    }
+    unpick()
+    // mark the same person in all 3 copies, so a jump between copies keeps the mark
+    const list = cards()
+    const n = list.length / 3
+    const at = list.indexOf(card) % n
+    list.forEach((c, i) => i % n === at && c.classList.add('picked'))
+    setPaused(true)
+    // bring the whole card into view if the edge of the strip cuts it
+    const el = box.current
+    if (!el) return
+    const b = el.getBoundingClientRect()
+    const c = card.getBoundingClientRect()
+    const pad = b.width * 0.06
+    const dx =
+      c.left < b.left + pad ? c.left - b.left - pad : c.right > b.right - pad ? c.right - b.right + pad : 0
+    if (dx) el.scrollBy({ left: dx, behavior: reduced ? 'auto' : 'smooth' })
+  }
+
+  const move = (dir: 1 | -1) => {
+    const el = box.current
+    const list = cards()
+    if (!el || list.length < 2) return
+    unpick()
+    hold.current.until = performance.now() + STAFF_HOLD_MS
+    el.scrollBy({
+      left: dir * (list[1].offsetLeft - list[0].offsetLeft),
+      behavior: reduced ? 'auto' : 'smooth',
+    })
+  }
+
+  return (
+    <div className="staff-strip">
+      <div
+        ref={box}
+        className="marquee"
+        dir="ltr"
+        onClick={onCardClick}
+        onFocus={(e) => {
+          if ((e.target as HTMLElement).matches(':focus-visible')) hold.current.focus = true
+        }}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) hold.current.focus = false
+        }}
+      >
+        <div className="staff-track">{children}</div>
+      </div>
+      <div className="staff-controls">
+        {/* arrows point where the visitor looks: → shows the cards on the right */}
+        <button type="button" className="round-btn" aria-label={labels.next} onClick={() => move(1)}>
+          <ChevronRight />
+        </button>
+        {!reduced && (
+          <button
+            type="button"
+            className="round-btn solid"
+            aria-label={paused ? labels.resume : labels.pause}
+            aria-pressed={paused}
+            onClick={() => {
+              unpick()
+              setPaused(!paused)
+            }}
+          >
+            {paused ? <ResumeIcon size={16} /> : <PauseIcon size={16} />}
+          </button>
+        )}
+        <button type="button" className="round-btn" aria-label={labels.prev} onClick={() => move(-1)}>
+          <ChevronLeft />
+        </button>
+        {!reduced && !paused && <span className="staff-hint">{labels.hint}</span>}
+      </div>
+    </div>
+  )
+}
+
 export function StaffBio({
   bio,
   more,
