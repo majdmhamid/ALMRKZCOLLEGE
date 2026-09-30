@@ -215,12 +215,117 @@ async function run(payload: Payload) {
         `seed: skipped all design content (courses, groups, stories, staff, partners, news, media, ` +
           `pages) — ${reason}. Deleted items stay deleted. To reseed on purpose: npx cross-env SEED_FORCE=1 npm run seed`,
       )
+      await addReelVideos(payload)
       return
     }
   }
   await seedDesign(payload)
   await payload.kv.set(SEEDED_KEY, { at: new Date().toISOString() })
   payload.logger.info(`seed: saved marker «${SEEDED_KEY}» — later deploys won't seed again`)
+  await addReelVideos(payload)
+}
+
+/** Uploads the reel videos once; returns media ids by course slug. */
+async function uploadReelVideos(payload: Payload) {
+  const ids: Record<string, number> = {}
+  for (const r of A.videos.reels) ids[r.course] = await media(payload, r.video, r.title)
+  return ids
+}
+
+/** Key saved after the homepage reels got their videos (so a video the owner removes stays removed). */
+const REEL_VIDEOS_KEY = 'almrkz:reel-videos-added'
+
+type ReelRow = {
+  id?: string
+  title?: string
+  video?: number | null
+  durationLabel?: string | null
+  course?: number | null
+}
+
+/**
+ * One-time update for databases seeded before the reels had videos (the live
+ * site, 2026-09-30): each homepage reel without a video gets the video of its
+ * course. The old «دورات البناء» reel becomes the scaffolding reel (course, and
+ * the title too if nobody changed it). Runs once, then saves REEL_VIDEOS_KEY.
+ * Patches the published homepage, and an unpublished draft too if there is one.
+ */
+async function addReelVideos(payload: Payload) {
+  if (await payload.kv.get(REEL_VIDEOS_KEY)) return
+  const slugs = [...A.videos.reels.map((r) => r.course), A.videos.oldConstructionReel.course]
+  const { docs: courses } = await payload.find({
+    collection: 'courses',
+    where: { slug: { in: slugs } },
+    draft: true,
+    limit: slugs.length,
+    depth: 0,
+    pagination: false,
+  })
+  const slugOf = new Map(courses.map((c) => [c.id, c.slug]))
+  const idOf = new Map(courses.map((c) => [c.slug, c.id]))
+  const old = A.videos.oldConstructionReel
+  const scaffold = A.videos.reels.find((r) => r.course === 'scaffolding-builder')!
+  const videos = await uploadReelVideos(payload)
+
+  /** Row id → the reel from optionA it now shows (decided on the Arabic pass). */
+  const picked = new Map<string, (typeof A.videos.reels)[number]>()
+  /** `locale:rowId` of rows whose title was still the old construction title. */
+  const retitle = new Set<string>()
+
+  const patch = (sections: unknown[], l: Locale) => {
+    let changed = 0
+    for (const s of sections as { blockType?: string; reels?: ReelRow[] }[]) {
+      if (s.blockType !== 'videos') continue
+      for (const row of s.reels ?? []) {
+        if (!row.id || row.video) continue
+        let reel = picked.get(row.id)
+        if (!reel) {
+          const slug = row.course ? slugOf.get(row.course) : undefined
+          reel =
+            slug === old.course ? scaffold : A.videos.reels.find((r) => r.course === slug)
+          if (reel) picked.set(row.id, reel)
+        }
+        if (!reel) continue
+        if (row.course && slugOf.get(row.course) === old.course && idOf.get(reel.course)) {
+          row.course = idOf.get(reel.course)!
+          if (row.title === old.title[l]) retitle.add(`${l}:${row.id}`)
+        }
+        if (retitle.has(`${l}:${row.id}`)) row.title = reel.title[l]
+        row.video = videos[reel.course]
+        row.durationLabel = reel.dur
+        changed++
+      }
+    }
+    return changed
+  }
+
+  // Everything is read before any write: the published homepage, and an unpublished
+  // draft (autosave) if there is one — saved again after publishing so the owner's
+  // pending edits stay the latest version.
+  const read = (l: Locale, draft: boolean) =>
+    payload.findGlobal({ slug: 'homepage', locale: l, depth: 0, draft })
+  const hasDraft = (await read('ar', true))._status === 'draft'
+  const passes: { l: Locale; draft: boolean; sections: unknown[] }[] = []
+  for (const draft of hasDraft ? [false, true] : [false]) {
+    for (const l of ['ar', 'he'] as const) {
+      passes.push({ l, draft, sections: ((await read(l, draft)).sections ?? []) as unknown[] })
+    }
+  }
+  let total = 0
+  for (const { l, draft, sections } of passes) {
+    const changed = patch(sections, l)
+    if (!changed) continue
+    total += changed
+    await payload.updateGlobal({
+      slug: 'homepage',
+      locale: l,
+      depth: 0,
+      draft,
+      data: { sections, _status: draft ? 'draft' : 'published' } as never,
+    })
+  }
+  await payload.kv.set(REEL_VIDEOS_KEY, { at: new Date().toISOString() })
+  payload.logger.info(`homepage: reel videos added (${total} row updates)`)
 }
 
 async function seedDesign(payload: Payload) {
@@ -519,6 +624,7 @@ async function seedDesign(payload: Payload) {
 
   /* homepage — the 13 sections of design Option A, in order */
   const promoVideo = await media(payload, 'assets/college-clip.mp4', A.videos.promoTitle)
+  const reelVideos = await uploadReelVideos(payload)
   await fillGlobal(
     payload,
     'homepage',
@@ -614,6 +720,7 @@ async function seedDesign(payload: Payload) {
             reels: A.videos.reels.map((r) => ({
               title: pick(r.title, l),
               poster: mediaCache.get(design.courses.find((c) => c.slug === r.course)!.image),
+              video: reelVideos[r.course],
               durationLabel: r.dur,
               course: courseIds[r.course],
             })),
