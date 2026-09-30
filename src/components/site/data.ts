@@ -30,11 +30,17 @@ export const isDraft = cache(async () => (await draftMode()).isEnabled)
 export const SITE_CACHE_TAG = 'site'
 
 /**
+ * Vercel keeps this cache across deploys, but a deploy can change the data itself (the seed
+ * runs outside Next.js, so it can't clear the tag) — each deploy gets its own cache entries.
+ */
+const DEPLOY = process.env.VERCEL_DEPLOYMENT_ID || process.env.VERCEL_GIT_COMMIT_SHA || 'local'
+
+/**
  * Published content is cached (no database trip per visitor); drafts (preview) never are.
  */
 async function cached<T>(key: string[], draft: boolean, fn: () => Promise<T>): Promise<T> {
   if (draft) return fn()
-  return unstable_cache(fn, key, { tags: [SITE_CACHE_TAG], revalidate: 3600 })()
+  return unstable_cache(fn, [DEPLOY, ...key], { tags: [SITE_CACHE_TAG], revalidate: 3600 })()
 }
 
 /** Everything shared by all pages: settings, menu, fixed texts, groups, courses. */
