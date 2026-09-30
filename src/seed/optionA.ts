@@ -99,34 +99,47 @@ export const videos = {
   swipe: { ar: 'اسحب لريلز أكثر', he: 'החליקו לעוד רילס' },
   detailMsg: { ar: 'مرحبا، بدي تفاصيل عن: ', he: 'שלום, אשמח לפרטים על: ' },
   promoDuration: '1:00',
+  // Videos: the 12-second course ads of 2026-09-29, re-encoded to 720x1280 for the web.
   reels: [
     {
       course: 'welding-electrode-co2',
-      dur: '0:20',
+      video: 'assets/videos/reels/welding.mp4',
+      dur: '0:12',
       title: { ar: 'دورة اللحام — 3 أشهر بس', he: 'קורס ריתוך – רק 3 חודשים' },
     },
     {
       course: 'hvac-technician-level-1',
-      dur: '0:16',
+      video: 'assets/videos/reels/hvac.mp4',
+      dur: '0:12',
       title: { ar: 'تقني تكييف وتبريد — تدريب عملي', he: 'טכנאי מיזוג וקירור – הכשרה מעשית' },
     },
     {
       course: 'self-loading-crane',
-      dur: '0:17',
+      video: 'assets/videos/reels/crane.mp4',
+      dur: '0:12',
       title: {
         ar: 'مشغّل رافعة — تأهيل سريع ورخصة رسمية',
         he: 'מפעיל עגורן – הסמכה מהירה ורישיון רשמי',
       },
     },
     {
-      course: 'site-manager',
-      dur: '0:23',
+      course: 'scaffolding-builder',
+      video: 'assets/videos/reels/scaffold.mp4',
+      dur: '0:12',
       title: {
-        ar: 'دورات البناء — مدير عمل، قراءة مخططات، سقالات',
-        he: 'קורסי בניין – מנהל עבודה, קריאת תוכניות, פיגומים',
+        ar: 'بنّاء سقالات محترف — إشراف على سقالات فوق 6 أمتار',
+        he: 'בונה מקצועי לפיגומים – פיקוח על פיגומים מעל 6 מטרים',
       },
     },
   ],
+  /** The 4th reel before 2026-09-30 (no video) — its row becomes the scaffolding reel. */
+  oldConstructionReel: {
+    course: 'site-manager',
+    title: {
+      ar: 'دورات البناء — مدير عمل، قراءة مخططات، سقالات',
+      he: 'קורסי בניין – מנהל עבודה, קריאת תוכניות, פיגומים',
+    },
+  },
 }
 
 /**
