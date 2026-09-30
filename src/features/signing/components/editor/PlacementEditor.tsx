@@ -14,7 +14,7 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 import { savePlacementsAction } from "@/features/signing/actions/documents";
 import { PdfPage, useElementWidth, usePdfDocument } from "@/features/signing/components/pdf/PdfView";
@@ -23,10 +23,12 @@ import type { EditorSignature } from "@/features/signing/server/services/editor"
 import type { Placement } from "@/features/signing/server/repo/placements";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
-type Drag = { signerId: string; imageUrl: string; aspect: number; x: number; y: number };
+type Drag = { signerId: string; imageUrl: string; x: number; y: number };
 
 const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const DEFAULT_WIDTH_PX = 180;
+/** Moving less than this between press and release counts as a click, not a drag. */
+const CLICK_SLOP_PX = 6;
 
 /**
  * Placements are stored as fractions (0–1) of the page as displayed, so they
@@ -160,42 +162,59 @@ export function PlacementEditor({
     return () => window.removeEventListener("keydown", onKey);
   }, [selected, readOnly, remove]);
 
-  // ------------------------------------------------- drag from the side panel
-  useEffect(() => {
-    if (!drag) return;
-    const move = (e: PointerEvent) => setDrag((d) => (d ? { ...d, x: e.clientX, y: e.clientY } : d));
-    const up = (e: PointerEvent) => {
-      const target = document
-        .elementsFromPoint(e.clientX, e.clientY)
-        .map((el) => (el as HTMLElement).closest<HTMLElement>("[data-page]"))
-        .find(Boolean);
-      if (target) {
-        const rect = target.getBoundingClientRect();
-        addPlacement(
-          drag.signerId,
-          Number(target.dataset.page),
-          (e.clientX - rect.left) / rect.width,
-          (e.clientY - rect.top) / rect.height,
-          { w: rect.width, h: rect.height },
-        );
-      }
-      setDrag(null);
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up, { once: true });
-    return () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-    };
-    // addPlacement reads the latest zoom/aspects through the closure on drop.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drag?.signerId]);
-
   const addToCurrentPage = (signerId: string) => {
     const el = scrollRef.current?.querySelector<HTMLElement>(`[data-page="${currentPage}"]`);
     if (!el) return;
     addPlacement(signerId, currentPage, 0.5, 0.5, { w: el.offsetWidth, h: el.offsetHeight });
     el.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  // ------------------------------------------------- drag from the side panel
+  // A press that barely moves is a click/tap: the signature goes to the middle of the current page
+  // (a click used to do nothing at all — only a drag placed it). The window listeners are added
+  // right here, not in an effect, so a quick press-and-release is never missed.
+  const stopDragRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => stopDragRef.current?.(), []);
+
+  const startDrag = (e: React.PointerEvent, signerId: string, imageUrl: string) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    stopDragRef.current?.();
+    const start = { x: e.clientX, y: e.clientY };
+    let moved = false;
+    const move = (ev: PointerEvent) => {
+      if (!moved && Math.hypot(ev.clientX - start.x, ev.clientY - start.y) < CLICK_SLOP_PX) return;
+      moved = true;
+      setDrag({ signerId, imageUrl, x: ev.clientX, y: ev.clientY });
+    };
+    const up = (ev: PointerEvent) => {
+      stop();
+      if (!moved) return addToCurrentPage(signerId);
+      const target = document
+        .elementsFromPoint(ev.clientX, ev.clientY)
+        .map((el) => (el as HTMLElement).closest<HTMLElement>("[data-page]"))
+        .find(Boolean);
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      addPlacement(
+        signerId,
+        Number(target.dataset.page),
+        (ev.clientX - rect.left) / rect.width,
+        (ev.clientY - rect.top) / rect.height,
+        { w: rect.width, h: rect.height },
+      );
+    };
+    const stop = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", stop);
+      stopDragRef.current = null;
+      setDrag(null);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", stop);
+    stopDragRef.current = stop;
   };
 
   const total = pdf.status === "ready" ? pdf.sizes.length : 0;
@@ -385,13 +404,9 @@ export function PlacementEditor({
                 }`}
               >
                 <div
-                  onPointerDown={(e) => {
-                    if (!canDrag || e.button !== 0) return;
-                    e.preventDefault();
-                    setDrag({ signerId: s.signerId, imageUrl: s.imageUrl!, aspect: aspects[s.signerId] || 2.6, x: e.clientX, y: e.clientY });
-                  }}
+                  onPointerDown={canDrag ? (e) => startDrag(e, s.signerId, s.imageUrl!) : undefined}
                   className={`grid h-20 place-items-center rounded-lg bg-[repeating-linear-gradient(45deg,#f8faf6,#f8faf6_8px,#fff_8px,#fff_16px)] ${
-                    canDrag ? "cursor-grab touch-none active:cursor-grabbing" : ""
+                    canDrag ? "cursor-grab touch-none select-none active:cursor-grabbing" : ""
                   }`}
                 >
                   {s.imageUrl ? (

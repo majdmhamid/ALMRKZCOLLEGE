@@ -32,10 +32,13 @@ export function AdminSignDialog({ documentId, onClose }: { documentId: string | 
     setError(null);
     setEmpty(true);
     /* eslint-enable react-hooks/set-state-in-effect */
-    void getSavedSignatureAction().then((s) => {
-      setSaved(s);
-      setMode(s ? "saved" : "draw");
-    });
+    // A failed lookup used to leave the dialog on "…" with a dead button — fall back to drawing.
+    void getSavedSignatureAction()
+      .catch(() => null)
+      .then((s) => {
+        setSaved(s);
+        setMode(s ? "saved" : "draw");
+      });
   }, [documentId]);
 
   async function sign() {
