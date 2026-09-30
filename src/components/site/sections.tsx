@@ -30,7 +30,7 @@ import {
   whatsappHref,
 } from './data'
 import { A11Y } from './a11y-text'
-import { type Marks, col, formOnly, pic, sectionMarks, storyMarks, txt, uiText } from './edit-marks'
+import { type Marks, col, editProp, formOnly, pic, sectionMarks, storyMarks, txt, uiText } from './edit-marks'
 import { HeroVideo } from './hero-video'
 import { legalHref } from './legal-links'
 import { LEAD_NOTICE, leadRetentionMonths } from './notice-text'
@@ -591,7 +591,7 @@ function StoriesSection({
     image: mediaUrl(s.photo, 'wide'),
     video: mediaUrl(s.video),
     dur: s.videoDuration,
-    edit: storyMarks(s),
+    ...editProp(storyMarks(s)),
   }))
   const m = sectionMarks(b)
   return (
@@ -686,7 +686,7 @@ function StaffSection({
                 </p>
                 {s.bio && (
                   <StaffBio
-                    edit={txt(col('staff', s.id), 'bio', `نبذة: ${s.name}`, true)}
+                    {...editProp(txt(col('staff', s.id), 'bio', `نبذة: ${s.name}`, true))}
                     bio={s.bio}
                     more={shared.ui.common?.readMore ?? ''}
                     less={shared.ui.nav?.close ?? ''}
@@ -1074,7 +1074,7 @@ function FaqSection({ b, n }: { b: Extract<Section, { blockType: 'faq' }> } & Ct
             </p>
           )}
         </div>
-        <Faq items={items} marks={marks[0]?.q ? marks : undefined} />
+        <Faq items={items} {...(marks[0]?.q ? { marks } : {})} />
       </div>
       {items.length > 0 && <JsonLd data={faqData(items)} />}
     </section>

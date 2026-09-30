@@ -480,9 +480,15 @@ export function EditSite({ pages }: { pages: PageOption[] }) {
     const width = Math.min(440, box.w - 16)
     if (!r) return { top: 12, right: 12, width }
     const right = Math.max(8, Math.min(box.w - r.right, box.w - width - 8))
-    if (r.top > box.h / 2) return { bottom: Math.max(8, box.h - r.top + 10), right, width, maxHeight: Math.max(220, r.top - 18) }
-    const top = Math.max(8, Math.min(r.bottom + 10, box.h - 240))
-    return { top, right, width, maxHeight: box.h - top - 8 }
+    // under the element if there's room, else above it; when neither side has room, it slides
+    // over the element (the text being edited is inside the box anyway)
+    const need = Math.min(400, box.h - 16)
+    if (box.h - r.bottom >= r.top) {
+      const top = Math.max(8, Math.min(r.bottom + 10, box.h - need - 8))
+      return { top, right, width, maxHeight: box.h - top - 8 }
+    }
+    const bottom = Math.max(8, Math.min(box.h - r.top + 10, box.h - need - 8))
+    return { bottom, right, width, maxHeight: box.h - bottom - 8 }
   }
   void version
 

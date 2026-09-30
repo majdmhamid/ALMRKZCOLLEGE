@@ -26,6 +26,12 @@ export function mark(m: EditMark): Marks {
 /** «collection/id» */
 export const col = (slug: string, id: number | string) => `${slug}/${id}`
 
+/**
+ * `{ edit: marks }` for a client component — or nothing at all, so visitors' pages don't even
+ * carry an empty `edit` prop in the page data.
+ */
+export const editProp = <T,>(m: T | undefined): { edit?: T } => (m ? { edit: m } : {})
+
 /** A text of a document (edited in place). */
 export const txt = (d: string, p: string, l: string, long = false): Marks =>
   mark({ d, p, k: long ? 'textarea' : 'text', l })
