@@ -19,7 +19,7 @@ const FIELD_LABELS: Record<string, string> = {
   alt: 'وصف الصورة',
 }
 
-async function call<T>(url: string, init: RequestInit): Promise<T> {
+export async function call<T>(url: string, init: RequestInit): Promise<T> {
   const res = await fetch(url, { credentials: 'include', ...init })
   const json = (await res.json().catch(() => ({}))) as {
     errors?: { message?: string; data?: { errors?: { message?: string; label?: string; path?: string }[] } }[]

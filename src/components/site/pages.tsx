@@ -244,7 +244,8 @@ export function CoursePage({
             </p>
           </section>
           {(gallery.length > 0 || video || yt) && (
-            <section className="card glass">
+            // id: «شوف مكانه على الموقع» from the admin (src/lib/media-slots.ts)
+            <section className="card glass" id="course-media">
               <h2>{t.gallery}</h2>
               {yt && (
                 <div className="lift stage" style={{ marginBottom: 12 }}>

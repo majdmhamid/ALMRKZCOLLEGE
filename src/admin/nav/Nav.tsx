@@ -33,7 +33,12 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
   const counts = await navCounts(payload, { leads: can('leads'), signing: isAdmin })
 
   const groups: NavGroup[] = [
-    { items: [{ href: '/admin', label: t.home, icon: 'home', exact: true }] },
+    {
+      items: [
+        { href: '/admin', label: t.home, icon: 'home', exact: true },
+        { href: '/admin/media-slots', label: t.mediaSlots, icon: 'film', show: can('media') },
+      ],
+    },
     {
       title: t.content,
       items: [

@@ -41,6 +41,15 @@
 - **الأنماط:** أصناف Tailwind للتوقيع بدون إعادة ضبط عامة داخل اللوحة (`styles/admin.css`، محصورة بـ `.signing-scope`)؛ صفحة العميل فيها Tailwind كامل (`styles/public.css`).
 - **وضع التجربة:** بدون `NEXT_PUBLIC_SUPABASE_URL` (ومش على Vercel) → PGlite وملفات بـ `.mock-data` (لـ `npm run dev` و`start-windows.bat`).
 
+### «الفيديوهات والصور» — `/admin/media-slots` (2026-09-30)
+شكوى حسين: «كيف نبدّل الفيديوهات؟ ولازم يكون واضح إنه هاد الفيديو لهاد المكان بالموقع».
+- **مصدر واحد للأماكن:** `src/lib/media-slots.ts` (بدون قاعدة بيانات) بيلف على إعدادات حقول كل global/collection مع المحتوى المحفوظ وبيطلّع «مكان» لكل خانة `upload` لـ `media`: الاسم («الصفحة الرئيسية ← فيديو الكلية ← ريل ٢: … (الدورة: …)» من labels الـ blocks/groups/صفوف الـ array + اسم العلاقة)، المسار بالمحتوى (صفوف بالـ `id` مش بالترتيب)، فيديو + صورة الغلاف جنبه (`poster`/`videoPoster`/`thumbnail`) كبطاقة وحدة، المدة (`durationLabel`/`videoDuration`)، يوتيوب، ووين بالموقع (`OWNERS`: رابط الصفحة + anchor القسم من `sections[].anchor`). ريل/دورة/قسم جديد بيبين لحاله — ما في قائمة ثابتة. `src/lib/media-slots-server.ts` بيقرأ من القاعدة (بالدور، مش بالتوازي — الـ pool صغير).
+- **الصفحة:** `src/admin/media-slots/` — `MediaSlotsView` (server، المسودة + المنشور لـ«لسا مش على الموقع») و`MediaSlotsHub` (client). التبديل: `useDocumentDrawer('media')` (نفس رفع المكتبة، الوصف معبّى باسم المكان) أو `useListDrawer` (فلتر فيديو/صورة) ← بالدور لكل صفحة: GET آخر مسودة (`?locale=ar&draft=true&depth=0`) ← `withMedia` ← POST/PATCH للخانة العليا بس (`sections` كاملة للـ global) مع `draft=true`. العبري بضل (الصفوف بتنطابق بالـ id) — فحصتها. «انشر» = `publishOwner` (`actions.ts`): collection ← `publishDoc`، global ← نفس المنطق (آخر مسودة لكل لغة ← published). «شوف مكانه» = `/next/preview?path=/ar#video` (draft mode). الكورس: `id="course-media"` بـ `pages.tsx`.
+- **المكتبة:** خانة `ui` اسمها `usedIn` بـ `Media.ts` (بدون عمود بالقاعدة، بدون migration): عمود «مستعمل في» (server Cell، مشي واحد لكل الصفحة — `allMediaUsage` بيتذكّر 5 ثواني) + مربّع فوق صفحة الملف. `whereMediaIsUsed` (سؤال المسح + رفض السيرفر) صار يستعمل نفس المشي — نفس الأسماء.
+- **صفحة الرئيسية:** صف الريل المسكّر «ريل ٢: … — دورة: … · 🎬 فيه فيديو» (`FieldExtras#ReelRowLabel`)، وكل `videoField` بيعرض الفيديو المختار صغير (`afterInput`).
+- **الفحص:** `tests/media-slots.test.ts`؛ بالمتصفح: تبديل فيديو + غلاف ريل ٢ ← الموقع ما تغيّر ← «انشر» ← تغيّر؛ «شوف مكانه» ← `/ar#video`؛ «مستعمل في» + سؤال المسح؛ ريل جديد من الفورم ← بطاقة جديدة؛ غلاف دورة (PATCH + publishDoc).
+- **ناقص:** الصفحة بالعربي بس (حتى لو اللوحة بالعبري)؛ صور داخل النص الطويل (خبر/قصة) بتنعدّ بـ«مستعمل في» بس ما بتتبدّل من هون؛ قوائم صور (معرض، صور دورة) بتتبدّل صورة صورة — الزيادة من صفحة التعديل.
+
 ## قاعدة بيانات وتخزين — مشروع Supabase واحد
 - `DATABASE_URL` (Payload) و`SUPABASE_DB_URL` (التوقيع) = نفس Postgres تبع Supabase. أسماء الجداول ما بتتضارب (فحصتها).
 - صور الموقع: Supabase Storage عبر S3 (`S3_*`، bucket عام `media`). ملفات التوقيع: buckets خاصة (`originals`، `finals`، `signatures`) عبر المفتاح السري.

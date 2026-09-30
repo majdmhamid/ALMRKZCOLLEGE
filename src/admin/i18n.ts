@@ -10,6 +10,7 @@ const ar = {
   nav: {
     aria: 'لوحة التحكم',
     home: 'الرئيسية',
+    mediaSlots: 'الفيديوهات والصور',
     content: 'محتوى الموقع',
     homepage: 'الصفحة الرئيسية للموقع',
     courses: 'الدورات',
@@ -54,6 +55,7 @@ const ar = {
     allLeads: 'كل الطلبات ←',
     kinds: { 'success-stories': 'خريج', courses: 'دورة', news: 'خبر', 'course-groups': 'مجال', homepage: 'صفحة' } as Record<string, string>,
     tiles: {
+      mediaSlots: ['الفيديوهات والصور', 'بدّل أي فيديو أو صورة بالموقع — مكتوب وين بيظهر كل واحد'],
       stories: ['الخريجون', 'زيد أو عدّل خريج على نفس بطاقة الموقع'],
       courses: ['الدورات', 'الاسم، الساعات، المحتوى، والصورة'],
       news: ['الأخبار', 'خبر جديد بصور وعنوان ونص'],
@@ -96,6 +98,7 @@ const he: ShellText = {
   nav: {
     aria: 'לוח הניהול',
     home: 'ראשי',
+    mediaSlots: 'סרטונים ותמונות',
     content: 'תוכן האתר',
     homepage: 'דף הבית של האתר',
     courses: 'קורסים',
@@ -140,6 +143,7 @@ const he: ShellText = {
     allLeads: 'כל הפניות ←',
     kinds: { 'success-stories': 'בוגר', courses: 'קורס', news: 'ידיעה', 'course-groups': 'תחום', homepage: 'דף' },
     tiles: {
+      mediaSlots: ['סרטונים ותמונות', 'החלפת כל סרטון או תמונה באתר — כתוב איפה כל אחד מופיע'],
       stories: ['בוגרים', 'הוספה או עריכה של בוגר על אותו כרטיס כמו באתר'],
       courses: ['קורסים', 'שם, שעות, תוכן ותמונה'],
       news: ['חדשות', 'ידיעה חדשה עם תמונות, כותרת וטקסט'],

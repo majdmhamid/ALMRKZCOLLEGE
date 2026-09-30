@@ -65,6 +65,8 @@ export const videoField = (name: string, label: string, description?: string): F
   filterOptions: { mimeType: { contains: 'video' } },
   admin: {
     description: description ?? 'فيديو قصير ومضغوط (MP4). انظر الملاحظة في «الصور والفيديو».',
+    // the chosen video, small and playable (not only a file name)
+    components: { afterInput: ['@/admin/media-slots/FieldExtras#VideoThumb'] },
   },
 })
 

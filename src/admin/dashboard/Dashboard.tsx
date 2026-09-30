@@ -11,7 +11,7 @@ import './dashboard.scss'
 /**
  * رئيسية لوحة التحكم: ترحيب، شو لسا ما انتشر، آخر الطلبات، وبلاطات للأقسام (بصور حقيقية من المحتوى).
  */
-type Tile = { href: string; title: string; text: string; slug?: CollectionSlug; imageField?: string; count?: number; images?: string[] }
+type Tile = { href: string; title: string; text: string; slug?: CollectionSlug; imageField?: string; count?: number; images?: string[]; featured?: boolean }
 
 const VERSIONED: { slug: CollectionSlug; titleField: string }[] = [
   { slug: 'success-stories', titleField: 'graduateName' },
@@ -77,6 +77,7 @@ export async function Dashboard(props: ServerProps) {
   const pics = (r: { docs: unknown[] }, field: string) => r.docs.map((d) => thumb((d as Record<string, unknown>)[field])).filter(Boolean)
   const tiles = (
   [
+    { href: '/admin/media-slots', title: t.tiles.mediaSlots[0], text: t.tiles.mediaSlots[1], featured: true },
     { href: '/admin/collections/success-stories', title: t.tiles.stories[0], text: t.tiles.stories[1], count: stories.totalDocs, images: pics(stories, 'photo') },
     { href: '/admin/collections/courses', title: t.tiles.courses[0], text: t.tiles.courses[1], count: courses.totalDocs, images: pics(courses, 'coverImage') },
     { href: '/admin/collections/news', title: t.tiles.news[0], text: t.tiles.news[1], count: news.totalDocs, images: pics(news, 'coverImage') },
@@ -130,7 +131,7 @@ export async function Dashboard(props: ServerProps) {
           <h2>{t.whatToEdit}</h2>
           <div className="almrkz-dash__tiles">
             {tiles.map((t) => (
-              <Link key={t.href} href={t.href} className="almrkz-tile">
+              <Link key={t.href} href={t.href} className={`almrkz-tile${t.featured ? ' almrkz-tile--featured' : ''}`}>
                 <span className="almrkz-tile__head">
                   <b>{t.title}</b>
                   {t.count !== undefined && <span className="almrkz-tile__count">{t.count}</span>}

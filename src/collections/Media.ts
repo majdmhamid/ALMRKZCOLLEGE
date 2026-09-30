@@ -22,7 +22,7 @@ export const Media: CollectionConfig = {
     group: 'الصور والفيديو',
     // بدون «MIME Type» والحجم بالبايت — مش مفهومين
     useAsTitle: 'alt',
-    defaultColumns: ['filename', 'alt', 'updatedAt'],
+    defaultColumns: ['filename', 'alt', 'usedIn', 'updatedAt'],
     listSearchableFields: ['filename', 'alt'],
     description: bi(
       `🎬 الفيديو: يجب أن يكون قصيراً (يُفضّل أقل من دقيقة) ومضغوطاً — بصيغة MP4، وحجمه أقل من ${MAX_VIDEO_MB} ميغابايت. ` +
@@ -54,6 +54,19 @@ export const Media: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      // «مستعمل في: الصفحة الرئيسية ← فيديو الكلية ← ريل ٢» / «مش مستعمل بأي مكان» —
+      // خانة عرض بس (بدون عمود بالقاعدة). src/admin/media-slots/MediaUsedIn.tsx
+      name: 'usedIn',
+      type: 'ui',
+      label: bi('مستعمل في', 'בשימוש ב'),
+      admin: {
+        components: {
+          Field: '@/admin/media-slots/MediaUsedIn#MediaUsedInField',
+          Cell: '@/admin/media-slots/MediaUsedIn#MediaUsedInCell',
+        },
+      },
+    },
     {
       name: 'alt',
       label: bi('وصف الصورة / الفيديو', 'תיאור התמונה / הווידאו'),
