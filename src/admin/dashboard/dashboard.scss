@@ -118,6 +118,21 @@
     box-shadow: var(--shadow-lift);
   }
 }
+.almrkz-tile--featured {
+  // «الفيديوهات والصور» — أول بلاطة وأعرض
+  grid-column: span 2;
+  border-color: var(--brand-300);
+  background: linear-gradient(135deg, var(--brand-50), #fff 70%);
+  &::after {
+    content: 'افتح ←';
+    margin-top: auto;
+    font-weight: 800;
+    color: var(--brand-700);
+  }
+  @media (max-width: 600px) {
+    grid-column: auto;
+  }
+}
 .almrkz-tile__head {
   display: flex;
   align-items: center;

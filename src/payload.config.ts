@@ -142,6 +142,8 @@ export default buildConfig({
         signingDocument: { Component: '@/admin/signing/views#SigningDocumentView', path: '/documents/:id', exact: true },
         signingSigned: { Component: '@/admin/signing/views#SigningSignedView', path: '/signed', exact: true },
         signingSettings: { Component: '@/admin/signing/views#SigningSettingsView', path: '/settings', exact: true },
+        // «الفيديوهات والصور»: كل مكان بالموقع فيه فيديو أو صورة، وتبديله من هون (src/admin/media-slots)
+        mediaSlots: { Component: '@/admin/media-slots/MediaSlotsView#MediaSlotsView', path: '/media-slots', exact: true },
       },
     },
     importMap: { baseDir: path.resolve(dirname) },

@@ -62,7 +62,8 @@ export const VideosBlock: Block = {
       type: 'array',
       labels: { singular: 'ريل', plural: 'ريلز' },
       maxRows: 8,
-      admin: { initCollapsed: true, components: { RowLabel: '@/admin/RowLabel#TitleRowLabel' } },
+      // «ريل ٢: تركيب مكيفات — دورة: فني تكييف · 🎬 فيه فيديو» على الصف المسكّر
+      admin: { initCollapsed: true, components: { RowLabel: '@/admin/media-slots/FieldExtras#ReelRowLabel' } },
       fields: [
         { name: 'title', label: 'العنوان', type: 'text', localized: true, required: true },
         imageField('poster', 'صورة الغلاف (طولية 9:16)'),
