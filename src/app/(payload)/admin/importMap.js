@@ -46,6 +46,7 @@ import { Logo as Logo_e7bd77da3186b43b37d9ef658548455c } from '@/admin/Logo'
 import { MediaDeleteGuard as MediaDeleteGuard_eb5d03e64739c4cf4bfc7436b5dac647 } from '@/admin/MediaDeleteGuard'
 import { Dashboard as Dashboard_0d6625b7f13ee764fd23a0cf2428adda } from '@/admin/dashboard/Dashboard'
 import { ForgotPassword as ForgotPassword_ecae0a58feb8fb0b02ca151486611346 } from '@/admin/forgot/ForgotPassword'
+import { EditSiteView as EditSiteView_0f134f831f2ef811f36fb56872128539 } from '@/admin/edit-site/EditSiteView'
 import { SigningDocumentsView as SigningDocumentsView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
 import { SigningDocumentView as SigningDocumentView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
 import { SigningSignedView as SigningSignedView_8e57767051dfb3807dd5be25f895b474 } from '@/admin/signing/views'
@@ -105,6 +106,7 @@ export const importMap = {
   "@/admin/MediaDeleteGuard#MediaDeleteGuard": MediaDeleteGuard_eb5d03e64739c4cf4bfc7436b5dac647,
   "@/admin/dashboard/Dashboard#Dashboard": Dashboard_0d6625b7f13ee764fd23a0cf2428adda,
   "@/admin/forgot/ForgotPassword#ForgotPassword": ForgotPassword_ecae0a58feb8fb0b02ca151486611346,
+  "@/admin/edit-site/EditSiteView#EditSiteView": EditSiteView_0f134f831f2ef811f36fb56872128539,
   "@/admin/signing/views#SigningDocumentsView": SigningDocumentsView_8e57767051dfb3807dd5be25f895b474,
   "@/admin/signing/views#SigningDocumentView": SigningDocumentView_8e57767051dfb3807dd5be25f895b474,
   "@/admin/signing/views#SigningSignedView": SigningSignedView_8e57767051dfb3807dd5be25f895b474,

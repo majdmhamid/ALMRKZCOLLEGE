@@ -16,6 +16,7 @@ import {
 } from './data'
 import { A11Y } from './a11y-text'
 import { PrintButton, PromoStage } from './client'
+import { type Marks, col, formOnly, pic, txt, uiText } from './edit-marks'
 import { CheckIcon, PlayIcon, WhatsAppIcon } from './icons'
 import { PAGE_TEXT } from './page-text'
 import { CourseCard, NewTab, RegisterForm, UpcomingCourses, youtubeId } from './sections'
@@ -27,6 +28,7 @@ export function PageHero({
   title,
   sub,
   locale,
+  edit,
 }: {
   image?: string
   crumbs: { href: string; label?: string | null }[]
@@ -34,9 +36,11 @@ export function PageHero({
   sub?: string | null
   /** Language of the page (names the breadcrumb navigation for screen readers). */
   locale: SiteLocale
+  /** «عدّل الموقع» marks (preview mode only) */
+  edit?: { image?: Marks; title?: Marks; sub?: Marks }
 }) {
   return (
-    <section className="page-hero">
+    <section className="page-hero" {...edit?.image}>
       <div className="bg" aria-hidden="true">
         {image && (
           <img src={image} alt="" className="cover" fetchPriority="high" decoding="async" />
@@ -51,8 +55,12 @@ export function PageHero({
             </React.Fragment>
           ))}
         </nav>
-        <h1>{title}</h1>
-        {sub && <p className="sub">{sub}</p>}
+        <h1 {...edit?.title}>{title}</h1>
+        {sub && (
+          <p className="sub" {...edit?.sub}>
+            {sub}
+          </p>
+        )}
       </div>
       <JsonLd data={breadcrumbData([...crumbs, { label: title }])} />
     </section>
@@ -149,10 +157,16 @@ export function CoursePage({
   const yt = youtubeId(c.youtubeUrl)
   const ytThumb =
     mediaUrl(c.videoPoster, 'wide') ?? (yt && `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`)
+  const d = col('courses', c.id)
   return (
     <>
       <PageHero
         locale={locale}
+        edit={{
+          image: pic(d, 'coverImage', 'صورة الدورة (الغلاف)'),
+          title: txt(d, 'name', 'اسم الدورة'),
+          sub: txt(d, 'shortDescription', 'وصف مختصر', true),
+        }}
         image={mediaUrl(c.coverImage, 'hero')}
         crumbs={[
           { href: `/${locale}`, label: ui.nav?.home },
@@ -169,14 +183,14 @@ export function CoursePage({
             <section className="card glass">
               <h2>{t.about}</h2>
               {c.fullDescription && (
-                <div className="prose">
+                <div className="prose" {...formOnly(d, 'الوصف الكامل — بينعدّل من صفحة الدورة الكاملة')}>
                   <RichText data={c.fullDescription} />
                 </div>
               )}
               {!!c.highlights?.length && (
                 <ul className="bullets" style={{ marginTop: 14 }}>
                   {c.highlights.map((h) => (
-                    <li key={h.id}>
+                    <li key={h.id} {...txt(d, `highlights.#${h.id}.text`, 'نقطة بارزة')}>
                       <Check />
                       {h.text}
                     </li>
@@ -190,7 +204,7 @@ export function CoursePage({
               <h2>{t.topics}</h2>
               <ul className="bullets">
                 {c.topics.map((x) => (
-                  <li key={x.id}>
+                  <li key={x.id} {...txt(d, `topics.#${x.id}.topic`, 'موضوع بالدورة')}>
                     <Check />
                     {x.topic}
                   </li>
@@ -203,15 +217,15 @@ export function CoursePage({
             <ul className="facts-list">
               <li>
                 <span>{t.certificate}</span>
-                <b>{c.certificate}</b>
+                <b {...txt(d, 'certificate', 'الشهادة')}>{c.certificate}</b>
               </li>
               <li>
                 <span>{t.body}</span>
-                <b>{c.certifyingBody}</b>
+                <b {...txt(d, 'certifyingBody', 'الجهة المعتمِدة')}>{c.certifyingBody}</b>
               </li>
             </ul>
             {c.certificateValue && (
-              <p className="prose" style={{ marginTop: 12 }}>
+              <p className="prose" style={{ marginTop: 12 }} {...txt(d, 'certificateValue', 'قيمة الشهادة', true)}>
                 {c.certificateValue}
               </p>
             )}
@@ -227,7 +241,7 @@ export function CoursePage({
                   </li>
                 ))}
                 {(a?.other ?? []).map((o) => (
-                  <li key={o.id}>
+                  <li key={o.id} {...txt(d, `admission.other.#${o.id}.text`, 'شرط قبول')}>
                     <span>{o.text}</span>
                   </li>
                 ))}
@@ -238,7 +252,11 @@ export function CoursePage({
               course has no «بعد التخرّج» text of its own. */}
           <section className="card glass">
             <h2>{t.after}</h2>
-            {c.careerGuidance && <p className="prose">{c.careerGuidance}</p>}
+            {c.careerGuidance && (
+              <p className="prose" {...txt(d, 'careerGuidance', 'بعد التخرّج (مرافقة وتوجيه)', true)}>
+                {c.careerGuidance}
+              </p>
+            )}
             <p className="note muted" style={c.careerGuidance ? { marginTop: 12 } : undefined}>
               {EMPLOYMENT_NOTICE[locale]}
             </p>
@@ -302,7 +320,11 @@ export function CoursePage({
             </ul>
           </section>
           {c.voucherEligible && <p className="note">{VOUCHER_TEXT[locale]}</p>}
-          {ui.course?.contactForPrice && <p className="note muted">{ui.course.contactForPrice}</p>}
+          {ui.course?.contactForPrice && (
+            <p className="note muted" {...uiText('course.contactForPrice', 'جملة «تواصل معنا للسعر»')}>
+              {ui.course.contactForPrice}
+            </p>
+          )}
           <PrintButton label={PAGE_TEXT[locale].print} />
           <PrintContact shared={shared} locale={locale} />
           <a
@@ -356,10 +378,16 @@ export function GroupPage({
   locale: SiteLocale
 }) {
   const courses = shared.courses.filter((c) => (asDoc(c.group)?.id ?? c.group) === g.id)
+  const gd = col('course-groups', g.id)
   return (
     <>
       <PageHero
         locale={locale}
+        edit={{
+          image: pic(gd, 'image', 'صورة المجال'),
+          title: txt(gd, 'name', 'اسم المجال'),
+          sub: txt(gd, g.description ? 'description' : 'tagline', 'وصف المجال', true),
+        }}
         image={mediaUrl(g.image, 'hero')}
         crumbs={[
           { href: `/${locale}`, label: shared.ui.nav?.home },
@@ -420,9 +448,15 @@ export function AllCoursesPage({ shared, locale }: { shared: Shared; locale: Sit
               <div className="section-head" style={{ marginBottom: 18 }}>
                 <div>
                   <h2 className="h2" style={{ fontSize: 'clamp(24px,3vw,34px)' }}>
-                    <a href={groupHref(locale, g)}>{g.name}</a>
+                    <a href={groupHref(locale, g)} {...txt(col('course-groups', g.id), 'name', 'اسم المجال')}>
+                      {g.name}
+                    </a>
                   </h2>
-                  {g.tagline && <p className="lead">{g.tagline}</p>}
+                  {g.tagline && (
+                    <p className="lead" {...txt(col('course-groups', g.id), 'tagline', `سطر المجال: ${g.name}`)}>
+                      {g.tagline}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="course-grid">
@@ -440,10 +474,12 @@ export function AllCoursesPage({ shared, locale }: { shared: Shared; locale: Sit
 
 export function NewsPage({ n, shared, locale }: { n: News; shared: Shared; locale: SiteLocale }) {
   const gallery = (n.gallery ?? []).map((m) => asDoc(m)).filter(Boolean)
+  const d = col('news', n.id)
   return (
     <>
       <PageHero
         locale={locale}
+        edit={{ image: pic(d, 'coverImage', 'صورة الخبر'), title: txt(d, 'title', 'عنوان الخبر') }}
         image={mediaUrl(n.coverImage, 'hero')}
         crumbs={[
           { href: `/${locale}`, label: shared.ui.nav?.home },
@@ -455,12 +491,13 @@ export function NewsPage({ n, shared, locale }: { n: News; shared: Shared; local
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 20px 56px' }}>
         <article className="card glass">
           {n.excerpt && (
-            <p className="prose" style={{ fontWeight: 700 }}>
+            <p className="prose" style={{ fontWeight: 700 }} {...txt(d, 'excerpt', 'ملخّص الخبر', true)}>
               {n.excerpt}
             </p>
           )}
           {n.content && (
-            <div className="prose" style={{ marginTop: 14 }}>
+            <div className="prose" style={{ marginTop: 14 }} {...formOnly(d, 'نص الخبر — بينعدّل من صفحة الخبر الكاملة')}>
+
               <RichText data={n.content} />
             </div>
           )}

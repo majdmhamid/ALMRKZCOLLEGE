@@ -31,6 +31,7 @@ import {
   whatsappHref,
 } from './data'
 import { A11Y } from './a11y-text'
+import { type Marks, col, editProp, formOnly, pic, sectionMarks, storyMarks, txt, uiText } from './edit-marks'
 import { HeroVideo } from './hero-video'
 import { legalHref } from './legal-links'
 import { LEAD_NOTICE, leadRetentionMonths } from './notice-text'
@@ -56,10 +57,13 @@ export function Kicker({
   n,
   label,
   center,
+  edit,
 }: {
   n?: string
   label?: string | null
   center?: boolean
+  /** «عدّل الموقع» mark (preview mode only) */
+  edit?: Marks
 }) {
   if (!label) return null
   return (
@@ -67,7 +71,9 @@ export function Kicker({
       {center && <span className="line" aria-hidden="true" />}
       {n && <span aria-hidden="true">{n}</span>}
       {!center && <span className="line" aria-hidden="true" />}
-      <span className="label">{label}</span>
+      <span className="label" {...edit}>
+        {label}
+      </span>
       {center && <span className="line" aria-hidden="true" />}
     </div>
   )
@@ -99,9 +105,15 @@ export function CourseCard({
   const ui = shared.ui
   const img = mediaUrl(c.coverImage, 'card')
   const group = asDoc(c.group)
+  const d = col('courses', c.id)
   return (
     <article data-reveal="" className="glass lift zoom course-card" style={delay(i, 90)}>
-      <a href={courseHref(locale, c)} className="course-media" style={{ display: 'block' }}>
+      <a
+        href={courseHref(locale, c)}
+        className="course-media"
+        style={{ display: 'block' }}
+        {...pic(d, 'coverImage', `صورة الدورة: ${c.name}`)}
+      >
         {img && (
           <img
             src={img}
@@ -111,13 +123,21 @@ export function CourseCard({
             decoding="async"
           />
         )}
-        {group && <span className="tag">{group.name}</span>}
+        {group && (
+          <span className="tag" {...txt(col('course-groups', group.id), 'name', 'اسم المجال')}>
+            {group.name}
+          </span>
+        )}
       </a>
       <div className="course-body">
         <h3>
-          <a href={courseHref(locale, c)}>{c.name}</a>
+          <a href={courseHref(locale, c)} {...txt(d, 'name', 'اسم الدورة')}>
+            {c.name}
+          </a>
         </h3>
-        <p className="sum">{c.shortDescription}</p>
+        <p className="sum" {...txt(d, 'shortDescription', `وصف مختصر: ${c.name}`, true)}>
+          {c.shortDescription}
+        </p>
         {Boolean(c.hours || c.sessions) && (
           <div className="facts3">
             <div>
@@ -139,7 +159,11 @@ export function CourseCard({
           <span>
             {c.voucherEligible && <span className="voucher-dot">{ui.trust?.[3]?.title}</span>}
           </span>
-          <a href={courseHref(locale, c)} className="btn btn-green">
+          <a
+            href={courseHref(locale, c)}
+            className="btn btn-green"
+            {...uiText('common.viewCourse', 'زر «تفاصيل الدورة»')}
+          >
             {ui.common?.viewCourse}
           </a>
         </div>
@@ -155,8 +179,16 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
   const loop = [...shared.groups, ...shared.groups, ...shared.groups, ...shared.groups]
   // «top» is the <main> itself (skip link, home tab): the hero gets its own id, never a duplicate.
   const id = b.anchor && b.anchor !== 'top' ? b.anchor : 'hero'
+  const m = sectionMarks(b)
   return (
-    <section id={id} className="hero">
+    <section
+      id={id}
+      className="hero"
+      {...m.f('', 'الفيديو والصورة بالخلفية', [
+        ['video', 'video', 'الفيديو بالخلفية'],
+        ['poster', 'image', 'صورة الغلاف'],
+      ])}
+    >
       <div className="hero-bg" aria-hidden="true">
         {poster && (
           <img src={poster} alt="" className="cover poster" fetchPriority="high" decoding="async" />
@@ -174,36 +206,46 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
               alt={shared.settings.siteName ?? ''}
               className="hero-logo"
               {...mediaDims(shared.settings.logoDark)}
+              {...pic('site-settings', 'logoDark', 'اللوغو (على خلفية غامقة)')}
             />
           )}
           {b.badge && (
             <div>
-              <span className="hero-badge">
+              <span className="hero-badge" {...m.t('badge', 'الشارة الصغيرة')}>
                 <span className="dot" />
                 {b.badge}
               </span>
             </div>
           )}
-          <h1>{b.title}</h1>
-          {b.kicker && <p className="hero-kicker">{b.kicker}</p>}
-          {b.text && <p className="hero-text">{b.text}</p>}
+          <h1 {...m.t('title', 'العنوان الكبير')}>{b.title}</h1>
+          {b.kicker && (
+            <p className="hero-kicker" {...m.t('kicker', 'الجملة الملوّنة')}>
+              {b.kicker}
+            </p>
+          )}
+          {b.text && (
+            <p className="hero-text" {...m.t('text', 'النص التعريفي', true)}>
+              {b.text}
+            </p>
+          )}
           <div className="hero-ctas">
             <a
               href={whatsappHref(shared)}
               target="_blank"
               rel="noopener"
               className="btn btn-wa ring"
+              {...m.t('whatsappButton', 'زر الواتساب')}
             >
               <WhatsAppIcon />
               {b.whatsappButton}
               <NewTab locale={locale} />
             </a>
-            <a href="#register" className="btn btn-glass">
+            <a href="#register" className="btn btn-glass" {...m.t('registerButton', 'زر التسجيل')}>
               {b.registerButton}
             </a>
           </div>
           {b.coursesLink && (
-            <a href="#fields" className="hero-courses">
+            <a href="#fields" className="hero-courses" {...m.t('coursesLink', 'رابط الدورات')}>
               {b.coursesLink}
               <ArrowIcon />
             </a>
@@ -229,7 +271,9 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
                     <span className="ic">
                       {icon && <img src={icon} alt="" width={24} height={24} decoding="async" />}
                     </span>
-                    <span className="nm">{g.name}</span>
+                    <span className="nm" {...txt(col('course-groups', g.id), 'name', 'اسم المجال')}>
+                      {g.name}
+                    </span>
                     {cl && <span className="ct">{cl}</span>}
                   </a>
                 )
@@ -239,7 +283,12 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
         </div>
       )}
       {b.scrollHint && (
-        <a href="#stats" className="hero-scroll" aria-label={b.scrollHint}>
+        <a
+          href="#stats"
+          className="hero-scroll"
+          aria-label={b.scrollHint}
+          {...m.t('scrollHint', 'نص «اسحب للأسفل»')}
+        >
           <span>{b.scrollHint}</span>
           <ChevronDown />
         </a>
@@ -249,16 +298,27 @@ function Hero({ b, shared, locale }: { b: Extract<Section, { blockType: 'hero' }
 }
 
 function Stats({ b }: { b: Extract<Section, { blockType: 'stats' }> } & Ctx) {
+  const m = sectionMarks(b)
   return (
     <section id={b.anchor || 'stats'} className="stats">
       <div className="glass stats-box">
         {(b.items ?? []).map((s) => (
           <a key={s.id} href={s.anchor ? `#${s.anchor}` : '#'}>
-            <span dir="ltr" className="stat-num">
+            <span
+              dir="ltr"
+              className="stat-num"
+              {...m.f(`items.#${s.id}`, `الرقم: ${s.label}`, [
+                ['value', 'number', 'الرقم'],
+                ['suffix', 'plain', 'بعد الرقم (مثلاً +)'],
+                ['label', 'text', 'الوصف'],
+              ])}
+            >
               <CountUp value={s.value} />
               <span>{s.suffix}</span>
             </span>
-            <span className="stat-label">{s.label}</span>
+            <span className="stat-label" {...m.t(`items.#${s.id}.label`, 'وصف الرقم')}>
+              {s.label}
+            </span>
             <ArrowIcon size={18} color="#5dac32" className="arrow show-desktop" />
           </a>
         ))}
@@ -275,6 +335,7 @@ function Groups({
 }: { b: Extract<Section, { blockType: 'courseGroups' }> } & Ctx) {
   const chosen = (b.groups ?? []).map((g) => asDoc(g)).filter(Boolean) as CourseGroup[]
   const groups = chosen.length ? chosen : shared.groups
+  const m = sectionMarks(b)
   return (
     <section id={b.anchor || 'fields'} className="sec" style={{ padding: '72px 20px 24px' }}>
       <div className="wrap">
@@ -284,9 +345,15 @@ function Groups({
           hint={b.swipeHint}
           header={
             <div>
-              <Kicker n={n} label={b.kicker} />
-              <h2 className="h2">{b.title}</h2>
-              {b.subtitle && <p className="lead">{b.subtitle}</p>}
+              <Kicker n={n} label={b.kicker} edit={m.t('kicker', 'العنوان الصغير')} />
+              <h2 className="h2" {...m.t('title', 'العنوان')}>
+                {b.title}
+              </h2>
+              {b.subtitle && (
+                <p className="lead" {...m.t('subtitle', 'النص تحت العنوان', true)}>
+                  {b.subtitle}
+                </p>
+              )}
             </div>
           }
         >
@@ -302,7 +369,10 @@ function Groups({
                 className="glass lift zoom field-card"
                 style={delay(i, 120)}
               >
-                <div className="field-media">
+                <div
+                  className="field-media"
+                  {...pic(col('course-groups', g.id), 'image', `صورة المجال: ${g.name}`)}
+                >
                   {img && (
                     <img src={img} alt={mediaAlt(g.image)} className="cover" decoding="async" />
                   )}
@@ -315,8 +385,12 @@ function Groups({
                     {icon && <img src={icon} alt="" width={36} height={36} decoding="async" />}
                   </span>
                   <span style={{ flex: 1 }}>
-                    <h3>{g.name}</h3>
-                    {g.tagline && <p>{g.tagline}</p>}
+                    <h3 {...txt(col('course-groups', g.id), 'name', 'اسم المجال')}>{g.name}</h3>
+                    {g.tagline && (
+                      <p {...txt(col('course-groups', g.id), 'tagline', `سطر المجال: ${g.name}`)}>
+                        {g.tagline}
+                      </p>
+                    )}
                   </span>
                   <ArrowIcon size={22} color="#158942" style={{ marginTop: 6 }} />
                 </div>
@@ -337,16 +411,23 @@ function Featured({
 }: { b: Extract<Section, { blockType: 'featuredCourses' }> } & Ctx) {
   const chosen = (b.courses ?? []).map((c) => asDoc(c)).filter(Boolean) as Course[]
   const courses = chosen.length ? chosen : shared.courses.filter((c) => c.featured)
+  const m = sectionMarks(b)
   return (
     <section id={b.anchor || 'courses'} className="sec">
       <div className="wrap">
         <div data-reveal="" className="section-head" style={{ marginBottom: 24 }}>
           <div>
-            <Kicker n={n} label={b.kicker} />
-            <h2 className="h2">{b.title}</h2>
+            <Kicker n={n} label={b.kicker} edit={m.t('kicker', 'العنوان الصغير')} />
+            <h2 className="h2" {...m.t('title', 'العنوان')}>
+              {b.title}
+            </h2>
           </div>
           {b.allCoursesButton && (
-            <a href={`/${locale}/courses`} className="btn btn-outline">
+            <a
+              href={`/${locale}/courses`}
+              className="btn btn-outline"
+              {...m.t('allCoursesButton', 'زر «كل الدورات»')}
+            >
               {b.allCoursesButton}
               <ArrowIcon />
             </a>
@@ -403,7 +484,11 @@ export function UpcomingCourses({
               <time dateTime={c.nextStart!} className="upcoming-date">
                 {formatDate(c.nextStart!, locale)}
               </time>
-              <a href={courseHref(locale, c)} className="upcoming-name">
+              <a
+                href={courseHref(locale, c)}
+                className="upcoming-name"
+                {...txt(col('courses', c.id), 'name', 'اسم الدورة')}
+              >
                 {c.name}
               </a>
               {asDoc(c.group)?.name && (
@@ -421,14 +506,15 @@ export function UpcomingCourses({
 
 function Why({ b, n }: { b: Extract<Section, { blockType: 'why' }> } & Ctx) {
   const img = mediaUrl(b.image, 'wide')
+  const m = sectionMarks(b)
   return (
     <section id={b.anchor || 'why'} className="sec">
       <div className="why-grid">
         <div>
           <div data-reveal="">
-            <Kicker n={n} label={b.kicker} />
+            <Kicker n={n} label={b.kicker} edit={m.t('kicker', 'العنوان الصغير')} />
           </div>
-          <h2 data-reveal="" className="h2">
+          <h2 data-reveal="" className="h2" {...m.t('title', 'العنوان')}>
             {b.title}
           </h2>
           <ol className="steps">
@@ -436,15 +522,15 @@ function Why({ b, n }: { b: Extract<Section, { blockType: 'why' }> } & Ctx) {
               <li key={w.id} data-reveal="x" style={delay(i, 110)}>
                 <span className="num">{nn(i)}</span>
                 <div className="glass">
-                  <h3>{w.title}</h3>
-                  {w.text && <p>{w.text}</p>}
+                  <h3 {...m.t(`items.#${w.id}.title`, 'عنوان النقطة')}>{w.title}</h3>
+                  {w.text && <p {...m.t(`items.#${w.id}.text`, 'نص النقطة', true)}>{w.text}</p>}
                 </div>
               </li>
             ))}
           </ol>
         </div>
         <div data-reveal="" style={{ position: 'relative' }}>
-          <div className="zoom why-photo">
+          <div className="zoom why-photo" {...m.f('', 'الصورة', [['image', 'image', 'الصورة']])}>
             {img && (
               <img
                 src={img}
@@ -457,16 +543,26 @@ function Why({ b, n }: { b: Extract<Section, { blockType: 'why' }> } & Ctx) {
             <div className="shade" />
             <div className="why-pills">
               {(b.pills ?? []).map((p) => (
-                <span key={p.id}>{p.text}</span>
+                <span key={p.id} {...m.t(`pills.#${p.id}.text`, 'شارة فوق الصورة')}>
+                  {p.text}
+                </span>
               ))}
             </div>
           </div>
           {b.badgeNumber && (
             <div className="glass why-badge">
-              <p dir="ltr" className="n">
+              <p
+                dir="ltr"
+                className="n"
+                {...m.f('', 'الرقم بالبطاقة العائمة', [['badgeNumber', 'plain', 'الرقم']])}
+              >
                 {b.badgeNumber}
               </p>
-              {b.badgeText && <p className="t">{b.badgeText}</p>}
+              {b.badgeText && (
+                <p className="t" {...m.t('badgeText', 'النص تحت الرقم')}>
+                  {b.badgeText}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -493,7 +589,9 @@ function StoriesSection({
     image: mediaUrl(s.photo, 'wide'),
     video: mediaUrl(s.video),
     dur: s.videoDuration,
+    ...editProp(storyMarks(s)),
   }))
+  const m = sectionMarks(b)
   return (
     <section
       id={b.anchor || 'graduates'}
@@ -502,9 +600,15 @@ function StoriesSection({
     >
       <div className="wrap" style={{ padding: '0 20px' }}>
         <div data-reveal="" className="section-head center">
-          <Kicker n={n} label={b.kicker} center />
-          <h2 className="h2">{b.title}</h2>
-          {b.subtitle && <p className="lead">{b.subtitle}</p>}
+          <Kicker n={n} label={b.kicker} center edit={m.t('kicker', 'العنوان الصغير')} />
+          <h2 className="h2" {...m.t('title', 'العنوان')}>
+            {b.title}
+          </h2>
+          {b.subtitle && (
+            <p className="lead" {...m.t('subtitle', 'النص تحت العنوان', true)}>
+              {b.subtitle}
+            </p>
+          )}
         </div>
         <Stories
           stories={stories}
@@ -536,13 +640,20 @@ function StaffSection({
   const loop = [...unit, ...unit, ...unit]
   // the middle copy's first round is the real one; the rest are hidden from screen readers
   const real = (i: number) => i >= unit.length && i < unit.length + staff.length
+  const m = sectionMarks(b)
   return (
     <section id={b.anchor || 'staff'} className="staff-sec">
       <div style={{ maxWidth: 1140, margin: '0 auto' }}>
         <div data-reveal="" className="section-head center" style={{ marginBottom: 30 }}>
-          <Kicker n={n} label={b.kicker} center />
-          <h2 className="h2">{b.title}</h2>
-          {b.subtitle && <p className="lead">{b.subtitle}</p>}
+          <Kicker n={n} label={b.kicker} center edit={m.t('kicker', 'العنوان الصغير')} />
+          <h2 className="h2" {...m.t('title', 'العنوان')}>
+            {b.title}
+          </h2>
+          {b.subtitle && (
+            <p className="lead" {...m.t('subtitle', 'النص تحت العنوان', true)}>
+              {b.subtitle}
+            </p>
+          )}
         </div>
       </div>
       <StaffStrip
@@ -561,16 +672,19 @@ function StaffSection({
               className="staff-card"
               aria-hidden={!real(i) || undefined}
             >
-              <div className="staff-photo">
+              <div className="staff-photo" {...pic(col('staff', s.id), 'photo', `صورة: ${s.name}`)}>
                 {mediaUrl(s.photo, 'card') && (
                   <img src={mediaUrl(s.photo, 'card')} alt="" decoding="async" />
                 )}
               </div>
               <div className="staff-info">
-                <h3>{s.name}</h3>
-                <p className="staff-role">{s.role}</p>
+                <h3 {...txt(col('staff', s.id), 'name', 'الاسم — الطاقم')}>{s.name}</h3>
+                <p className="staff-role" {...txt(col('staff', s.id), 'role', `الوظيفة: ${s.name}`)}>
+                  {s.role}
+                </p>
                 {s.bio && (
                   <StaffBio
+                    {...editProp(txt(col('staff', s.id), 'bio', `نبذة: ${s.name}`, true))}
                     bio={s.bio}
                     more={shared.ui.common?.readMore ?? ''}
                     less={shared.ui.nav?.close ?? ''}
@@ -590,6 +704,7 @@ export { youtubeId }
 function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'videos' }> } & Ctx) {
   const promo = b.promo
   const poster = mediaUrl(promo?.poster, 'wide')
+  const m = sectionMarks(b)
   return (
     <section id={b.anchor || 'video'} className="videos-sec">
       <div className="orbs" aria-hidden="true">
@@ -600,12 +715,30 @@ function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'vi
       </div>
       <div style={{ position: 'relative', maxWidth: 980, margin: '0 auto' }}>
         <div data-reveal="" className="section-head center" style={{ marginBottom: 28 }}>
-          <Kicker n={n} label={b.kicker} center />
-          <h2 className="h2">{b.title}</h2>
-          {b.subtitle && <p className="lead">{b.subtitle}</p>}
+          <Kicker n={n} label={b.kicker} center edit={m.t('kicker', 'العنوان الصغير')} />
+          <h2 className="h2" {...m.t('title', 'العنوان')}>
+            {b.title}
+          </h2>
+          {b.subtitle && (
+            <p className="lead" {...m.t('subtitle', 'النص تحت العنوان', true)}>
+              {b.subtitle}
+            </p>
+          )}
         </div>
         {(promo?.video || promo?.youtubeUrl || poster) && (
-          <div data-reveal="" className="stage-frame">
+          <div
+            data-reveal=""
+            className="stage-frame"
+            {...m.f('promo', 'الفيديو التعريفي الكبير', [
+              ['video', 'video', 'ملف الفيديو'],
+              ['poster', 'image', 'صورة الغلاف'],
+              ['title', 'text', 'عنوان الفيديو'],
+              ['subtitle', 'text', 'سطر تحت العنوان'],
+              ['kind', 'text', 'النوع (مثلاً «إعلان تعريفي»)'],
+              ['durationLabel', 'plain', 'مدة الفيديو (مثلاً 1:00)'],
+              ['youtubeUrl', 'plain', 'أو رابط يوتيوب (بدل الملف)'],
+            ])}
+          >
             <div className="lift stage">
               <PromoStage
                 video={mediaUrl(promo?.video)}
@@ -626,9 +759,17 @@ function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'vi
                   </span>
                 )}
                 <div className="stage-cap">
-                  {promo?.kind && <small>{promo.kind}</small>}
-                  {promo?.title && <p className="t">{promo.title}</p>}
-                  {promo?.subtitle && <p className="s">{promo.subtitle}</p>}
+                  {promo?.kind && <small {...m.t('promo.kind', 'نوع الفيديو')}>{promo.kind}</small>}
+                  {promo?.title && (
+                    <p className="t" {...m.t('promo.title', 'عنوان الفيديو')}>
+                      {promo.title}
+                    </p>
+                  )}
+                  {promo?.subtitle && (
+                    <p className="s" {...m.t('promo.subtitle', 'سطر تحت عنوان الفيديو')}>
+                      {promo.subtitle}
+                    </p>
+                  )}
                 </div>
               </PromoStage>
             </div>
@@ -642,7 +783,19 @@ function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'vi
               // Play button and duration only when there is a video to play.
               const video = mediaUrl(r.video)
               return (
-                <div key={r.id} data-reveal="" className="reel" style={delay(i, 80)}>
+                <div
+                  key={r.id}
+                  data-reveal=""
+                  className="reel"
+                  style={delay(i, 80)}
+                  {...m.f(`reels.#${r.id}`, `فيديو — ريل: ${r.title}`, [
+                    ['video', 'video', 'الفيديو (طولي)'],
+                    ['poster', 'image', 'صورة الغلاف (طولية)'],
+                    ['title', 'text', 'العنوان'],
+                    ['course', 'course', 'الدورة (زر «تفاصيل الدورة»)'],
+                    ['durationLabel', 'plain', 'المدة (مثلاً 0:20)'],
+                  ])}
+                >
                   <Reel video={video} label={`${A11Y[locale].play}: ${r.title}`}>
                     {img && (
                       <img src={img} alt="" className="cover" loading="lazy" decoding="async" />
@@ -661,13 +814,16 @@ function Videos({ b, shared, locale, n }: { b: Extract<Section, { blockType: 'vi
                     {course && asDoc(course.group) && (
                       <span className="grp">{asDoc(course.group)!.name}</span>
                     )}
-                    <p className="t">{r.title}</p>
+                    <p className="t" {...m.t(`reels.#${r.id}.title`, 'عنوان الريل')}>
+                      {r.title}
+                    </p>
                   </Reel>
                   <a
                     href={whatsappHref(shared, `${b.whatsappMessage ?? ''}${course?.name ?? ''}`)}
                     target="_blank"
                     rel="noopener"
                     className="reel-link"
+                    {...uiText('common.viewCourse', 'زر «تفاصيل الدورة»')}
                   >
                     {shared.ui.common?.viewCourse}
                     <NewTab locale={locale} />
@@ -696,6 +852,7 @@ export function NewsCard({
   i?: number
 }) {
   const img = mediaUrl(x.coverImage, 'card')
+  const d = col('news', x.id)
   return (
     <a
       href={`/${locale}/news/${x.slug}`}
@@ -703,7 +860,7 @@ export function NewsCard({
       className="glass lift zoom news-card"
       style={delay(i, 100)}
     >
-      <div className="course-media">
+      <div className="course-media" {...pic(d, 'coverImage', `صورة الخبر: ${x.title}`)}>
         {img && (
           <img
             src={img}
@@ -718,9 +875,13 @@ export function NewsCard({
         </time>
       </div>
       <div className="course-body" style={{ gap: 8 }}>
-        <h3>{x.title}</h3>
-        {x.excerpt && <p className="ex">{x.excerpt}</p>}
-        <span className="more">
+        <h3 {...txt(d, 'title', 'عنوان الخبر')}>{x.title}</h3>
+        {x.excerpt && (
+          <p className="ex" {...txt(d, 'excerpt', `ملخّص الخبر: ${x.title}`, true)}>
+            {x.excerpt}
+          </p>
+        )}
+        <span className="more" {...uiText('common.readMore', '«اقرأ المزيد»')}>
           {shared.ui.common?.readMore}
           <ArrowIcon />
         </span>
@@ -738,13 +899,16 @@ function NewsSection({
 }: { b: Extract<Section, { blockType: 'news' }> } & Ctx) {
   const items = home.news.slice(0, b.count ?? 3)
   if (!items.length) return null
+  const m = sectionMarks(b)
   return (
     <section id={b.anchor || 'news'} className="sec" style={{ padding: '36px 20px 56px' }}>
       <div className="wrap">
         <div data-reveal="" className="section-head" style={{ marginBottom: 24 }}>
           <div>
-            <Kicker n={n} label={b.kicker} />
-            <h2 className="h2">{b.title}</h2>
+            <Kicker n={n} label={b.kicker} edit={m.t('kicker', 'العنوان الصغير')} />
+            <h2 className="h2" {...m.t('title', 'العنوان')}>
+              {b.title}
+            </h2>
           </div>
           <a href={`/${locale}/news`} className="btn btn-outline">
             {PAGE_TEXT[locale].allNews}
@@ -771,7 +935,7 @@ function Partners({
   if (!partners.length) return null
   return (
     <section id={b.anchor || 'partners'} className="partners-sec">
-      <p data-reveal="" className="partners-title">
+      <p data-reveal="" className="partners-title" {...sectionMarks(b).t('title', 'العنوان')}>
         {b.title}
       </p>
       <div
@@ -794,7 +958,12 @@ function Partners({
               />
             )
             return (
-              <div key={i} className="partner" aria-hidden={i >= partners.length || undefined}>
+              <div
+                key={i}
+                className="partner"
+                aria-hidden={i >= partners.length || undefined}
+                {...pic(col('partners', p.id), 'logo', `لوغو: ${p.name}`)}
+              >
                 {p.url ? (
                   <a
                     href={p.url}
@@ -824,6 +993,7 @@ function Employers({
   locale,
   n,
 }: { b: Extract<Section, { blockType: 'employers' }> } & Ctx) {
+  const m = sectionMarks(b)
   return (
     <section id={b.anchor || 'employers'} className="sec" style={{ padding: '0 20px 56px' }}>
       <div data-reveal="" className="emp">
@@ -831,9 +1001,15 @@ function Employers({
         <div className="glow" aria-hidden="true" />
         <div className="emp-inner">
           <div>
-            <Kicker n={n} label={b.kicker} />
-            <h2 className="h2">{b.title}</h2>
-            {b.text && <p className="emp-text">{b.text}</p>}
+            <Kicker n={n} label={b.kicker} edit={m.t('kicker', 'العنوان الصغير')} />
+            <h2 className="h2" {...m.t('title', 'العنوان')}>
+              {b.title}
+            </h2>
+            {b.text && (
+              <p className="emp-text" {...m.t('text', 'النص', true)}>
+                {b.text}
+              </p>
+            )}
             <div className="emp-btns">
               {b.whatsappButton && (
                 <a
@@ -841,6 +1017,7 @@ function Employers({
                   target="_blank"
                   rel="noopener"
                   className="btn btn-white"
+                  {...m.t('whatsappButton', 'زر الواتساب')}
                 >
                   <WhatsAppIcon size={20} color="#25d366" />
                   {b.whatsappButton}
@@ -848,7 +1025,12 @@ function Employers({
                 </a>
               )}
               {b.hiringButton && (
-                <a href="#register" className="btn btn-line" title={b.hiringText ?? undefined}>
+                <a
+                  href="#register"
+                  className="btn btn-line"
+                  title={b.hiringText ?? undefined}
+                  {...m.t('hiringButton', 'الزر الثاني')}
+                >
                   {b.hiringButton}
                 </a>
               )}
@@ -858,8 +1040,8 @@ function Employers({
             {(b.items ?? []).map((e, i) => (
               <div key={e.id} data-reveal="" className="emp-item" style={delay(i, 90)}>
                 <small>{nn(i)}</small>
-                <h3>{e.title}</h3>
-                {e.text && <p>{e.text}</p>}
+                <h3 {...m.t(`items.#${e.id}.title`, 'عنوان الخدمة')}>{e.title}</h3>
+                {e.text && <p {...m.t(`items.#${e.id}.text`, 'نص الخدمة', true)}>{e.text}</p>}
               </div>
             ))}
           </div>
@@ -871,15 +1053,26 @@ function Employers({
 
 function FaqSection({ b, n }: { b: Extract<Section, { blockType: 'faq' }> } & Ctx) {
   const items = (b.items ?? []).map((f) => ({ question: f.question, answer: f.answer }))
+  const m = sectionMarks(b)
+  const marks = (b.items ?? []).map((f) => ({
+    q: m.t(`items.#${f.id}.question`, 'السؤال'),
+    a: m.t(`items.#${f.id}.answer`, 'الجواب', true),
+  }))
   return (
     <section id={b.anchor || 'faq'} className="sec" style={{ padding: '0 20px 56px' }}>
       <div style={{ maxWidth: 860, margin: '0 auto' }}>
         <div data-reveal="" style={{ textAlign: 'center', marginBottom: 22 }}>
-          <Kicker n={n} label={b.kicker} center />
-          <h2 className="h2">{b.title}</h2>
-          {b.text && <p style={{ marginTop: 8, fontSize: 16, color: '#4b5c61' }}>{b.text}</p>}
+          <Kicker n={n} label={b.kicker} center edit={m.t('kicker', 'العنوان الصغير')} />
+          <h2 className="h2" {...m.t('title', 'العنوان')}>
+            {b.title}
+          </h2>
+          {b.text && (
+            <p style={{ marginTop: 8, fontSize: 16, color: '#4b5c61' }} {...m.t('text', 'النص', true)}>
+              {b.text}
+            </p>
+          )}
         </div>
-        <Faq items={items} />
+        <Faq items={items} {...(marks[0]?.q ? { marks } : {})} />
       </div>
       {items.length > 0 && <JsonLd data={faqData(items)} />}
     </section>
@@ -955,21 +1148,30 @@ function Register({
     ...(b.bullets ?? []).map((x) => x.text),
   ]
   const mobile = shared.settings.contact?.phones?.[1]?.number
+  const m = sectionMarks(b)
+  const voucher = b.showVoucherNote !== false ? 1 : 0
+  const bulletMark = (i: number) => {
+    const row = b.bullets?.[i - voucher]
+    return i >= voucher && row ? m.t(`bullets.#${row.id}.text`, 'نقطة') : undefined
+  }
   return (
     <section id={b.anchor || 'register'} className="sec" style={{ padding: '0 20px 72px' }}>
       <div className="glass reg">
         <div className="glow" aria-hidden="true" />
         <div data-reveal="" style={{ position: 'relative' }}>
-          <Kicker n={n} label={b.kicker} />
-          <h2>{b.title}</h2>
+          <Kicker n={n} label={b.kicker} edit={m.t('kicker', 'العنوان الصغير')} />
+          <h2 {...m.t('title', 'العنوان')}>{b.title}</h2>
           {b.text && (
-            <p style={{ marginTop: 12, fontSize: 16, lineHeight: 1.7, color: '#4b5c61' }}>
+            <p
+              style={{ marginTop: 12, fontSize: 16, lineHeight: 1.7, color: '#4b5c61' }}
+              {...m.t('text', 'النص', true)}
+            >
               {b.text}
             </p>
           )}
           <ul className="checks">
             {lines.map((t, i) => (
-              <li key={i}>
+              <li key={i} {...bulletMark(i)}>
                 <span className="check">
                   <CheckIcon />
                 </span>
@@ -983,6 +1185,7 @@ function Register({
               target="_blank"
               rel="noopener"
               className="btn btn-wa reg-wa"
+              {...m.t('whatsappButton', 'زر الواتساب')}
             >
               <WhatsAppIcon />
               {b.whatsappButton}
@@ -1021,13 +1224,20 @@ function GallerySection({
     })
     .filter((v) => v.yt || v.file)
   if (!imgs.length && !videos.length) return null
+  const sm = sectionMarks(b)
   return (
     <section id={b.anchor || 'gallery'} className="sec">
       <div className="wrap">
         <div data-reveal="" className="section-head center">
-          <Kicker n={n} label={b.kicker} center />
-          <h2 className="h2">{b.title}</h2>
-          {b.subtitle && <p className="lead">{b.subtitle}</p>}
+          <Kicker n={n} label={b.kicker} center edit={sm.t('kicker', 'العنوان الصغير')} />
+          <h2 className="h2" {...sm.t('title', 'العنوان')}>
+            {b.title}
+          </h2>
+          {b.subtitle && (
+            <p className="lead" {...sm.t('subtitle', 'النص تحت العنوان', true)}>
+              {b.subtitle}
+            </p>
+          )}
         </div>
         {videos.length > 0 && (
           <div
@@ -1093,12 +1303,14 @@ function GallerySection({
                 loading="lazy"
                 decoding="async"
                 {...mediaDims(m)}
+                {...formOnly('gallery', 'صور الورشات — من صفحة «معرض الصور والفيديو»')}
               />
             ))}
           </div>
         )}
       </div>
     </section>
+
   )
 }
 

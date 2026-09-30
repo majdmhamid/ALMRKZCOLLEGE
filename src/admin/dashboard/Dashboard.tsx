@@ -126,6 +126,13 @@ export async function Dashboard(props: ServerProps) {
         </div>
       </section>
 
+      {/* «عدّل الموقع»: أسهل طريقة — الموقع نفسه، كبسة على الشي وبتغيّره (src/admin/edit-site) */}
+      <Link href="/admin/edit-site" className="almrkz-dash__edit" prefetch={false}>
+        <b>{t.editSite[0]}</b>
+        <span>{t.editSite[1]}</span>
+        <em aria-hidden="true">←</em>
+      </Link>
+
       <div className={`almrkz-dash__cols${isAdmin ? '' : ' almrkz-dash__cols--full'}`}>
         <section>
           <h2>{t.whatToEdit}</h2>

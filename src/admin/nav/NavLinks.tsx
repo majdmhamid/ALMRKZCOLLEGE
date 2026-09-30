@@ -15,6 +15,7 @@ import {
   LayoutTemplate,
   Menu,
   Newspaper,
+  PencilLine,
   Settings,
   ShieldCheck,
   Type,
@@ -37,6 +38,7 @@ const ICONS: Record<string, LucideIcon> = {
   layers: Layers,
   users: Users,
   news: Newspaper,
+  pencil: PencilLine,
   user: UserRound,
   handshake: Handshake,
   images: Images,
@@ -61,6 +63,8 @@ export type NavItem = {
   alert?: number
   exact?: boolean
   show?: boolean
+  /** بارز (أخضر): «عدّل الموقع» */
+  cta?: boolean
 }
 export type NavGroup = { title?: string; items: NavItem[] }
 
@@ -105,7 +109,11 @@ export function NavLinks({ groups, newLabel, closeLabel }: { groups: NavGroup[];
             {items.map((it) => {
               const Icon = ICONS[it.icon] ?? Home
               return (
-                <Link key={it.href} href={it.href} className="almrkz-nav__link" aria-current={active(it) ? 'page' : undefined} prefetch={false}>
+                 <Link
+                  key={it.href}
+                  href={it.href}
+                  className={`almrkz-nav__link${it.cta ? ' almrkz-nav__link--cta' : ''}`}
+                  aria-current={active(it) ? 'page' : undefined} prefetch={false}>
                   <Icon size={18} className="almrkz-nav__icon" aria-hidden="true" />
                   <span className="almrkz-nav__label">{it.label}</span>
                   {!!it.alert && (

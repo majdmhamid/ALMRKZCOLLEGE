@@ -17,6 +17,7 @@ import type {
   SuccessStory,
 } from '@/payload-types'
 import { groupState, groupsWithPublishedCourses } from '@/lib/group-visibility'
+import { enableEditMarks } from './edit-marks'
 import { LOCALES, STORIES_ANCHOR } from '@/lib/preview'
 import type { SiteLocale } from '@/lib/rules'
 
@@ -24,7 +25,15 @@ export const isLocale = (v: string): v is SiteLocale => (LOCALES as string[]).in
 
 export const getPayloadClient = cache(async () => getPayload({ config }))
 
-export const isDraft = cache(async () => (await draftMode()).isEnabled)
+/**
+ * Preview (draft) mode — staff only. Also switches on the «عدّل الموقع» marks for this request
+ * (edit-marks.ts): every page reads this before it renders, visitors never get the marks.
+ */
+export const isDraft = cache(async () => {
+  const on = (await draftMode()).isEnabled
+  if (on) enableEditMarks()
+  return on
+})
 
 /** Tag of all cached website data — cleared by hooks/revalidate.ts whenever an editor saves. */
 export const SITE_CACHE_TAG = 'site'

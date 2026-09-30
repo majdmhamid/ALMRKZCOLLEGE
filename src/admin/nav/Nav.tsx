@@ -35,6 +35,8 @@ export async function Nav(props: ServerProps & { visibleEntities?: { collections
   const groups: NavGroup[] = [
     {
       items: [
+        // «عدّل الموقع» أول إشي وبارز: أسهل طريقة للتعديل (src/admin/edit-site)
+        { href: '/admin/edit-site', label: t.editSite, icon: 'pencil', cta: true, show: can('homepage') },
         { href: '/admin', label: t.home, icon: 'home', exact: true },
         { href: '/admin/media-slots', label: t.mediaSlots, icon: 'film', show: can('media') },
       ],

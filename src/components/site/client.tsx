@@ -391,6 +391,8 @@ export type StoryView = {
   image?: string
   video?: string
   dur?: string | null
+  /** «عدّل الموقع» marks (preview mode only) */
+  edit?: Partial<Record<'quote' | 'body' | 'name' | 'now' | 'photo', Record<string, string>>>
 }
 
 export function Stories({
@@ -446,22 +448,30 @@ export function Stories({
     >
       <div className="story-text" key={`t${s.id}`}>
         {s.courseName && <span className="soft-pill">{s.courseName}</span>}
-        {s.quote && <p className="story-quote">“{s.quote}”</p>}
-        {s.body && <p className="story-body">{s.body}</p>}
+        {s.quote && (
+          <p className="story-quote" {...s.edit?.quote}>
+            “{s.quote}”
+          </p>
+        )}
+        {s.body && (
+          <p className="story-body" {...s.edit?.body}>
+            {s.body}
+          </p>
+        )}
         {s.quote || s.body ? (
           <div className="story-who">
             {s.image && <img src={s.image} alt="" decoding="async" />}
             <div>
-              <b>{s.name}</b>
-              {s.now && <small>{s.now}</small>}
+              <b {...s.edit?.name}>{s.name}</b>
+              {s.now && <small {...s.edit?.now}>{s.now}</small>}
             </div>
           </div>
         ) : (
           // بدون اقتباس ونص: الاسم كبير (بدل ما يضل المكان فاضي)
           <p className="story-quote">
-            {s.name}
+            <span {...s.edit?.name}>{s.name}</span>
             {s.now && (
-              <small style={{ display: 'block', marginTop: 8, fontSize: 15, color: '#3a7a20' }}>{s.now}</small>
+              <small {...s.edit?.now} style={{ display: 'block', marginTop: 8, fontSize: 15, color: '#3a7a20' }}>{s.now}</small>
             )}
           </p>
         )}
@@ -481,7 +491,7 @@ export function Stories({
           )}
         </div>
       </div>
-      <div className="zoom story-photo" key={`p${s.id}`}>
+      <div className="zoom story-photo" key={`p${s.id}`} {...s.edit?.photo}>
         {playing && s.video ? (
           <video
             ref={focusOnMount}
@@ -736,17 +746,22 @@ export function StaffBio({
   more,
   less,
   tabIndex,
+  edit,
 }: {
   bio: string
   more: string
   less: string
   /** -1 on the hidden copies of the moving strip (keyboard skips them). */
   tabIndex?: number
+  /** «عدّل الموقع» mark (preview mode only) */
+  edit?: Record<string, string>
 }) {
   const [open, setOpen] = useState(false)
   return (
     <>
-      <p className={`staff-bio${open ? ' open' : ''}`}>{bio}</p>
+      <p className={`staff-bio${open ? ' open' : ''}`} {...edit}>
+        {bio}
+      </p>
       <button
         className="small-btn"
         aria-expanded={open}
@@ -852,7 +867,14 @@ export function Reel({
   )
 }
 
-export function Faq({ items }: { items: { question: string; answer: string }[] }) {
+export function Faq({
+  items,
+  marks,
+}: {
+  items: { question: string; answer: string }[]
+  /** «عدّل الموقع» marks per question (preview mode only) */
+  marks?: { q?: Record<string, string>; a?: Record<string, string> }[]
+}) {
   const [open, setOpen] = useState(0)
   const uid = useId()
   return (
@@ -872,7 +894,7 @@ export function Faq({ items }: { items: { question: string; answer: string }[] }
               aria-controls={`${uid}-a${i}`}
               onClick={() => setOpen(isOpen ? -1 : i)}
             >
-              <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 12 }} {...marks?.[i]?.q}>
                 <span className="n" aria-hidden="true">
                   {String(i + 1).padStart(2, '0')}
                 </span>
@@ -889,7 +911,10 @@ export function Faq({ items }: { items: { question: string; answer: string }[] }
               inert={!isOpen}
             >
               <div>
-                <p className="faq-a">{f.answer}</p>
+                <p className="faq-a" {...marks?.[i]?.a}>
+                  {f.answer}
+                </p>
+
               </div>
             </div>
           </div>
