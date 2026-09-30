@@ -49,11 +49,14 @@ export async function publishDoc(
   id: number,
 ): Promise<{ ok: true; groupState?: GroupState } | { ok: false; message: string }> {
   let payload: Payload | undefined
+  /** اللغة اللي عم تنتشر هلأ — إذا الغلط بالعبري منحكي هيك (مثلاً اسم الخريج بالعبري فاضي) */
+  let at: (typeof LOCALES)[number] = 'ar'
   try {
     const s = await session()
     payload = s.payload
     const { user } = s
     for (const locale of LOCALES) {
+      at = locale
       const draft = (await payload.findByID({
         collection: collection as CollectionSlug,
         id,
@@ -87,7 +90,11 @@ export async function publishDoc(
     }
     return { ok: true }
   } catch (e) {
-    return { ok: false, message: explain(e, payload, collection) }
+    const message = explain(e, payload, collection)
+    return {
+      ok: false,
+      message: at === 'he' && e instanceof ValidationError ? `النسخة العبرية ناقصة — ${message} (عبّيها بالسطر «עברית» تحت البطاقة، أو بصفحة التعديل ✎)` : message,
+    }
   }
 }
 

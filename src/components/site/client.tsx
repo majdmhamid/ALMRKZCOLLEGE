@@ -383,7 +383,8 @@ export function CountUp({ value }: { value: number }) {
 export type StoryView = {
   id: number
   name: string
-  quote: string
+  /** اختياري — قصة بدون اقتباس بتطلع بالنص القصير أو بالاسم والصورة بس */
+  quote?: string | null
   body?: string | null
   now?: string | null
   courseName?: string | null
@@ -445,15 +446,25 @@ export function Stories({
     >
       <div className="story-text" key={`t${s.id}`}>
         {s.courseName && <span className="soft-pill">{s.courseName}</span>}
-        <p className="story-quote">“{s.quote}”</p>
+        {s.quote && <p className="story-quote">“{s.quote}”</p>}
         {s.body && <p className="story-body">{s.body}</p>}
-        <div className="story-who">
-          {s.image && <img src={s.image} alt="" decoding="async" />}
-          <div>
-            <b>{s.name}</b>
-            {s.now && <small>{s.now}</small>}
+        {s.quote || s.body ? (
+          <div className="story-who">
+            {s.image && <img src={s.image} alt="" decoding="async" />}
+            <div>
+              <b>{s.name}</b>
+              {s.now && <small>{s.now}</small>}
+            </div>
           </div>
-        </div>
+        ) : (
+          // بدون اقتباس ونص: الاسم كبير (بدل ما يضل المكان فاضي)
+          <p className="story-quote">
+            {s.name}
+            {s.now && (
+              <small style={{ display: 'block', marginTop: 8, fontSize: 15, color: '#3a7a20' }}>{s.now}</small>
+            )}
+          </p>
+        )}
         <div className="story-tabs">
           {stories.map((x, n) => (
             <button key={x.id} aria-label={x.name} aria-current={n === i} onClick={() => pick(n)} />

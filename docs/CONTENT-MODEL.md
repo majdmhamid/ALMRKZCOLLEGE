@@ -252,17 +252,17 @@ Drafts: **yes** · REST: `/api/success-stories` · Local API: `payload.find({ co
 
 | Field | Type | Flags | Label (admin) | Notes |
 |---|---|---|---|---|
+| `featured` | checkbox |  | اعرضها بالرئيسية | default: `false` |
 | `graduateName` | text | required, 🌐 ar/he | اسم الخريج/ة |  |
 | `course` | relationship |  | الدورة التي أنهاها | → `courses` |
 | `graduationYear` | number |  | سنة التخرّج |  |
 | `photo` | upload |  | صورة الخريج/ة | → `media` |
 | `quote` | textarea | 🌐 ar/he | اقتباس قصير (بكلماته) |  |
-| `excerpt` | textarea | 🌐 ar/he | القصة باختصار |  |
-| `currentRole` | text | 🌐 ar/he | ماذا يعمل اليوم (اختياري) |  |
+| `excerpt` | textarea | 🌐 ar/he | القصة باختصار (اختياري) |  |
+| `currentRole` | text | 🌐 ar/he | شو بيشتغل اليوم (اختياري) |  |
 | `story` | richText | 🌐 ar/he | القصة الكاملة (اختياري) |  |
 | `video` | upload |  | فيديو (اختياري) | → `media` |
 | `videoDuration` | text |  | مدة الفيديو |  |
-| `featured` | checkbox |  | تظهر في الصفحة الرئيسية | default: `false` |
 | `slug` | text |  | الرابط (slug) |  |
 | `order` | number |  | الترتيب | default: `0` |
 | `bilingualEdits` | json |  | النص باللغة الثانية |  |
@@ -643,7 +643,7 @@ Drafts: **no** · REST: `/api/globals/navigation` · Local API: `payload.findGlo
 | `title` | text | required, 🌐 ar/he | العنوان |  |
 | `subtitle` | textarea | 🌐 ar/he | النص تحت العنوان |  |
 | `swipeHint` | text | 🌐 ar/he | نص «اسحب لرؤية المزيد» |  |
-| `groups` | relationship | many | المجموعات المعروضة | → `course-groups` |
+| `groups` | relationship | many | المجالات المعروضة | → `course-groups` |
 | `anchor` | text |  | اسم القسم في الرابط | default: `"fields"` |
 | `hidden` | checkbox |  | إخفاء هذا القسم مؤقتاً | default: `false` |
 | `blockName` | text |  | Block Name |  |
@@ -686,7 +686,7 @@ Drafts: **no** · REST: `/api/globals/navigation` · Local API: `payload.findGlo
 | `title` | text | required, 🌐 ar/he | العنوان |  |
 | `subtitle` | textarea | 🌐 ar/he | النص تحت العنوان |  |
 | `videoLabel` | text | 🌐 ar/he | النص فوق اسم الخريج في الصورة |  |
-| `stories` | relationship | many | القصص المعروضة | → `success-stories` |
+| `stories` | relationship | many | القصص المعروضة (قديم — مش مستعمل) | → `success-stories` |
 | `rotateSeconds` | number |  | كل كم ثانية تتبدّل القصة | default: `6.5` |
 | `anchor` | text |  | اسم القسم في الرابط | default: `"graduates"` |
 | `hidden` | checkbox |  | إخفاء هذا القسم مؤقتاً | default: `false` |

@@ -33,6 +33,7 @@ import { SectionRowLabel as SectionRowLabel_1fef74805715afb85b23a4276c03c83c } f
 import { LabelRowLabel as LabelRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
 import { GroupsPickNotice as GroupsPickNotice_ec6ed220b1298b2ccf95efb26506c7d6 } from '@/admin/GroupsPickNotice'
 import { TitleRowLabel as TitleRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
+import { StoriesPickNotice as StoriesPickNotice_3aa1aea80ef60fbb116b8a71916049b9 } from '@/admin/StoriesPickNotice'
 import { QuestionRowLabel as QuestionRowLabel_1fef74805715afb85b23a4276c03c83c } from '@/admin/RowLabel'
 import { GallerySiteState as GallerySiteState_80ef47b2715f4fe656791473828250cc } from '@/admin/GallerySiteState'
 import { Nav as Nav_469f2a9a499fd691cc96b63d9aec4764 } from '@/admin/nav/Nav'
@@ -86,6 +87,7 @@ export const importMap = {
   "@/admin/RowLabel#LabelRowLabel": LabelRowLabel_1fef74805715afb85b23a4276c03c83c,
   "@/admin/GroupsPickNotice#GroupsPickNotice": GroupsPickNotice_ec6ed220b1298b2ccf95efb26506c7d6,
   "@/admin/RowLabel#TitleRowLabel": TitleRowLabel_1fef74805715afb85b23a4276c03c83c,
+  "@/admin/StoriesPickNotice#StoriesPickNotice": StoriesPickNotice_3aa1aea80ef60fbb116b8a71916049b9,
   "@/admin/RowLabel#QuestionRowLabel": QuestionRowLabel_1fef74805715afb85b23a4276c03c83c,
   "@/admin/GallerySiteState#GallerySiteState": GallerySiteState_80ef47b2715f4fe656791473828250cc,
   "@/admin/nav/Nav#Nav": Nav_469f2a9a499fd691cc96b63d9aec4764,

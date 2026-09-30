@@ -91,20 +91,34 @@ export async function CardsListView(props: ListViewServerProps) {
     courseOptions = all.docs.map((c) => ({ value: c.id, label: c.name, group: asDoc<CourseGroup>(c.group)?.name }))
   }
 
-  // النجمة ☆ بتقرّر مين بيظهر بالرئيسية — إلا إذا قسم الرئيسية فيه اختيار يدوي
+  // النجمة ☆ بتقرّر أي دورة بتظهر بالرئيسية — إلا إذا قسم الرئيسية فيه اختيار يدوي.
+  // (قصص النجاح: ما في اختيار يدوي من 2026-09-30 — بس زر «اعرضها بالرئيسية» على البطاقة.)
   let flagNote = ''
-  if (kind === 'stories' || kind === 'courses') {
+  if (kind === 'courses') {
     const home = (await payload.findGlobal({ slug: 'homepage', depth: 0 }).catch(() => null)) as {
-      sections?: { blockType?: string; hidden?: boolean | null; stories?: unknown[] | null; courses?: unknown[] | null }[] | null
+      sections?: { blockType?: string; hidden?: boolean | null; courses?: unknown[] | null }[] | null
     } | null
-    const block = home?.sections?.find((b) => b.blockType === (kind === 'stories' ? 'successStories' : 'featuredCourses'))
-    const chosen = kind === 'stories' ? block?.stories : block?.courses
+    const block = home?.sections?.find((b) => b.blockType === 'featuredCourses')
+    const chosen = block?.courses
     if (block && !block.hidden && chosen?.length) {
-      flagNote =
-        kind === 'stories'
-          ? `انتبه: قسم «قصص نجاح» بالصفحة الرئيسية معمول فيه اختيار يدوي (${chosen.length} خريجين)، فالنجمة ☆ هون ما بتغيّر شي. لتغيير مين بيظهر: «الصفحة الرئيسية للموقع» ← قسم «قصص نجاح» ← «القصص المعروضة» (أو فضّيها لترجع النجمة تشتغل).`
-          : `انتبه: قسم «أبرز الدورات» بالصفحة الرئيسية معمول فيه اختيار يدوي (${chosen.length} دورات)، فالنجمة ☆ هون ما بتغيّر شي. لتغيير الدورات: «الصفحة الرئيسية للموقع» ← قسم «أبرز الدورات» ← «الدورات المعروضة» (أو فضّيها لترجع النجمة تشتغل).`
+      flagNote = `انتبه: قسم «أبرز الدورات» بالصفحة الرئيسية معمول فيه اختيار يدوي (${chosen.length} دورات)، فالنجمة ☆ هون ما بتغيّر شي. لتغيير الدورات: «الصفحة الرئيسية للموقع» ← قسم «أبرز الدورات» ← «الدورات المعروضة» (أو فضّيها لترجع النجمة تشتغل).`
     }
+  }
+
+  // قصص النجاح: شو على الموقع هلأ (النسخة المنشورة) — عشان البطاقة تحكي «بتطلع بعد ما تنشر»
+  const liveFeatured = new Set<number>()
+  if (kind === 'stories') {
+    const live = await payload.find({
+      collection: 'success-stories',
+      draft: false,
+      depth: 0,
+      limit: 500,
+      pagination: false,
+      where: { and: [{ _status: { equals: 'published' } }, { featured: { equals: true } }] },
+      select: { featured: true },
+      overrideAccess: true,
+    })
+    for (const d of live.docs) liveFeatured.add(d.id)
   }
 
   // المجالات: هل المجال ظاهر بالموقع؟ (نفس قاعدة الموقع — lib/group-visibility.ts)
@@ -138,6 +152,7 @@ export async function CardsListView(props: ListViewServerProps) {
           relation: asDoc<Course>(s.course)?.id ?? (typeof s.course === 'number' ? s.course : null),
           relationLabel: asDoc<Course>(s.course)?.name ?? '',
           flag: Boolean(s.featured),
+          flagLive: liveFeatured.has(raw.id),
         }
       }
       case 'staff': {

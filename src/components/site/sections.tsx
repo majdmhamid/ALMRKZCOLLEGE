@@ -1,6 +1,7 @@
 import React from 'react'
 
-import type { Course, CourseGroup, Homepage, Media, News, SuccessStory } from '@/payload-types'
+import type { Course, CourseGroup, Homepage, Media, News } from '@/payload-types'
+import { homeStories, storyText } from '@/lib/home-stories'
 import { VOUCHER_TEXT, type SiteLocale } from '@/lib/rules'
 import { youtubeId } from '@/lib/youtube'
 
@@ -480,16 +481,13 @@ function StoriesSection({
   locale,
   n,
 }: { b: Extract<Section, { blockType: 'successStories' }> } & Ctx) {
-  const chosen = (b.stories ?? []).map((s) => asDoc(s)).filter(Boolean) as SuccessStory[]
-  const list = (chosen.length ? chosen : home.stories.filter((s) => s.featured)).filter(
-    (s) => s.quote,
-  )
+  // قاعدة وحدة: منشورة + «اعرضها بالرئيسية»، بالترتيب (lib/home-stories.ts). b.stories قديم ومش مستعمل.
+  const list = homeStories(home.stories)
   if (!list.length) return null
   const stories: StoryView[] = list.map((s) => ({
     id: s.id,
     name: s.graduateName,
-    quote: s.quote!,
-    body: s.excerpt,
+    ...storyText(s),
     now: s.currentRole,
     courseName: asDoc(s.course)?.name,
     image: mediaUrl(s.photo, 'wide'),
