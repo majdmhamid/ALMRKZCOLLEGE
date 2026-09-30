@@ -452,27 +452,34 @@ export interface News {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * خريجون حقيقيون — بموافقتهم على نشر الاسم والصورة والقصة. لا تنشر قصة لم يؤكّدها الخريج نفسه.
+ * خريجون حقيقيون — بموافقتهم على نشر الاسم والصورة والقصة. لا تنشر قصة لم يؤكّدها الخريج نفسه. لتطلع قصة بالصفحة الرئيسية: اضغط «اعرضها بالرئيسية» على بطاقتها، وبعدين «انشر».
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "success-stories".
  */
 export interface SuccessStory {
   id: number;
+  /**
+   * ✓ = القصة بتطلع بقسم «قصص نجاح» بالصفحة الرئيسية (بعد «انشر»)، بالترتيب اللي على صفحة قصص النجاح. بدون ✓ القصة بتضل محفوظة بس ما بتطلع بالرئيسية.
+   */
+  featured?: boolean | null;
   graduateName: string;
   course?: (number | null) | Course;
   graduationYear?: number | null;
+  /**
+   * لازم صورة إذا القصة معروضة بالرئيسية. صورة طولية (واقف) بتطلع أحلى.
+   */
   photo?: (number | null) | Media;
   /**
-   * بدونه يظهر الخريج بالصورة والاسم فقط (بدون قصة).
+   * جملة أو جملتين بكلمات الخريج. اختياري — بدونه بتطلع «القصة باختصار» (أو الصورة والاسم والدورة بس).
    */
   quote?: string | null;
   /**
-   * 2–3 جمل تظهر تحت الاقتباس في الصفحة الرئيسية.
+   * 2–3 جمل بتطلع تحت الاقتباس بالصفحة الرئيسية.
    */
   excerpt?: string | null;
   /**
-   * حقيقة عن الخريج فقط (مثال: «يعمل اليوم كلحّام في شركة بناء»). الصياغة المسموحة فقط: «مرافقة وتوجيه مهني بعد التخرّج» — مثل: توجيه عن سوق العمل، الشركات، والفرص. ممنوع: «ضمان تشغيل»، «شغل مضمون»، «بنشغّلك بعد الدورة»، «הבטחת תעסוקה». الموقع يعرض تلقائياً التنويه: «الكلية تقدّم مرافقة وتوجيه مهني، ولا تلتزم بتأمين مكان عمل.»
+   * حقيقة عن الخريج بس (مثال: «بيشتغل اليوم لحّام بشركة بناء»). الصياغة المسموحة فقط: «مرافقة وتوجيه مهني بعد التخرّج» — مثل: توجيه عن سوق العمل، الشركات، والفرص. ممنوع: «ضمان تشغيل»، «شغل مضمون»، «بنشغّلك بعد الدورة»، «הבטחת תעסוקה». الموقع يعرض تلقائياً التنويه: «الكلية تقدّم مرافقة وتوجيه مهني، ولا تلتزم بتأمين مكان عمل.»
    */
   currentRole?: string | null;
   story?: {
@@ -491,14 +498,13 @@ export interface SuccessStory {
     [k: string]: unknown;
   } | null;
   /**
-   * فيديو قصير ومضغوط (أقل من دقيقة، MP4).
+   * فيديو قصير ومضغوط (أقل من دقيقة، MP4). بيطلع زر ▶ على صورة الخريج.
    */
   video?: (number | null) | Media;
   /**
    * مثال: 1:12
    */
   videoDuration?: string | null;
-  featured?: boolean | null;
   /**
    * الجزء الأخير من عنوان الصفحة على الإنترنت. إذا تركته فارغاً يُملأ تلقائياً من الاسم. لا تغيّره بعد النشر حتى لا تنكسر الروابط القديمة.
    */
@@ -970,6 +976,7 @@ export interface NewsSelect<T extends boolean = true> {
  * via the `definition` "success-stories_select".
  */
 export interface SuccessStoriesSelect<T extends boolean = true> {
+  featured?: T;
   graduateName?: T;
   course?: T;
   graduationYear?: T;
@@ -980,7 +987,6 @@ export interface SuccessStoriesSelect<T extends boolean = true> {
   story?: T;
   video?: T;
   videoDuration?: T;
-  featured?: T;
   slug?: T;
   order?: T;
   bilingualEdits?: T;
@@ -1406,9 +1412,6 @@ export interface SuccessStoriesBlock {
    * مثال: «فيديو قصة النجاح».
    */
   videoLabel?: string | null;
-  /**
-   * اتركه فارغاً لعرض القصص المعلَّمة «تظهر في الصفحة الرئيسية». تظهر فقط القصص التي فيها اقتباس.
-   */
   stories?: (number | SuccessStory)[] | null;
   rotateSeconds?: number | null;
   /**

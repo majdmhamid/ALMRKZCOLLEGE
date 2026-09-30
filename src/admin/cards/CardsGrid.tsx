@@ -1,13 +1,14 @@
 'use client'
 
 import { toast } from '@payloadcms/ui'
-import { GripVertical, ImagePlus, Loader2, Pencil, Plus, Rocket, Star, Table2, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, GripVertical, House, ImagePlus, Loader2, Pencil, Plus, Rocket, Star, Table2, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 
 import { publishAll, publishDoc } from './actions'
 import { ApiError, createDoc, deleteDoc, updateDoc, uploadMedia } from './api'
 import { groupStateText } from '@/lib/group-visibility'
+import { homeState, type HomeState } from '@/lib/home-stories'
 
 import type { Card, CardKind, CardLabels, Locale } from './types'
 
@@ -22,7 +23,6 @@ const FIELDS: Record<CardKind, { title: string; sub?: string; text?: string; ima
 }
 
 const FLAG_LABEL: Partial<Record<CardKind, [on: string, off: string]>> = {
-  stories: ['بيظهر بالصفحة الرئيسية', 'اعرضه بالصفحة الرئيسية'],
   courses: ['دورة مميّزة بالرئيسية', 'اعرضها بالرئيسية'],
   news: ['مثبّت فوق', 'ثبّته فوق'],
 }
@@ -105,7 +105,7 @@ export function CardsGrid(props: Props) {
       router.refresh()
     })
 
-  // الترتيب بالسحب
+  // الترتيب بالسحب (أو بالأسهم ‹ › على بطاقات قصص النجاح)
   const [dragging, setDragging] = useState<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
   const drop = async (targetId: number) => {
@@ -114,6 +114,17 @@ export function CardsGrid(props: Props) {
     const from = ids.indexOf(dragging)
     const to = ids.indexOf(targetId)
     ids.splice(to, 0, ...ids.splice(from, 1))
+    await saveOrder(ids)
+  }
+  const move = async (id: number, step: -1 | 1) => {
+    const ids = cards.map((c) => c.id)
+    const from = ids.indexOf(id)
+    const to = from + step
+    if (from < 0 || to < 0 || to >= ids.length) return
+    ids.splice(to, 0, ...ids.splice(from, 1))
+    await saveOrder(ids)
+  }
+  const saveOrder = async (ids: number[]) => {
     const reordered = ids.map((id, i) => ({ ...cards.find((c) => c.id === id)!, order: i + 1 }))
     const changed = reordered.filter((c) => cards.find((x) => x.id === c.id)!.order !== c.order)
     setCards(reordered.map((c) => (changed.includes(c) && versioned ? { ...c, status: 'draft' } : c)))
@@ -150,7 +161,7 @@ export function CardsGrid(props: Props) {
             {kind === 'stories' && (
               <>
                 {' '}
-                بالصفحة الرئيسية بيظهر بس الخريج اللي إله <b>اقتباس</b>.
+                لتطلع قصة بالصفحة الرئيسية: اضغط <b>«اعرضها بالرئيسية»</b> على بطاقتها وبعدين <b>«انشر»</b>. ترتيب البطاقات هون = ترتيبها بالرئيسية.
               </>
             )}
           </p>
@@ -215,6 +226,9 @@ export function CardsGrid(props: Props) {
                   {...props}
                   card={c}
                   onLocal={(patch) => patchLocal(c.id, patch)}
+                  onMove={kind === 'stories' ? (step) => void move(c.id, step) : undefined}
+                  isFirst={c === cards[0]}
+                  isLast={c === cards[cards.length - 1]}
                   onDragStart={() => setDragging(c.id)}
                   onDragEnd={() => {
                     setDragging(null)
@@ -261,6 +275,9 @@ function EditableCard({
   canDelete,
   lang,
   onLocal,
+  onMove,
+  isFirst,
+  isLast,
   onDragStart,
   onDragEnd,
   onRemoved,
@@ -268,6 +285,10 @@ function EditableCard({
 }: Props & {
   card: Card
   onLocal: (p: Partial<Card>) => void
+  /** قصص النجاح: قدّم/أخّر البطاقة خطوة (−1 = قبل) */
+  onMove?: (step: -1 | 1) => void
+  isFirst?: boolean
+  isLast?: boolean
   onDragStart: () => void
   onDragEnd: () => void
   onRemoved: () => void
@@ -405,6 +426,7 @@ function EditableCard({
     const r = await publishDoc(collection, card.id)
     setBusy(false)
     if (r.ok) {
+      if (kind === 'stories') onLocal({ flagLive: Boolean(card.flag) })
       if (r.groupState === 'noCourses') toast.info(groupStateText(lang).savedNoCourses, { duration: 15000 })
       else toast.success('انتشر على الموقع.')
       onPublished()
@@ -419,6 +441,15 @@ function EditableCard({
   )
   const editHref = `/admin/collections/${collection}/${card.id}?locale=${locale}`
 
+  /** قصص النجاح: زر «اعرضها بالرئيسية» — بينحفظ كمسودة زي كل تعديل، وبيطلع على الموقع بعد «انشر» */
+  const toggleHome = () => {
+    const next = !card.flag
+    onLocal({ flag: next })
+    persist(f.flag!, next, locale, 0)
+    if (versioned && next !== Boolean(card.flagLive))
+      toast.info(next ? 'انحفظ — اضغط «انشر» على البطاقة لتطلع القصة بالرئيسية.' : 'انحفظ — اضغط «انشر» على البطاقة لتختفي من الرئيسية.')
+  }
+
   let body: React.ReactNode
   switch (kind) {
     case 'stories':
@@ -426,6 +457,7 @@ function EditableCard({
         <article className="story-card-admin">
           <div className="zoom story-photo" style={{ aspectRatio: '4 / 5', borderRadius: 18 }}>
             {photo('cover')}
+            <HomeBadge state={homeState(Boolean(card.flag), Boolean(card.flagLive))} />
             <div className="shade-bottom" style={{ background: 'linear-gradient(to top,rgba(5,38,19,.8),rgba(5,38,19,0) 55%)', pointerEvents: 'none' }} />
             <div className="story-cap" style={{ pointerEvents: 'none' }}>
               <div>
@@ -447,9 +479,16 @@ function EditableCard({
                 </option>
               ))}
             </select>
-            <InlineInput multiline className="story-quote" value={card.text ?? ''} placeholder="«اقتباس قصير بكلماته» — بدونه بيظهر بالصورة والاسم بس" onChange={(v) => edit('text', f.text, v)} />
+            <InlineInput multiline className="story-quote" value={card.text ?? ''} placeholder="«اقتباس قصير بكلماته» (اختياري)" onChange={(v) => edit('text', f.text, v)} />
             <InlineInput className="story-now" value={card.sub ?? ''} placeholder="شو بيشتغل اليوم (اختياري)" onChange={(v) => edit('sub', f.sub, v)} />
           </div>
+          <HomeToggle
+            state={homeState(Boolean(card.flag), Boolean(card.flagLive))}
+            noPhoto={!card.image}
+            busy={busy}
+            onToggle={toggleHome}
+            onPublish={publish}
+          />
         </article>
       )
       break
@@ -573,7 +612,7 @@ function EditableCard({
         )}
         <SaveBadge state={save} />
         <span className="edit-card__tools">
-          {f.flag && (
+          {f.flag && kind !== 'stories' && (
             <button
               type="button"
               className={`tool ${card.flag ? 'tool--on' : ''}`}
@@ -590,6 +629,16 @@ function EditableCard({
           <a className="tool" href={editHref} title="كل التفاصيل (مع معاينة الصفحة)">
             <Pencil size={15} />
           </a>
+          {onMove && (
+            <>
+              <button type="button" className="tool" title="قدّمها (بتطلع قبل)" aria-label="قدّمها" disabled={isFirst} onClick={() => onMove(-1)}>
+                <ChevronRight size={15} />
+              </button>
+              <button type="button" className="tool" title="أخّرها (بتطلع بعد)" aria-label="أخّرها" disabled={isLast} onClick={() => onMove(1)}>
+                <ChevronLeft size={15} />
+              </button>
+            </>
+          )}
           <span className="tool tool--grab" title="اسحب لتغيير الترتيب" onPointerDown={() => setArmed(true)} onPointerUp={() => setArmed(false)}>
             <GripVertical size={15} />
           </span>
@@ -658,6 +707,40 @@ function EditableCard({
             </button>
           </div>
         </div>
+      )}
+    </div>
+  )
+}
+
+const HOME_BADGE: Record<HomeState, string> = {
+  shown: '✓ بالرئيسية',
+  willShow: 'بتطلع بالرئيسية بعد «انشر»',
+  willHide: 'بتختفي من الرئيسية بعد «انشر»',
+  hidden: 'مخفية من الرئيسية',
+}
+
+/** قصص النجاح: الحالة بالرئيسية على زاوية الصورة — بنظرة وحدة */
+function HomeBadge({ state }: { state: HomeState }) {
+  return <span className={`home-badge home-badge--${state}`}>{HOME_BADGE[state]}</span>
+}
+
+/** قصص النجاح: الزر الواحد «اعرضها بالرئيسية» / «شيلها من الرئيسية» + «انشر» إذا لسا مش على الموقع */
+function HomeToggle({ state, noPhoto, busy, onToggle, onPublish }: { state: HomeState; noPhoto: boolean; busy: boolean; onToggle: () => void; onPublish: () => void }) {
+  const on = state === 'shown' || state === 'willShow'
+  const pending = state === 'willShow' || state === 'willHide'
+  return (
+    <div className="home-toggle">
+      <button type="button" className={`home-toggle__btn ${on ? 'is-on' : ''}`} aria-pressed={on} onClick={onToggle}>
+        <House size={16} /> {on ? 'معروضة بالرئيسية — شيلها' : 'اعرضها بالرئيسية'}
+      </button>
+      {on && noPhoto && <p className="home-toggle__warn">⚠ لازم صورة عشان تطلع بالرئيسية — اضغط على الصورة فوق.</p>}
+      {pending && (
+        <p className="home-toggle__pending">
+          {state === 'willShow' ? 'لسا مش على الموقع.' : 'لسا ظاهرة على الموقع.'}
+          <button type="button" className="home-toggle__publish" onClick={onPublish} disabled={busy}>
+            {busy ? <Loader2 size={13} className="spin" /> : <Rocket size={13} />} انشر هلأ
+          </button>
+        </p>
       )}
     </div>
   )

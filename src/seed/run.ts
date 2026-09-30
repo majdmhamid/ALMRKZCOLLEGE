@@ -21,6 +21,7 @@ import type { CollectionSlug, GlobalSlug, Payload } from 'payload'
 import { getPayload } from 'payload'
 
 import config from '../payload.config'
+import { SKIP_PHOTO_RULE, storiesChosenOnHomepage } from '../lib/home-stories'
 import { courseFacts, extraCourseGroups } from './facts'
 import { assetPath, loadDesign } from './loadDesign'
 import * as A from './optionA'
@@ -216,6 +217,7 @@ async function run(payload: Payload) {
           `pages) — ${reason}. Deleted items stay deleted. To reseed on purpose: npx cross-env SEED_FORCE=1 npm run seed`,
       )
       await addReelVideos(payload)
+      await moveHomeStories(payload)
       return
     }
   }
@@ -223,6 +225,7 @@ async function run(payload: Payload) {
   await payload.kv.set(SEEDED_KEY, { at: new Date().toISOString() })
   payload.logger.info(`seed: saved marker «${SEEDED_KEY}» — later deploys won't seed again`)
   await addReelVideos(payload)
+  await moveHomeStories(payload)
 }
 
 /** Uploads the reel videos once; returns media ids by course slug. */
@@ -328,6 +331,95 @@ async function addReelVideos(payload: Payload) {
   payload.logger.info(`homepage: reel videos added (${total} row updates)`)
 }
 
+/** Key saved after the homepage's hand-picked stories were moved to «اعرضها بالرئيسية». */
+const HOME_STORIES_KEY = 'almrkz:home-stories-featured'
+
+const SYSTEM_FIELDS = new Set(['id', 'createdAt', 'updatedAt', '_status', 'updatedBy', 'createdBy'])
+
+/**
+ * One-time update (2026-09-30): the homepage stories section used to show the stories
+ * hand-picked in its «القصص المعروضة» list (when not empty). Now it shows only the stories
+ * marked «اعرضها بالرئيسية» (featured) — so every hand-picked story gets featured = true,
+ * and nothing that is on the live homepage disappears.
+ * - Published story: the PUBLISHED version gets featured (its own texts, per locale — never
+ *   the owner's unpublished edits); an unpublished draft on top of it is saved again after,
+ *   with featured too, so the pending edits stay the latest version.
+ * - Never-published story: only its draft gets featured (it wasn't on the site; it shows after «انشر»).
+ * Runs once, then saves HOME_STORIES_KEY.
+ */
+async function moveHomeStories(payload: Payload) {
+  if (await payload.kv.get(HOME_STORIES_KEY)) return
+  const ids: number[] = []
+  const home = (draft: boolean) =>
+    payload.findGlobal({ slug: 'homepage', locale: 'ar', depth: 0, draft }).catch(() => null)
+  for (const g of [await home(false), await home(true)]) {
+    for (const id of storiesChosenOnHomepage(g?.sections)) if (!ids.includes(id)) ids.push(id)
+  }
+  const read = (id: number, l: Locale, draft: boolean) =>
+    payload.findByID({
+      collection: 'success-stories',
+      id,
+      locale: l,
+      fallbackLocale: false,
+      draft,
+      depth: 0,
+      disableErrors: true,
+    }) as Promise<Record<string, unknown> | null>
+  const clean = (d: Record<string, unknown> | null) =>
+    Object.fromEntries(Object.entries(d ?? {}).filter(([k]) => !SYSTEM_FIELDS.has(k)))
+  const save = (id: number, l: Locale, draft: boolean, data: Record<string, unknown>) =>
+    payload.update({
+      collection: 'success-stories',
+      id,
+      locale: l,
+      depth: 0,
+      draft,
+      data: { ...data, featured: true, _status: draft ? 'draft' : 'published' } as never,
+      // a story that was on the homepage without a photo stays there (the photo rule is for new ones)
+      context: { [SKIP_PHOTO_RULE]: true },
+    })
+
+  let changed = 0
+  const failed: number[] = []
+  for (const id of ids) {
+    try {
+      const latest = await read(id, 'ar', true)
+      if (!latest) continue // deleted since
+      const liveAr = await read(id, 'ar', false)
+      if (liveAr?._status === 'published') {
+        // the owner's unpublished edits (read before anything is written)
+        const pending =
+          latest._status === 'draft' ? { ar: latest, he: await read(id, 'he', true) } : null
+        if (!liveAr.featured) {
+          const liveHe = await read(id, 'he', false)
+          await save(id, 'ar', false, clean(liveAr))
+          await save(id, 'he', false, clean(liveHe))
+          changed++
+        }
+        if (pending && !(pending.ar.featured && liveAr.featured)) {
+          await save(id, 'ar', true, clean(pending.ar))
+          await save(id, 'he', true, clean(pending.he))
+        }
+      } else if (!latest.featured) {
+        await save(id, 'ar', true, {})
+        changed++
+      }
+    } catch (err) {
+      failed.push(id)
+      payload.logger.warn({ err }, `homepage: could not mark story ${id} «اعرضها بالرئيسية»`)
+    }
+  }
+  if (failed.length) {
+    // no marker: the next deploy tries again (already-marked stories are skipped)
+    payload.logger.warn(`homepage: stories ${failed.join(', ')} not moved — will retry next deploy`)
+    return
+  }
+  await payload.kv.set(HOME_STORIES_KEY, { at: new Date().toISOString(), stories: ids })
+  payload.logger.info(
+    `homepage: ${ids.length} hand-picked stories → «اعرضها بالرئيسية» (${changed} changed)`,
+  )
+}
+
 async function seedDesign(payload: Payload) {
   const site = design.site
 
@@ -422,12 +514,11 @@ async function seedDesign(payload: Payload) {
     )
   }
 
-  /* graduates → success stories */
-  const storyIds: number[] = []
+  /* graduates → success stories (the ones with a story are marked «اعرضها بالرئيسية») */
   for (const [i, g] of design.graduates.entries()) {
     const story = A.stories.find((s) => s.graduate === g.slug)
     const photo = await media(payload, g.image, g.name)
-    const id = await upsert(payload, 'success-stories', g.slug, (l) => ({
+    await upsert(payload, 'success-stories', g.slug, (l) => ({
       graduateName: pick(g.name, l),
       course: courseIds[g.course],
       photo,
@@ -438,7 +529,6 @@ async function seedDesign(payload: Payload) {
       featured: Boolean(story),
       order: i + 1,
     }))
-    if (story) storyIds.push(id)
   }
 
   /* staff */
@@ -692,7 +782,6 @@ async function seedDesign(payload: Payload) {
             title: pick(A.storiesSection.title, l),
             subtitle: d.home.graduatesSubtitle,
             videoLabel: pick(A.storiesSection.videoLabel, l),
-            stories: storyIds,
             rotateSeconds: 6.5,
             anchor: 'graduates',
           },

@@ -22,6 +22,8 @@ export type Card = {
   hours?: number | null
   sessions?: number | null
   flag?: boolean
+  /** قصص النجاح: «اعرضها بالرئيسية» بالنسخة المنشورة (اللي على الموقع هلأ) */
+  flagLive?: boolean
   voucher?: boolean
   /** الدورات: نص الدوام على البطاقة (إذا مش مسائي) */
   scheduleText?: string
